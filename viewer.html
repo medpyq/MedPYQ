@@ -16,92 +16,88 @@
         #paywall-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 99999; display: none; align-items: center; justify-content: center; flex-direction: column; color: white; text-align: center; padding: 20px; }
         .paywall-card { background: white; padding: 40px 30px; border-radius: 24px; color: #0f2b52; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
 
-        /* --- TABLE VIEW STYLES --- */
-        #main-content { padding: 20px; padding-bottom: 100px; }
+        /* --- HEADER & CONTROLS --- */
+        #main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
         .app-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
         .app-header h1 { margin: 0; color: var(--app-blue); font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
-        .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; }
+        .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; font-weight: bold; }
         .q-count { background: var(--app-blue); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
 
-        .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .filter-select, .search-input { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; outline: none; font-family: inherit; }
-        @media(min-width: 768px) { .filter-select, .search-input { width: auto; flex: 1; } }
+        .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .view-btn { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--app-blue); background: white; color: var(--app-blue); cursor: pointer; font-weight: 700; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .view-btn.active { background: var(--app-blue); color: white; }
+        .filters-wrapper { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
+        .filter-select, .search-input { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; outline: none; font-family: inherit; font-size: 0.9rem; }
+        @media(min-width: 768px) { .filter-select, .search-input { width: auto; flex: 1; } .filters-wrapper { flex-wrap: nowrap; } }
 
-        .post-table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
+        /* --- TABLE VIEW --- */
+        .post-table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; display: none; }
         .post-table { width: 100%; border-collapse: collapse; }
         .post-table th { background: var(--app-blue); color: white; padding: 14px; text-align: left; font-size: 0.85rem; text-transform: uppercase; }
         .post-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
         .opt-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
         .opt-row { display: flex; gap: 10px; padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; border: 1px solid transparent; }
         .reveal-active .opt-row.is-correct { background: #dcfce7; color: #14532d; font-weight: bold; border-color: #86efac; }
-        .q-img { max-width: 250px; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; }
+        .q-img { max-width: 250px; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; cursor: pointer; }
 
-        .btn-ask-ai { display: inline-flex; align-items: center; gap: 5px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .btn-ask-ai:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
-
-        #float-eye-btn { position: fixed; bottom: 100px; right: 30px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; }
-        #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
-
-        /* --- UNIVERSAL DECK STYLES (From Blogger XML) --- */
-        #view-toggle-btn { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 22px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999999; transition: transform 0.2s; }
-        #view-toggle-btn:hover { transform: scale(1.1); }
-        #view-toggle-btn.btn-red { background: #ef4444; } #view-toggle-btn.btn-blue { background: #0ea5e9; }
-        
-        #universal-deck-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8fafc; z-index: 999990; flex-direction: column; font-family: 'Inter', sans-serif; }
-        .ud-header { height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .ud-title { font-weight: 800; font-size: 16px; color: #0f2b52; }
+        /* --- EMBEDDED DECK VIEW (App Like) --- */
+        #universal-deck-layer { display: flex; position: relative; width: 100%; height: 75vh; min-height: 500px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; flex-direction: column; font-family: 'Inter', sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .ud-header { height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; flex-shrink: 0; }
+        .ud-title { font-weight: 800; font-size: 15px; color: #0f2b52; }
         .ud-subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         
-        #ud-card-area { flex: 1; overflow-y: auto; padding: 18px; display: block; }
-        .ud-card { background: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
+        #ud-card-area { flex: 1; overflow-y: auto; padding: 20px; display: block; }
+        .ud-card { background: white; width: 100%; max-width: 650px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; min-height: 100%; }
         .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .ud-label { background: #f1f5f9; color: #0f2b52; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; }
-        .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;}
+        .ud-ai-btn:hover { background: #e0f2fe; }
         
         .ud-stem { font-size: 17px; font-weight: 600; color: #1e293b; line-height: 1.5; margin-bottom: 20px; }
-        .ud-img { max-width: 100%; border-radius: 8px; margin: 10px auto 20px; display:block; }
+        .ud-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 10px auto 20px; display:block; cursor: zoom-in;}
         
         .ud-option { padding: 14px 16px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; color: #475569; transition: all 0.2s; font-size: 15px; }
+        .ud-option:hover { background: #f8fafc; }
         .ud-option.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #14532d !important; font-weight: 600;}
         .ud-option.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #7f1d1d !important; }
         .ud-option.disabled { pointer-events: none; }
         .opt-char { font-weight: 700; min-width: 26px; height: 26px; background: #f1f5f9; color: #64748b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
 
-        .ud-footer { padding: 16px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; justify-content: center; }
+        .ud-footer { padding: 16px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; justify-content: center; flex-shrink: 0; }
         .ud-btn { flex: 1; max-width: 300px; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform 0.1s; }
         .ud-btn:active { transform: scale(0.98); }
         .ud-btn-prev { background: #f1f5f9; color: #64748b; }
         .ud-btn-next { background: #0f2b52; color: white; }
-        
-        /* Drawers */
-        .ud-drawer { position: fixed; inset: 0; z-index: 999995; visibility: hidden; opacity: 0; transition: all 0.3s; }
+        .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .icon-btn:hover { background: #e2e8f0; }
+
+        /* Deck Nav Drawer (Embedded inside the Deck) */
+        .ud-drawer { position: absolute; inset: 0; z-index: 100; visibility: hidden; opacity: 0; transition: all 0.3s; }
         .ud-drawer.open { visibility: visible; opacity: 1; }
         .ud-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
-        .ud-panel { position: absolute; background: white; transition: transform 0.3s; display: flex; flex-direction: column; }
-        #ud-filter-drawer .ud-panel { top: 0; left: 0; bottom: 0; width: 85%; max-width: 320px; transform: translateX(-100%); border-radius: 0 24px 24px 0; }
-        #ud-filter-drawer.open .ud-panel { transform: translateX(0); }
-        #ud-nav-drawer .ud-panel { top: 0; right: 0; bottom: 0; width: 85%; max-width: 320px; transform: translateX(100%); border-radius: 24px 0 0 24px; }
+        .ud-panel { position: absolute; background: white; height: 100%; top: 0; right: 0; width: 85%; max-width: 320px; transform: translateX(100%); transition: transform 0.3s; display: flex; flex-direction: column; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
         #ud-nav-drawer.open .ud-panel { transform: translateX(0); }
 
         .ud-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 20px; overflow-y: auto; align-content: start; max-height: 100%; }
-        .ud-nav-item { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: 700; color: #64748b; cursor: pointer; }
+        .ud-nav-item { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: 700; color: #64748b; cursor: pointer; font-size: 0.85rem;}
         .ud-nav-item.active { background: #0f2b52; color: white; border: 2px solid #0f2b52; }
         .ud-nav-item.status-correct { background: #22c55e; color: white; }
         .ud-nav-item.status-wrong { background: #ef4444; color: white; }
 
-        .ud-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
-        .ud-chk-row input { width: 18px; height: 18px; accent-color: #0f2b52; }
-        .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        /* Report Modal & AI Modal */
-        .ud-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999998; display: none; align-items: center; justify-content: center; }
-        .ud-modal-card { background: white; width: 90%; max-width: 360px; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; text-align: center; }
+        /* Report & AI Modals */
+        .ud-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999998; display: none; align-items: center; justify-content: center; padding: 20px;}
+        .ud-modal-card { background: white; width: 100%; max-width: 360px; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; text-align: center; }
         .ud-modal-card h3 { color: #0f2b52; font-size: 1.4rem; margin: 0 0 10px 0; font-weight: 800; }
         .ud-report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; margin-top: 15px; }
         .rep-type-btn { padding: 10px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; color: #475569; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
         .rep-type-btn.selected { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
         #report-desc { width: 100%; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-family: inherit; outline: none; box-sizing: border-box; resize: none; margin-bottom: 15px; }
         .ai-icon-box { width: 70px; height: 70px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
+
+        .btn-ask-ai-table { display: inline-flex; align-items: center; gap: 5px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-ask-ai-table:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+        #float-eye-btn { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; display: none; }
+        #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
     </style>
 </head>
 <body>
@@ -125,9 +121,47 @@
         </header>
 
         <div class="controls-bar">
-            <input type="text" id="postSearch" class="search-input" placeholder="Search questions..." onkeyup="APP_applyFilters()">
-            <select id="filterChapter" class="filter-select" onchange="APP_applyFilters()"><option value="">All Chapters</option></select>
-            <select id="filterYear" class="filter-select" onchange="APP_applyFilters()"><option value="">All Exams</option></select>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-deck" class="view-btn active" onclick="switchView('deck')"><i class="fas fa-clone"></i> Deck View</button>
+                <button id="btn-table" class="view-btn" onclick="switchView('table')"><i class="fas fa-list"></i> Table View</button>
+            </div>
+            <div class="filters-wrapper">
+                <input type="text" id="postSearch" class="search-input" placeholder="Search questions..." onkeyup="APP_applyFilters()">
+                <select id="filterChapter" class="filter-select" onchange="APP_applyFilters()"><option value="">All Chapters</option></select>
+                <select id="filterYear" class="filter-select" onchange="APP_applyFilters()"><option value="">All Exams</option></select>
+            </div>
+        </div>
+
+        <div id='universal-deck-layer'>
+            <div class='ud-header'>
+                <div style="display: flex; flex-direction: column;">
+                    <div class='ud-title' id='ud-top-title'>MedPYQ Deck</div>
+                    <div class='ud-subtitle' id='ud-counter'>0/0</div>
+                </div>
+                <div style='display:flex; gap:12px;'>
+                    <button class='icon-btn' onclick='UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
+                    <button class='icon-btn' onclick='UD_toggleDrawer()'><i class="fas fa-bars-staggered"></i></button>
+                </div>
+            </div>
+            
+            <div id='ud-card-area'>
+                </div>
+            
+            <div class='ud-footer'>
+                <button class='ud-btn ud-btn-prev' onclick='UD_prev()'>Previous</button>
+                <button class='ud-btn ud-btn-next' onclick='UD_next()'>Next Question</button>
+            </div>
+            
+            <div class='ud-drawer' id='ud-nav-drawer'>
+                <div class='ud-backdrop' onclick='UD_closeDrawer()'></div>
+                <div class='ud-panel'>
+                    <div style='padding:20px; border-bottom:1px solid #e2e8f0; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between; align-items:center;'>
+                        <span>Navigator</span>
+                        <button class="icon-btn" onclick='UD_closeDrawer()' style="width:30px; height:30px;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class='ud-nav-grid' id='ud-nav-grid'></div>
+                </div>
+            </div>
         </div>
 
         <div id="table-container" class="post-table-container">
@@ -141,48 +175,6 @@
         
         <button id="float-eye-btn" onclick="toggleTableAnswers()"><i class="fas fa-eye"></i></button>
     </div>
-
-    <div id='universal-deck-layer'>
-        <div class='ud-header'>
-            <button class='icon-btn' onclick='UD_toggleDrawer("filter")'><i class="fas fa-filter"></i></button>
-            <div style="text-align: center;"><div class='ud-title' id='ud-top-title'>MedPYQ Deck</div><div class='ud-subtitle' id='ud-counter'>0/0</div></div>
-            <div style='display:flex; gap:8px;'>
-                <button class='icon-btn' onclick='UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
-                <button class='icon-btn' onclick='UD_toggleDrawer("nav")'><i class="fas fa-bars-staggered"></i></button>
-            </div>
-        </div>
-        
-        <div id='ud-card-area'></div>
-        
-        <div class='ud-footer'>
-            <button class='ud-btn ud-btn-prev' onclick='UD_prev()'>Previous</button>
-            <button class='ud-btn ud-btn-next' onclick='UD_next()'>Next Question</button>
-        </div>
-        
-        <div class='ud-drawer' id='ud-filter-drawer'>
-            <div class='ud-backdrop' onclick='UD_closeDrawers()'></div>
-            <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
-                <div id='ud-dynamic-filters' style='padding:20px; overflow-y:auto; flex:1;'></div>
-                <div style='padding:15px; border-top:1px solid #eee; display:flex; gap:10px;'>
-                    <button class='ud-btn' onclick='UD_resetFilters()' style='background:#f1f5f9; color:#64748b;'>Reset</button>
-                    <button class='ud-btn' onclick='UD_applyFilters()' style='background:#0f2b52; color:white;'>Apply</button>
-                </div>
-            </div>
-        </div>
-
-        <div class='ud-drawer' id='ud-nav-drawer'>
-            <div class='ud-backdrop' onclick='UD_closeDrawers()'></div>
-            <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Navigator</span><span onclick='UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
-                <div class='ud-nav-grid' id='ud-nav-grid'></div>
-            </div>
-        </div>
-    </div>
-
-    <button class='btn-red' id='view-toggle-btn' onclick='UD_toggleMode()'>
-        <i class="fas fa-layer-group"></i>
-    </button>
 
     <div class="ud-modal-backdrop" id="ud-report-modal">
         <div class="ud-modal-card">
@@ -230,7 +222,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 1. URL Routing Logic
         const urlParams = new URLSearchParams(window.location.search);
         const activeSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
         const activeExam = (urlParams.get('exam') || 'neet-pg').toLowerCase();
@@ -240,63 +231,51 @@
         document.getElementById('dynamic-subtitle').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
         document.getElementById('ud-top-title').innerText = formattedTitle.toUpperCase();
 
-       // 2. Master Curriculum Dictionary
         const masterCurriculum = {
-            "cfm": [
-                "1. Man and Medicine: Towards Health for All", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", "4. Screening for Disease", "5. Communicable Diseases: Respiratory Infections", "5. Communicable Diseases: Intestinal Infections", "5. Communicable Diseases: Arthropod-borne Infections", "5. Communicable Diseases: Zoonoses", "5. Communicable Diseases: Surface Infections", "5. Communicable Diseases: Emerging and re-emerging", "5. Communicable Diseases: Hospital acquired", "6. Epidemiology of Chronic Non-Communicable Diseases", "7. Health Programmes in India", "8. Demography and Family Planning", "9. Preventive Medicine in Obstetrics - Pediatrics and Geriatrics", "10. Health Care of the Community", "11. Nutrition and Health", "12. Medicine and Social Sciences", "13. Tribal Health in India", "14. Sustainable Development Goals", "15. Environment and Health", "16. Hospital Waste Management", "17. Disaster Management", "18. Occupational Health", "19. Genetics and Health", "20. Mental Health", "21. Health Information and Basic Medical Statistics", "22. Communication for Health Education", "23. Health Planning and Management", "24. Essential Medicines and Counterfeit Medicines", "25. International Health"
-            ],
+            "cfm": ["1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", "4. Screening for Disease", "5. Communicable Diseases: Respiratory Infections", "5. Communicable Diseases: Intestinal Infections", "5. Communicable Diseases: Arthropod-borne Infections", "5. Communicable Diseases: Zoonoses", "5. Communicable Diseases: Surface Infections", "5. Communicable Diseases: Emerging and re-emerging", "5. Communicable Diseases: Hospital acquired", "6. Epidemiology of Chronic Non-Communicable Diseases", "7. Health Programmes in India", "8. Demography and Family Planning", "9. Preventive Medicine in Obstetrics - Pediatrics and Geriatrics", "10. Health Care of the Community", "11. Nutrition and Health", "12. Medicine and Social Sciences", "13. Tribal Health in India", "14. Sustainable Development Goals", "15. Environment and Health", "16. Hospital Waste Management", "17. Disaster Management", "18. Occupational Health", "19. Genetics and Health", "20. Mental Health", "21. Health Information and Basic Medical Statistics", "22. Communication for Health Education", "23. Health Planning and Management", "24. Essential Medicines and Counterfeit Medicines", "25. International Health"],
             "anatomy": ["1. General Anatomy", "2. Upper Limb", "3. Lower Limb", "4. Thorax", "5. Abdomen & Pelvis", "6. Head & Neck", "7. Neuroanatomy", "8. Histology & Embryology"],
-            "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"]
-            // Add other subjects here as needed
+            "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"],
+            // Add remaining subjects here...
         };
 
         window.medpyqExam = activeExam.toUpperCase();
         window.medpyqSubject = formattedTitle.toUpperCase();
 
-        // 3. Security
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('paywall-overlay').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
-                document.getElementById('view-toggle-btn').style.display = 'flex';
                 fetchData();
             } else {
                 document.getElementById('paywall-overlay').style.display = 'flex';
-                document.getElementById('view-toggle-btn').style.display = 'none';
             }
         });
 
-        // 4. Fetch
         async function fetchData() {
             try {
                 const dbPath = `question_banks/${activeExam}/${activeSubject}`;
                 const snapshot = await get(ref(db, dbPath));
-                
                 if (snapshot.exists()) {
                     processData(snapshot.val());
                 } else {
                     document.getElementById('tableBody').innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px;'>No questions uploaded yet for this subject.</td></tr>";
+                    document.getElementById('ud-card-area').innerHTML = "<div style='text-align:center; padding:40px;'>No questions available.</div>";
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }
 
-        // 5. Process Data (EXACT BLOGGER LOGIC RESTORED)
         function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             
             let processedData = rawData.filter(item => item !== null).map(item => {
                 let chapterMatch = "Uncategorized";
-                
-                // Exact matching logic from your Blogger theme
                 for(let c of curriculumForSubject) {
                     if(item.subject && (c.toLowerCase().includes(item.subject.toLowerCase()) || item.subject.toLowerCase().includes(c.toLowerCase()))) {
-                        chapterMatch = c;
-                        break;
+                        chapterMatch = c; break;
                     }
                 }
-                
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
@@ -304,28 +283,32 @@
             });
 
             window.appData = processedData;
-            window.curriculumChapters = curriculumForSubject;
 
-            populateTableFilters(curriculumForSubject);
-            window.APP_applyFilters();
-        }
-
-        // 6. Populate Dropdowns exactly like Blogger
-        function populateTableFilters(chapters) {
+            // Populate Filters
             const chapSel = document.getElementById('filterChapter');
             const yearSel = document.getElementById('filterYear');
+            const years = [...new Set(processedData.map(i => i.year))].sort().reverse();
             
-            // Clear existing options
-            chapSel.innerHTML = '<option value="">All Chapters</option>';
-            yearSel.innerHTML = '<option value="">All Exams</option>';
-
-            const years = [...new Set(window.appData.map(i => i.year))].sort().reverse();
-            
-            chapters.forEach(c => chapSel.innerHTML += `<option value="${c}">${c}</option>`);
+            curriculumForSubject.forEach(c => chapSel.innerHTML += `<option value="${c}">${c}</option>`);
             years.forEach(y => yearSel.innerHTML += `<option value="${y}">${y}</option>`);
+
+            window.APP_applyFilters();
+            
+            // Set Deck as Default View!
+            switchView('deck');
         }
 
-        // 7. Apply Filters (Controls BOTH Table and Deck)
+        // VIEW TOGGLE LOGIC
+        window.switchView = function(view) {
+            document.getElementById('universal-deck-layer').style.display = view === 'deck' ? 'flex' : 'none';
+            document.getElementById('table-container').style.display = view === 'table' ? 'block' : 'none';
+            document.getElementById('float-eye-btn').style.display = view === 'table' ? 'flex' : 'none';
+            
+            document.getElementById('btn-deck').classList.toggle('active', view === 'deck');
+            document.getElementById('btn-table').classList.toggle('active', view === 'table');
+        };
+
+        // UNIVERSAL FILTER LOGIC
         window.APP_applyFilters = function() {
             const search = document.getElementById('postSearch').value.toLowerCase();
             const chapter = document.getElementById('filterChapter').value;
@@ -340,20 +323,15 @@
 
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
             
-            // Re-render Table
+            // Update both views instantly
             renderTable(filtered);
-            
-            // Instantly sync the Deck View with the filtered data!
-            if(typeof initUniversalDeck === 'function') {
-                initUniversalDeck(filtered);
-                if(isDeckOpen) UD_renderCard(); // Refresh deck screen if it is currently open
-            }
+            initUniversalDeck(filtered); 
         };
 
-        // 8. Render Table
+        // TABLE RENDERER
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#94a3b8;'>No questions match your filters.</td></tr>"; return; }
+            if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px;'>No questions match your filters.</td></tr>"; return; }
             
             let html = '';
             data.forEach((item, index) => {
@@ -363,14 +341,7 @@
                 }).join('');
 
                 const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-
-                // Badge display logic (simplify long chapter names)
-                let displayChapter = item.topic;
-                if(displayChapter.includes(":")) {
-                    displayChapter = displayChapter.split(":")[1].trim(); 
-                } else if (displayChapter.includes(".")) {
-                    displayChapter = displayChapter.split(".")[1].trim(); 
-                }
+                let displayChapter = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
 
                 html += `<tr>
                     <td><strong style="color:#64748b;">${item.q || index+1}</strong></td>
@@ -382,7 +353,7 @@
                     <td style="text-align:center;">
                         <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
                         <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
-                        <button class="btn-ask-ai" onclick='UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
+                        <button class="btn-ask-ai-table" onclick='UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
                     </td>
                 </tr>`;
             });
@@ -396,13 +367,13 @@
     </script>
 
     <script>
-        var ud_db=[], ud_activeDb=[], ud_currentIndex=0, ud_userStatus={}, isDeckOpen=false;
-        var ud_filterState = { 'chapter': new Set(), 'year': new Set() }; 
+        var ud_db=[], ud_currentIndex=0, ud_userStatus={};
         let currentQIDForReport = "";
 
+        // 1. Init Deck (Called every time filters change)
         function initUniversalDeck(data) {
             ud_db = data.map((item, i) => ({
-                id: i,
+                id: item.q || ("Q" + i), // Using item.q keeps answered status persistent!
                 label: item.q || ("Q" + (i+1)),
                 text: item.stem || item.question,
                 img: item.img || null,
@@ -414,112 +385,45 @@
                 props: item
             }));
             
-            ud_activeDb = [...ud_db];
-            buildDeckFilters();
-        }
-
-        function buildDeckFilters() {
-            const filterArea = document.getElementById('ud-dynamic-filters');
-            filterArea.innerHTML = "";
-
-            const chapters = window.curriculumChapters || [];
-            const years = [...new Set(ud_db.map(i => i.year))].sort().reverse();
-
-            // Chapters Section
-            let html = `<div style="margin-bottom: 20px;"><div style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Chapters</div>`;
-            chapters.forEach(c => {
-                html += `<label class="ud-chk-row"><input type="checkbox" value="${c}" data-cat="chapter" onchange="UD_handleCheck(this)"> <span>${c}</span></label>`;
-            });
-            html += `</div>`;
-
-            // Years Section
-            html += `<div><div style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Exams</div>`;
-            years.forEach(y => {
-                html += `<label class="ud-chk-row"><input type="checkbox" value="${y}" data-cat="year" onchange="UD_handleCheck(this)"> <span>${y}</span></label>`;
-            });
-            html += `</div>`;
-
-            filterArea.innerHTML = html;
-        }
-
-        window.UD_handleCheck = function(el) {
-            const cat = el.getAttribute('data-cat');
-            const val = el.value;
-            if(el.checked) ud_filterState[cat].add(val); 
-            else ud_filterState[cat].delete(val);
-        };
-
-        window.UD_applyFilters = function() {
-            ud_activeDb = ud_db.filter(item => {
-                let matchChap = ud_filterState['chapter'].size === 0 || ud_filterState['chapter'].has(item.chapter);
-                let matchYear = ud_filterState['year'].size === 0 || ud_filterState['year'].has(item.year);
-                return matchChap && matchYear;
-            });
             ud_currentIndex = 0;
-            UD_closeDrawers();
             UD_renderCard();
-        };
+        }
 
-        window.UD_resetFilters = function() {
-            ud_filterState['chapter'].clear();
-            ud_filterState['year'].clear();
-            document.querySelectorAll('#ud-dynamic-filters input').forEach(inp => inp.checked = false);
-            UD_applyFilters();
-        };
-
-        window.UD_toggleMode = function() {
-            isDeckOpen = !isDeckOpen;
-            const deck = document.getElementById('universal-deck-layer');
-            const main = document.getElementById('main-content');
-            const btn = document.getElementById('view-toggle-btn');
-            
-            if(isDeckOpen){ 
-                deck.style.display = 'flex'; 
-                main.style.display = 'none'; 
-                document.body.style.overflow = 'hidden'; 
-                btn.className = 'btn-blue'; 
-                btn.innerHTML = '<i class="fas fa-list"></i>'; 
-                UD_renderCard(); 
-            } else { 
-                deck.style.display = 'none'; 
-                main.style.display = 'block'; 
-                document.body.style.overflow = ''; 
-                btn.className = 'btn-red'; 
-                btn.innerHTML = '<i class="fas fa-layer-group"></i>'; 
-            }
-        };
-
+        // 2. Render Card
         window.UD_renderCard = function() {
             const area = document.getElementById('ud-card-area');
-            if(ud_activeDb.length === 0) { area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; document.getElementById('ud-counter').innerText = '0/0'; return; }
+            if(ud_db.length === 0) { area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; document.getElementById('ud-counter').innerText = '0/0'; return; }
             
-            const q = ud_activeDb[ud_currentIndex];
+            const q = ud_db[ud_currentIndex];
             currentQIDForReport = q.label;
 
             let imgHtml = q.img ? `<img src="${q.img}" class="ud-img" onclick="window.open(this.src)">` : '';
             let optsHtml = q.options.map((o,i) => {
                 let c = String.fromCharCode(65+i);
-                return `<div class="ud-option" onclick="UD_checkAns(this,'${c}','${q.correct}',${q.id})"><div class="opt-char">${c}</div><div>${o}</div></div>`;
+                return `<div class="ud-option" onclick="UD_checkAns(this,'${c}','${q.correct}','${q.id}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
             }).join('');
             
+            let displayChapter = q.chapter.includes(":") ? q.chapter.split(":")[1].trim() : (q.chapter.includes(".") ? q.chapter.split(".")[1].trim() : q.chapter);
+
             area.innerHTML = `
             <div class="ud-card">
                 <div class="ud-card-top">
                     <div class="ud-label" style="background:#0f2b52; color:white;">${q.label}</div>
                     <div style="display:flex; gap:8px;">
                         <button class="ud-ai-btn" onclick='UD_askAI_Global(${JSON.stringify(q.props).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> Ask AI</button>
-                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
+                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:6px;" onclick="UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
                     </div>
                 </div>
                 <div class="ud-stem">${q.text}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
                 <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${q.chapter}</span>
+                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
                     <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
                 </div>
                 <div id="ud-expl-box" style="display:none; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
             </div>`;
             
+            // Check if user already answered this specific question
             if(ud_userStatus[q.id]) {
                 document.getElementById('ud-expl-box').style.display = 'block';
                 document.querySelectorAll('.ud-option').forEach(b => b.classList.add('disabled'));
@@ -527,9 +431,11 @@
                 let btns = document.querySelectorAll('.ud-option');
                 if(btns[cIdx]) btns[cIdx].classList.add('correct');
             }
-            document.getElementById('ud-counter').innerText = `${ud_currentIndex + 1}/${ud_activeDb.length}`;
+            document.getElementById('ud-counter').innerText = `${ud_currentIndex + 1}/${ud_db.length}`;
+            area.scrollTop = 0; // scroll to top
         };
 
+        // 3. Interactions
         window.UD_checkAns = function(el, p, c, id) {
             let btns = el.parentElement.children;
             for(let i=0; i<btns.length; i++) btns[i].classList.add('disabled');
@@ -542,22 +448,20 @@
             document.getElementById('ud-expl-box').style.display = 'block';
         };
 
-        window.UD_next = function() { if(ud_currentIndex < ud_activeDb.length - 1){ ud_currentIndex++; UD_renderCard(); } };
+        window.UD_next = function() { if(ud_currentIndex < ud_db.length - 1){ ud_currentIndex++; UD_renderCard(); } };
         window.UD_prev = function() { if(ud_currentIndex > 0){ ud_currentIndex--; UD_renderCard(); } };
 
-        // Drawers
-        window.UD_toggleDrawer = function(id) { 
-            if(id === 'nav') {
-                document.getElementById('ud-nav-grid').innerHTML = ud_activeDb.map((q,i) => {
-                    return `<div class="ud-nav-item ${ud_userStatus[q.id] ? 'status-'+ud_userStatus[q.id] : ''} ${i === ud_currentIndex ? 'active' : ''}" onclick="UD_navJump(${i})">${q.label}</div>`;
-                }).join('');
-            }
-            document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
+        // 4. Nav Drawer
+        window.UD_toggleDrawer = function() { 
+            document.getElementById('ud-nav-grid').innerHTML = ud_db.map((q,i) => {
+                return `<div class="ud-nav-item ${ud_userStatus[q.id] ? 'status-'+ud_userStatus[q.id] : ''} ${i === ud_currentIndex ? 'active' : ''}" onclick="UD_navJump(${i})">${i+1}</div>`;
+            }).join('');
+            document.getElementById('ud-nav-drawer').classList.add('open'); 
         };
-        window.UD_navJump = function(i) { ud_currentIndex = i; UD_closeDrawers(); UD_renderCard(); };
-        window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
+        window.UD_navJump = function(i) { ud_currentIndex = i; UD_closeDrawer(); UD_renderCard(); };
+        window.UD_closeDrawer = function() { document.getElementById('ud-nav-drawer').classList.remove('open'); };
 
-        // AI & Share & Report
+        // 5. Global Helpers (AI, Share, Report)
         window.UD_askAI_Global = function(item) {
             if(!item) return;
             const optionsText = item.options.map((opt, i) => `${String.fromCharCode(65+i)}. ${opt}`).join('\n');
@@ -581,8 +485,8 @@
         }
 
         window.UD_shareStats = function() { 
-            if (!ud_activeDb || ud_activeDb.length === 0) return;
-            let q = ud_activeDb[ud_currentIndex];
+            if (!ud_db || ud_db.length === 0) return;
+            let q = ud_db[ud_currentIndex];
             let cleanQuestion = q.text.replace(/<[^>]*>?/gm, '').trim(); 
             let optionsText = q.options ? "\n\nOptions:\n" + q.options.map((opt, i) => `${String.fromCharCode(65+i)}) ${opt.replace(/<[^>]*>?/gm, '').trim()}`).join('\n') : "";
             
@@ -592,7 +496,6 @@
             else if (navigator.clipboard) { navigator.clipboard.writeText(shareText + "\n\nLink: https://www.medpyq.com").then(() => alert("Question copied to clipboard to share with friends!")); }
         };
 
-        // Report Logic
         let selectedReportType = "Other";
         window.UD_openReportModal = function() {
             document.getElementById('ud-report-id').innerText = `${window.medpyqSubject} | ${currentQIDForReport}`;
@@ -614,8 +517,6 @@
             btn.innerText = "Sending..."; btn.disabled = true;
 
             const combinedID = `${window.medpyqExam} | ${window.medpyqSubject} | ${currentQIDForReport}`;
-
-            // Hidden iframe trick from original XML
             const iframeName = 'hidden_iframe_' + Date.now();
             const iframe = document.createElement('iframe'); iframe.name = iframeName; iframe.style.display = 'none'; document.body.appendChild(iframe);
             const form = document.createElement('form'); form.method = 'POST'; form.action = `https://docs.google.com/forms/d/e/1FAIpQLSdlD9R2lA9sxESYE8dGeKTud5fo8Loqmj-FJpURQaRu9Dj5hA/formResponse`; form.target = iframeName; form.style.display = 'none';
@@ -634,4 +535,4 @@
         };
     </script>
 </body>
-</html>
+</html></html>
