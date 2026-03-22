@@ -90,16 +90,18 @@
         .ud-nav-item.status-correct { background: #22c55e; color: white; }
         .ud-nav-item.status-wrong { background: #ef4444; color: white; }
 
-        .ud-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+        .ud-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
+        .ud-chk-row:hover { background: #f8fafc; }
         .ud-chk-row input { width: 18px; height: 18px; accent-color: #0f2b52; }
-        .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .icon-btn:hover { background: #e2e8f0; }
 
         /* Report & AI Modals */
         .ud-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999998; display: none; align-items: center; justify-content: center; padding: 20px;}
         .ud-modal-card { background: white; width: 100%; max-width: 360px; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; text-align: center; }
         .ud-modal-card h3 { color: #0f2b52; font-size: 1.4rem; margin: 0 0 10px 0; font-weight: 800; }
         .ud-report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; margin-top: 15px; }
-        .rep-type-btn { padding: 10px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; color: #475569; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+        .rep-type-btn { padding: 10px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; color: #475569; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .rep-type-btn.selected { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
         #report-desc { width: 100%; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-family: inherit; outline: none; box-sizing: border-box; resize: none; margin-bottom: 15px; }
         .ai-icon-box { width: 70px; height: 70px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
@@ -231,7 +233,7 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 1. URL Routing Logic
+        // 1. URL Routing
         const urlParams = new URLSearchParams(window.location.search);
         const activeSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
         const activeExam = (urlParams.get('exam') || 'neet-pg').toLowerCase();
@@ -251,7 +253,7 @@
         window.medpyqExam = activeExam.toUpperCase();
         window.medpyqSubject = formattedTitle.toUpperCase();
 
-        // 3. Security
+        // 2. Auth Check
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('paywall-overlay').style.display = 'none';
@@ -264,7 +266,7 @@
             }
         });
 
-        // 4. Fetch
+        // 3. Fetch Data
         async function fetchData() {
             try {
                 const dbPath = `question_banks/${activeExam}/${activeSubject}`;
@@ -281,7 +283,7 @@
             }
         }
 
-        // 5. Process Data & Initialize Systems
+        // 4. Process Data
         function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             window.curriculumChapters = curriculumForSubject;
@@ -308,7 +310,7 @@
             // Run the initial master sync
             window.SYNC_applyFilters('initial');
             
-            // AUTO-OPEN DECK VIEW BY DEFAULT!
+            // DEFAULT VIEW: Open Deck automatically on load
             if (!isDeckOpen) {
                 UD_toggleMode();
             }
@@ -317,7 +319,7 @@
         function populateTableFilters(chapters, data) {
             const chapSel = document.getElementById('filterChapter');
             const yearSel = document.getElementById('filterYear');
-            const years = [...new Set(data.map(i => i.year))].sort().reverse();
+            const years = [...new Set(data.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
             
             chapSel.innerHTML = '<option value="">All Chapters</option>';
             yearSel.innerHTML = '<option value="">All Exams</option>';
@@ -327,7 +329,7 @@
         }
 
         // ---------------------------------------------------------
-        // THE MASTER SYNC ENGINE (Controls Both Table & Deck Filters)
+        // THE MASTER SYNC ENGINE (Perfect 2-Way Filter Sync)
         // ---------------------------------------------------------
         window.SYNC_applyFilters = function(source) {
             let search = document.getElementById('postSearch').value.toLowerCase();
@@ -335,7 +337,7 @@
             let year = "";
 
             if (source === 'table') {
-                // Read from Table UI
+                // User changed a dropdown in the Table View
                 chapter = document.getElementById('filterChapter').value;
                 year = document.getElementById('filterYear').value;
                 
@@ -347,14 +349,14 @@
                 if(deckYearInput) deckYearInput.checked = true;
 
             } else if (source === 'deck') {
-                // Read from Deck UI
+                // User clicked a radio button in the Deck Drawer
                 const checkedChap = document.querySelector('input[name="deck_chap"]:checked');
                 chapter = checkedChap ? checkedChap.value : "";
                 
                 const checkedYear = document.querySelector('input[name="deck_year"]:checked');
                 year = checkedYear ? checkedYear.value : "";
                 
-                // Update Table UI to match
+                // Update Table Dropdowns to match
                 document.getElementById('filterChapter').value = chapter;
                 document.getElementById('filterYear').value = year;
 
@@ -364,20 +366,25 @@
                 year = document.getElementById('filterYear').value;
             }
 
-            // Filter the core data
-            const filtered = window.appData.filter(item => {
+            // Filter the core data for the Table View
+            const filteredTable = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(search);
                 const matchesChapter = chapter === "" || item.topic === chapter;
                 const matchesYear = year === "" || item.year === year;
                 return matchesSearch && matchesChapter && matchesYear;
             });
 
-            // Push to Table
-            document.getElementById('q-count').innerText = `${filtered.length} Qs`;
-            renderTable(filtered);
+            document.getElementById('q-count').innerText = `${filteredTable.length} Qs`;
+            renderTable(filteredTable);
 
-            // Push to Deck
-            ud_activeDb = filtered;
+            // Filter the core data for the Deck View
+            ud_activeDb = ud_db.filter(item => {
+                const matchesSearch = ((item.text || "") + (item.label || "")).toLowerCase().includes(search);
+                const matchesChapter = chapter === "" || item.chapter === chapter;
+                const matchesYear = year === "" || item.year === year;
+                return matchesSearch && matchesChapter && matchesYear;
+            });
+            
             ud_currentIndex = 0;
             if(isDeckOpen) UD_renderCard();
         };
@@ -442,7 +449,7 @@
             buildDeckFilters();
         }
 
-        // DECK FILTER DRAWER (Now uses Radio Buttons for perfect sync)
+        // DECK FILTER DRAWER (Uses Radio Buttons to perfectly sync with Table Dropdowns)
         function buildDeckFilters() {
             const filterArea = document.getElementById('ud-dynamic-filters');
             filterArea.innerHTML = "";
@@ -450,7 +457,6 @@
             const chapters = window.curriculumChapters || [];
             const years = [...new Set(ud_db.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
 
-            // Chapters Radio List
             let html = `<div style="margin-bottom: 20px;"><div style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Chapters</div>`;
             html += `<label class="ud-chk-row"><input type="radio" name="deck_chap" value="" checked onchange="SYNC_applyFilters('deck')"> <span>All Chapters</span></label>`;
             chapters.forEach(c => {
@@ -458,7 +464,6 @@
             });
             html += `</div>`;
 
-            // Years Radio List
             html += `<div><div style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Exams</div>`;
             html += `<label class="ud-chk-row"><input type="radio" name="deck_year" value="" checked onchange="SYNC_applyFilters('deck')"> <span>All Exams</span></label>`;
             years.forEach(y => {
@@ -470,6 +475,7 @@
         }
 
         window.UD_resetFilters = function() {
+            document.getElementById('postSearch').value = "";
             const defaultChap = document.querySelector('input[name="deck_chap"][value=""]');
             if(defaultChap) defaultChap.checked = true;
             const defaultYear = document.querySelector('input[name="deck_year"][value=""]');
@@ -482,11 +488,13 @@
             const deck = document.getElementById('universal-deck-layer');
             const main = document.getElementById('main-content');
             const btn = document.getElementById('view-toggle-btn');
+            const eyeBtn = document.getElementById('float-eye-btn');
             
             if(isDeckOpen){ 
                 deck.style.display = 'flex'; 
                 main.style.display = 'none'; 
                 document.body.style.overflow = 'hidden'; 
+                if(eyeBtn) eyeBtn.style.display = 'none';
                 btn.className = 'btn-blue'; 
                 btn.innerHTML = '<i class="fas fa-list"></i>'; 
                 if(ud_activeDb) UD_renderCard(); 
@@ -494,6 +502,7 @@
                 deck.style.display = 'none'; 
                 main.style.display = 'block'; 
                 document.body.style.overflow = ''; 
+                if(eyeBtn) eyeBtn.style.display = 'flex';
                 btn.className = 'btn-red'; 
                 btn.innerHTML = '<i class="fas fa-layer-group"></i>'; 
             }
