@@ -29,13 +29,11 @@
         
         .ms-dropdown { position: relative; flex: 1; min-width: 200px; }
         .ms-btn { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; text-align: left; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: 0.9rem; font-family: inherit;}
-        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 350px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
+        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
         .ms-content.show { display: block; }
-        
-        /* Checkbox styling shared between Table & Deck */
-        .sync-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; transition: 0.2s; }
-        .sync-chk-row:hover { background-color: #f8fafc; }
-        .sync-chk-row input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer; }
+        .ms-label { display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; transition: 0.2s;}
+        .ms-label:hover { background-color: #f8fafc; }
+        .ms-label input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer; }
 
         .post-table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
         .post-table { width: 100%; border-collapse: collapse; }
@@ -52,7 +50,7 @@
         #float-eye-btn { position: fixed; bottom: 30px; right: 100px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; }
         #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
 
-        /* --- TOGGLE FAB --- */
+        /* --- TOGGLE FAB (The Red/Blue Button) --- */
         #view-toggle-btn { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 22px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999999; transition: transform 0.2s; }
         #view-toggle-btn:hover { transform: scale(1.1); }
         #view-toggle-btn.btn-red { background: #ef4444; } 
@@ -68,12 +66,14 @@
         .ud-card { background: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
         .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .ud-label { background: #f1f5f9; color: #0f2b52; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; }
-        .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;}
+        .ud-ai-btn:hover { background: #e0f2fe; }
         
         .ud-stem { font-size: 17px; font-weight: 600; color: #1e293b; line-height: 1.5; margin-bottom: 20px; }
         .ud-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 10px auto 20px; display:block; cursor: zoom-in; }
         
         .ud-option { padding: 14px 16px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; color: #475569; transition: all 0.2s; font-size: 15px; }
+        .ud-option:hover { background: #f8fafc; }
         .ud-option.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #14532d !important; font-weight: 600;}
         .ud-option.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #7f1d1d !important; }
         .ud-option.disabled { pointer-events: none; }
@@ -96,14 +96,18 @@
         #ud-nav-drawer.open .ud-panel { transform: translateX(0); }
 
         .ud-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 20px; overflow-y: auto; align-content: start; max-height: 100%; }
-        .ud-nav-item { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: 700; color: #64748b; cursor: pointer; }
+        .ud-nav-item { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: 700; color: #64748b; cursor: pointer; font-size: 0.85rem;}
         .ud-nav-item.active { background: #0f2b52; color: white; border: 2px solid #0f2b52; }
         .ud-nav-item.status-correct { background: #22c55e; color: white; }
         .ud-nav-item.status-wrong { background: #ef4444; color: white; }
+        
+        .ud-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; font-size: 0.85rem;}
+        .ud-chk-row:hover { background: #f8fafc; }
+        .ud-chk-row input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer;}
         .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .icon-btn:hover { background: #e2e8f0; }
 
-        /* Report & AI Modals */
+        /* Modals */
         .ud-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999998; display: none; align-items: center; justify-content: center; padding: 20px;}
         .ud-modal-card { background: white; width: 100%; max-width: 360px; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; text-align: center; }
         .ud-modal-card h3 { color: #0f2b52; font-size: 1.4rem; margin: 0 0 10px 0; font-weight: 800; }
@@ -135,22 +139,20 @@
         </header>
 
         <div class="controls-bar">
-            <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="SYNC_updateState('search', this.value, true)">
+            <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
             
             <div class="ms-dropdown">
-                <button class="ms-btn" onclick="toggleDropdown('table-chap-content')">
+                <button class="ms-btn" onclick="window.toggleDropdown('table-chap-content')">
                     <span id="chap-btn-text">All Chapters</span> <i class="fas fa-chevron-down"></i>
                 </button>
-                <div class="ms-content" id="table-chap-content">
-                    </div>
+                <div class="ms-content" id="table-chap-content"></div>
             </div>
 
             <div class="ms-dropdown">
-                <button class="ms-btn" onclick="toggleDropdown('table-year-content')">
+                <button class="ms-btn" onclick="window.toggleDropdown('table-year-content')">
                     <span id="year-btn-text">All Exams</span> <i class="fas fa-chevron-down"></i>
                 </button>
-                <div class="ms-content" id="table-year-content">
-                    </div>
+                <div class="ms-content" id="table-year-content"></div>
             </div>
         </div>
 
@@ -163,49 +165,48 @@
             </table>
         </div>
         
-        <button id="float-eye-btn" onclick="toggleTableAnswers()"><i class="fas fa-eye"></i></button>
+        <button id="float-eye-btn" onclick="window.toggleTableAnswers()"><i class="fas fa-eye"></i></button>
     </div>
 
     <div id='universal-deck-layer'>
         <div class='ud-header'>
-            <button class='icon-btn' onclick='UD_toggleDrawer("filter")'><i class="fas fa-filter"></i></button>
+            <button class='icon-btn' onclick='window.UD_toggleDrawer("filter")'><i class="fas fa-filter"></i></button>
             <div style="text-align: center;"><div class='ud-title' id='ud-top-title'>MedPYQ Deck</div><div class='ud-subtitle' id='ud-counter'>0/0</div></div>
             <div style='display:flex; gap:8px;'>
-                <button class='icon-btn' onclick='UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
-                <button class='icon-btn' onclick='UD_toggleDrawer("nav")'><i class="fas fa-bars-staggered"></i></button>
+                <button class='icon-btn' onclick='window.UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
+                <button class='icon-btn' onclick='window.UD_toggleDrawer("nav")'><i class="fas fa-bars-staggered"></i></button>
             </div>
         </div>
         
         <div id='ud-card-area'></div>
         
         <div class='ud-footer'>
-            <button class='ud-btn ud-btn-prev' onclick='UD_prev()'>Previous</button>
-            <button class='ud-btn ud-btn-next' onclick='UD_next()'>Next Question</button>
+            <button class='ud-btn ud-btn-prev' onclick='window.UD_prev()'>Previous</button>
+            <button class='ud-btn ud-btn-next' onclick='window.UD_next()'>Next Question</button>
         </div>
         
         <div class='ud-drawer' id='ud-filter-drawer'>
-            <div class='ud-backdrop' onclick='UD_closeDrawers()'></div>
+            <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
             <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
-                <div id='deck-dynamic-filters' style='padding:0; overflow-y:auto; flex:1;'>
-                    </div>
+                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
+                <div id='deck-dynamic-filters' style='padding:0; overflow-y:auto; flex:1;'></div>
                 <div style='padding:15px; border-top:1px solid #eee; display:flex; gap:10px;'>
-                    <button class='ud-btn' onclick='SYNC_resetFilters()' style='background:#f1f5f9; color:#64748b;'>Reset All</button>
-                    <button class='ud-btn' onclick='UD_closeDrawers()' style='background:#0f2b52; color:white;'>Done</button>
+                    <button class='ud-btn' onclick='window.SYNC_resetFilters()' style='background:#f1f5f9; color:#64748b;'>Reset All</button>
+                    <button class='ud-btn' onclick='window.UD_closeDrawers()' style='background:#0f2b52; color:white;'>Done</button>
                 </div>
             </div>
         </div>
 
         <div class='ud-drawer' id='ud-nav-drawer'>
-            <div class='ud-backdrop' onclick='UD_closeDrawers()'></div>
+            <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
             <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Navigator</span><span onclick='UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
+                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Navigator</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
                 <div class='ud-nav-grid' id='ud-nav-grid'></div>
             </div>
         </div>
     </div>
 
-    <button class='btn-red' id='view-toggle-btn' onclick='UD_toggleMode()'>
+    <button class='btn-red' id='view-toggle-btn' onclick='window.UD_toggleMode()'>
         <i class="fas fa-layer-group"></i>
     </button>
 
@@ -214,15 +215,15 @@
             <h3>Report Issue</h3>
             <p id="ud-report-id" style="font-size: 0.8rem; color: #64748b; margin-bottom: 15px; font-weight: bold;"></p>
             <div class="ud-report-grid">
-                <button onclick="UD_selectReportType(this)" class="rep-type-btn" data-val="Wrong Answer">Wrong Answer</button>
-                <button onclick="UD_selectReportType(this)" class="rep-type-btn" data-val="Typo/Error">Typo / Error</button>
-                <button onclick="UD_selectReportType(this)" class="rep-type-btn" data-val="Missing Content">Missing Img/Opt</button>
-                <button onclick="UD_selectReportType(this)" class="rep-type-btn selected" data-val="Other">Other</button>
+                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn" data-val="Wrong Answer">Wrong Answer</button>
+                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn" data-val="Typo/Error">Typo / Error</button>
+                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn" data-val="Missing Content">Missing Img/Opt</button>
+                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn selected" data-val="Other">Other</button>
             </div>
             <textarea id="report-desc" rows="3" placeholder="Briefly describe the error..."></textarea>
             <div style="display: flex; gap: 10px;">
                 <button onclick="document.getElementById('ud-report-modal').style.display='none'" class="ud-btn" style="background:#f1f5f9; color:#64748b; padding:10px;">Cancel</button>
-                <button onclick="UD_submitReport()" id="btn-submit-report" class="ud-btn" style="background:#ef4444; color:white; padding:10px;">Submit Report</button>
+                <button onclick="window.UD_submitReport()" id="btn-submit-report" class="ud-btn" style="background:#ef4444; color:white; padding:10px;">Submit Report</button>
             </div>
         </div>
     </div>
@@ -244,6 +245,12 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+        // GLOBAL APPLICATION STATE
+        window.appData = [];
+        window.currentQIDForReport = "";
+        window.filterState = { chapters: [], years: [], search: "" };
+        window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
+
         const firebaseConfig = {
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
             authDomain: "medpyq-elearning.firebaseapp.com",
@@ -255,7 +262,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 1. URL Routing
         const urlParams = new URLSearchParams(window.location.search);
         const activeSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
         const activeExam = (urlParams.get('exam') || 'neet-pg').toLowerCase();
@@ -265,10 +271,12 @@
         document.getElementById('dynamic-subtitle').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
         document.getElementById('ud-top-title').innerText = formattedTitle.toUpperCase();
 
-        // FULL 25 CHAPTERS OF CFM
+        window.medpyqExam = activeExam.toUpperCase();
+        window.medpyqSubject = formattedTitle.toUpperCase();
+
         const masterCurriculum = {
             "cfm": [
-                "1. Man and Medicine: Towards Health for All", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", 
+                "1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", 
                 "4. Screening for Disease", "5. Communicable Diseases: Respiratory Infections", "5. Communicable Diseases: Intestinal Infections", 
                 "5. Communicable Diseases: Arthropod-borne Infections", "5. Communicable Diseases: Zoonoses", "5. Communicable Diseases: Surface Infections", 
                 "5. Communicable Diseases: Emerging and re-emerging", "5. Communicable Diseases: Hospital acquired", "6. Epidemiology of Chronic Non-Communicable Diseases", 
@@ -283,17 +291,6 @@
             "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"],
         };
 
-        window.medpyqExam = activeExam.toUpperCase();
-        window.medpyqSubject = formattedTitle.toUpperCase();
-
-        // Central State for Syncing Filters
-        window.filterState = {
-            chapters: [],
-            years: [],
-            search: ""
-        };
-
-        // 2. Auth Check
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('paywall-overlay').style.display = 'none';
@@ -306,7 +303,6 @@
             }
         });
 
-        // 3. Fetch Data
         async function fetchData() {
             try {
                 const dbPath = `question_banks/${activeExam}/${activeSubject}`;
@@ -323,11 +319,10 @@
             }
         }
 
-        // 4. Process Data & Initialize Systems
         function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             
-            let processedData = rawData.filter(item => item !== null).map(item => {
+            window.appData = rawData.filter(item => item !== null).map((item, i) => {
                 let chapterMatch = "Uncategorized";
                 for(let c of curriculumForSubject) {
                     let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
@@ -335,33 +330,33 @@
                         chapterMatch = c; break;
                     }
                 }
+                
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
-                return { ...item, topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.subject ? item.subject.split(',')[0].trim() : "General"), year: fullYear };
+                return { 
+                    ...item, 
+                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.subject ? item.subject.split(',')[0].trim() : "General"), 
+                    year: fullYear,
+                    uid: item.q || ("Q" + i)
+                };
             });
 
-            window.appData = processedData;
-
-            // Generate precise dropdowns (Using the full curriculum array guarantees all 25 chapters show up!)
-            const uniqueYears = [...new Set(processedData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
+            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
+            
             buildSynchronizedFilters(curriculumForSubject, uniqueYears);
-            
-            // Initialize Deck Data
-            initUniversalDeck(processedData);
-            
-            // Run the initial master sync
             window.SYNC_applyFilters();
             
-            // DEFAULT VIEW: Open Deck automatically on load!
-            if (!isDeckOpen) {
-                UD_toggleMode();
+            // AUTO-OPEN DECK VIEW BY DEFAULT
+            if (!window.deckState.isOpen) {
+                window.UD_toggleMode();
             }
         }
 
-        // ---------------------------------------------------------
-        // THE NEW MASTER SYNC ENGINE (Perfect Multi-Select Sync)
-        // ---------------------------------------------------------
+        // ==========================================
+        // UI & FILTER LOGIC
+        // ==========================================
+
         function buildSynchronizedFilters(chapters, years) {
             const tableChapDiv = document.getElementById('table-chap-content');
             const tableYearDiv = document.getElementById('table-year-content');
@@ -372,7 +367,7 @@
             
             chapters.forEach(c => {
                 const cleanVal = c.replace(/"/g, '&quot;');
-                const row = `<label class="sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
                 tableChapHtml += row;
                 deckHtml += row;
             });
@@ -383,7 +378,7 @@
             
             years.forEach(y => {
                 const cleanVal = y.replace(/"/g, '&quot;');
-                const row = `<label class="sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
+                const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="window.SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
                 tableYearHtml += row;
                 deckHtml += row;
             });
@@ -394,15 +389,14 @@
         window.toggleDropdown = function(id) {
             document.querySelectorAll('.ms-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); });
             document.getElementById(id).classList.toggle('show');
-        }
+        };
 
         window.onclick = function(event) {
             if (!event.target.matches('.ms-btn') && !event.target.closest('.ms-content')) {
                 document.querySelectorAll('.ms-content').forEach(el => el.classList.remove('show'));
             }
-        }
+        };
 
-        // Central State Updater (Syncs Checkboxes visually across Table & Deck)
         window.SYNC_updateState = function(type, value, isChecked) {
             if(type === 'chapter') {
                 if(isChecked) window.filterState.chapters.push(value);
@@ -416,7 +410,7 @@
                 window.filterState.search = value.toLowerCase();
             }
 
-            // Visually sync all checkboxes everywhere
+            // Visually sync ALL checkboxes everywhere
             document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
                 cb.checked = window.filterState.chapters.includes(cb.value);
             });
@@ -424,7 +418,6 @@
                 cb.checked = window.filterState.years.includes(cb.value);
             });
 
-            // Update Table Button Text
             const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
             const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
             document.getElementById('chap-btn-text').innerText = chapText;
@@ -434,19 +427,14 @@
         };
 
         window.SYNC_resetFilters = function() {
-            window.filterState.chapters = [];
-            window.filterState.years = [];
-            window.filterState.search = "";
+            window.filterState = { chapters: [], years: [], search: "" };
             document.getElementById('postSearch').value = "";
-            
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.getElementById('chap-btn-text').innerText = "All Chapters";
             document.getElementById('year-btn-text').innerText = "All Exams";
-            
             window.SYNC_applyFilters();
         };
 
-        // Master Filter Application
         window.SYNC_applyFilters = function() {
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
@@ -455,19 +443,19 @@
                 return matchesSearch && matchesChapter && matchesYear;
             });
 
-            // Update Global Count
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
             
-            // Push to Table
-            renderTable(filtered);
+            // Render Table
+            window.renderTable(filtered);
 
-            // Push to Deck (And update the local deck state so prev/next works perfectly)
-            ud_activeDb = filtered;
-            ud_currentIndex = 0;
-            if(isDeckOpen) UD_renderCard();
+            // Render Deck
+            window.deckState.activeDb = filtered;
+            window.deckState.currentIndex = 0;
+            if(window.deckState.isOpen) {
+                window.UD_renderCard();
+            }
         };
 
-        // Table Renderer
         window.renderTable = function(data) {
             const tbody = document.getElementById('tableBody');
             if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#94a3b8;'>No questions match your filters.</td></tr>"; return; }
@@ -483,7 +471,7 @@
                 let displayChapter = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
 
                 html += `<tr>
-                    <td><strong style="color:#64748b;">${item.q || index+1}</strong></td>
+                    <td><strong style="color:#64748b;">${item.uid}</strong></td>
                     <td>
                         <div style="font-weight:600; margin-bottom:10px; font-size: 1rem; color:#1e293b;">${item.stem}</div>
                         ${item.img ? `<img src="${item.img}" class="q-img" onclick="window.open(this.src)">` : ''}
@@ -492,7 +480,7 @@
                     <td style="text-align:center;">
                         <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
                         <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
-                        <button class="btn-ask-ai" onclick='UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
+                        <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
                     </td>
                 </tr>`;
             });
@@ -503,41 +491,26 @@
             document.getElementById('cfmTable').classList.toggle('reveal-active');
             document.getElementById('float-eye-btn').classList.toggle('active');
         };
-    </script>
 
-    <script>
-        // These variables are shared with the master sync engine
-        function initUniversalDeck(data) {
-            ud_db = data.map((item, i) => ({
-                id: item.q || ("Q" + i),
-                label: item.q || ("Q" + (i+1)),
-                text: item.stem || item.question,
-                img: item.img || null,
-                options: item.options || [],
-                correct: (item.ans_key || item.correct || "").trim().toUpperCase(),
-                explanation: item.explanation || "",
-                chapter: item.topic || "General",
-                year: item.year || "Unknown",
-                props: item
-            }));
-            // ud_activeDb is assigned instantly when SYNC_applyFilters is called right after this
-        }
+        // ==========================================
+        // DECK LOGIC
+        // ==========================================
 
         window.UD_toggleMode = function() {
-            isDeckOpen = !isDeckOpen;
+            window.deckState.isOpen = !window.deckState.isOpen;
             const deck = document.getElementById('universal-deck-layer');
             const main = document.getElementById('main-content');
             const btn = document.getElementById('view-toggle-btn');
             const eyeBtn = document.getElementById('float-eye-btn');
             
-            if(isDeckOpen){ 
+            if(window.deckState.isOpen){ 
                 deck.style.display = 'flex'; 
                 main.style.display = 'none'; 
                 document.body.style.overflow = 'hidden'; 
                 if(eyeBtn) eyeBtn.style.display = 'none';
                 btn.className = 'btn-blue'; 
                 btn.innerHTML = '<i class="fas fa-list"></i>'; 
-                if(ud_activeDb) UD_renderCard(); 
+                window.UD_renderCard(); 
             } else { 
                 deck.style.display = 'none'; 
                 main.style.display = 'block'; 
@@ -550,33 +523,33 @@
 
         window.UD_renderCard = function() {
             const area = document.getElementById('ud-card-area');
-            if(!ud_activeDb || ud_activeDb.length === 0) { 
+            if(!window.deckState.activeDb || window.deckState.activeDb.length === 0) { 
                 area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; 
                 document.getElementById('ud-counter').innerText = '0/0'; 
                 return; 
             }
             
-            const q = ud_activeDb[ud_currentIndex];
-            currentQIDForReport = q.label;
+            const q = window.deckState.activeDb[window.deckState.currentIndex];
+            window.currentQIDForReport = q.uid;
 
             let imgHtml = q.img ? `<img src="${q.img}" class="ud-img" onclick="window.open(this.src)">` : '';
             let optsHtml = q.options.map((o,i) => {
                 let c = String.fromCharCode(65+i);
-                return `<div class="ud-option" onclick="UD_checkAns(this,'${c}','${q.correct}','${q.id}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
+                return `<div class="ud-option" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
             }).join('');
             
-            let displayChapter = q.chapter.includes(":") ? q.chapter.split(":")[1].trim() : (q.chapter.includes(".") ? q.chapter.split(".")[1].trim() : q.chapter);
+            let displayChapter = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
 
             area.innerHTML = `
             <div class="ud-card">
                 <div class="ud-card-top">
-                    <div class="ud-label" style="background:#0f2b52; color:white;">${q.label}</div>
+                    <div class="ud-label" style="background:#0f2b52; color:white;">${q.uid}</div>
                     <div style="display:flex; gap:8px;">
-                        <button class="ud-ai-btn" onclick='UD_askAI_Global(${JSON.stringify(q.props).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> Ask AI</button>
-                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
+                        <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> Ask AI</button>
+                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
                     </div>
                 </div>
-                <div class="ud-stem">${q.text}</div>${imgHtml}
+                <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
                 <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
                     <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
@@ -585,51 +558,52 @@
                 <div id="ud-expl-box" style="display:none; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
             </div>`;
             
-            if(ud_userStatus[q.id]) {
+            if(window.deckState.userStatus[q.uid]) {
                 document.getElementById('ud-expl-box').style.display = 'block';
                 document.querySelectorAll('.ud-option').forEach(b => b.classList.add('disabled'));
-                let cIdx = q.correct.charCodeAt(0) - 65;
+                let cIdx = q.ans_key.charCodeAt(0) - 65;
                 let btns = document.querySelectorAll('.ud-option');
                 if(btns[cIdx]) btns[cIdx].classList.add('correct');
             }
-            document.getElementById('ud-counter').innerText = `${ud_currentIndex + 1}/${ud_activeDb.length}`;
+            document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
             area.scrollTop = 0; 
         };
 
         window.UD_checkAns = function(el, p, c, id) {
             let btns = el.parentElement.children;
             for(let i=0; i<btns.length; i++) btns[i].classList.add('disabled');
-            if(p === c) { el.classList.add('correct'); ud_userStatus[id] = 'correct'; }
+            if(p === c) { el.classList.add('correct'); window.deckState.userStatus[id] = 'correct'; }
             else { 
-                el.classList.add('wrong'); ud_userStatus[id] = 'wrong'; 
+                el.classList.add('wrong'); window.deckState.userStatus[id] = 'wrong'; 
                 let cIdx = c.charCodeAt(0) - 65; 
                 if(btns[cIdx]) btns[cIdx].classList.add('correct'); 
             }
             document.getElementById('ud-expl-box').style.display = 'block';
         };
 
-        window.UD_next = function() { if(ud_currentIndex < ud_activeDb.length - 1){ ud_currentIndex++; UD_renderCard(); } };
-        window.UD_prev = function() { if(ud_currentIndex > 0){ ud_currentIndex--; UD_renderCard(); } };
+        window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); } };
+        window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); } };
 
-        // Drawers
         window.UD_toggleDrawer = function(id) { 
             if(id === 'nav') {
-                document.getElementById('ud-nav-grid').innerHTML = ud_activeDb.map((q,i) => {
-                    return `<div class="ud-nav-item ${ud_userStatus[q.id] ? 'status-'+ud_userStatus[q.id] : ''} ${i === ud_currentIndex ? 'active' : ''}" onclick="UD_navJump(${i})">${i+1}</div>`;
+                document.getElementById('ud-nav-grid').innerHTML = window.deckState.activeDb.map((q,i) => {
+                    return `<div class="ud-nav-item ${window.deckState.userStatus[q.uid] ? 'status-'+window.deckState.userStatus[q.uid] : ''} ${i === window.deckState.currentIndex ? 'active' : ''}" onclick="window.UD_navJump(${i})">${i+1}</div>`;
                 }).join('');
             }
             document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
         };
-        window.UD_navJump = function(i) { ud_currentIndex = i; UD_closeDrawers(); UD_renderCard(); };
+        window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
-        // AI, Share & Report
+        // ==========================================
+        // UTILITIES (AI, Share, Report)
+        // ==========================================
         window.UD_askAI_Global = function(item) {
             if(!item) return;
             const optionsText = item.options.map((opt, i) => `${String.fromCharCode(65+i)}. ${opt}`).join('\n');
-            let prompt = `Act as an expert Medical Professor. Analyze this question from ${item.year || window.medpyqExam}:\n\n**Question:** ${item.stem || item.question}\n\n`;
+            let prompt = `Act as an expert Medical Professor. Analyze this question from ${item.year || window.medpyqExam}:\n\n**Question:** ${item.stem}\n\n`;
             if(item.img) prompt += `**Image Reference:** ${item.img}\n\n`;
-            prompt += `**Options:**\n${optionsText}\n\n**Correct Answer:** Option ${item.ans_key || item.correct}\n\n**Task:**\n1. Explain the correct answer clearly.\n2. Briefly explain why other options are incorrect.\n3. Provide a mnemonic if applicable.`;
+            prompt += `**Options:**\n${optionsText}\n\n**Correct Answer:** Option ${item.ans_key}\n\n**Task:**\n1. Explain the correct answer clearly.\n2. Briefly explain why other options are incorrect.\n3. Provide a mnemonic if applicable.`;
 
             if(navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(prompt).then(() => {
@@ -647,9 +621,9 @@
         }
 
         window.UD_shareStats = function() { 
-            if (!ud_activeDb || ud_activeDb.length === 0) return;
-            let q = ud_activeDb[ud_currentIndex];
-            let cleanQuestion = q.text.replace(/<[^>]*>?/gm, '').trim(); 
+            if (!window.deckState.activeDb || window.deckState.activeDb.length === 0) return;
+            let q = window.deckState.activeDb[window.deckState.currentIndex];
+            let cleanQuestion = q.stem.replace(/<[^>]*>?/gm, '').trim(); 
             let optionsText = q.options ? "\n\nOptions:\n" + q.options.map((opt, i) => `${String.fromCharCode(65+i)}) ${opt.replace(/<[^>]*>?/gm, '').trim()}`).join('\n') : "";
             
             let shareText = `Do you know this answer? 🤔\n\n"${cleanQuestion}"${optionsText}\n\nThis has come in ${window.medpyqExam} ${q.year}.\n\nI'm studying it on MedPYQ, you too join.`;
@@ -660,7 +634,7 @@
 
         let selectedReportType = "Other";
         window.UD_openReportModal = function() {
-            document.getElementById('ud-report-id').innerText = `${window.medpyqSubject} | ${currentQIDForReport}`;
+            document.getElementById('ud-report-id').innerText = `${window.medpyqSubject} | ${window.currentQIDForReport}`;
             document.getElementById('report-desc').value = "";
             document.getElementById('btn-submit-report').innerText = "Submit Report";
             document.getElementById('btn-submit-report').disabled = false;
@@ -678,7 +652,7 @@
             const btn = document.getElementById('btn-submit-report');
             btn.innerText = "Sending..."; btn.disabled = true;
 
-            const combinedID = `${window.medpyqExam} | ${window.medpyqSubject} | ${currentQIDForReport}`;
+            const combinedID = `${window.medpyqExam} | ${window.medpyqSubject} | ${window.currentQIDForReport}`;
             const iframeName = 'hidden_iframe_' + Date.now();
             const iframe = document.createElement('iframe'); iframe.name = iframeName; iframe.style.display = 'none'; document.body.appendChild(iframe);
             const form = document.createElement('form'); form.method = 'POST'; form.action = `https://docs.google.com/forms/d/e/1FAIpQLSdlD9R2lA9sxESYE8dGeKTud5fo8Loqmj-FJpURQaRu9Dj5hA/formResponse`; form.target = iframeName; form.style.display = 'none';
