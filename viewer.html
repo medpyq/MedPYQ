@@ -240,8 +240,8 @@
         document.getElementById('dynamic-subtitle').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
         document.getElementById('ud-top-title').innerText = formattedTitle.toUpperCase();
 
-        const masterCurriculum = {
-            "cfm": ["1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology", "4. Screening for Disease", "5. Communicable Diseases", "6. Non-Communicable Diseases", "7. Health Programmes in India", "8. Demography", "9. Preventive Medicine in Obstetrics & Pediatrics", "10. Nutrition and Health", "11. Environment and Health", "12. Occupational Health", "13. Health Information", "14. Health Planning"],
+      const masterCurriculum = {
+            "cfm": ["1. Man and Medicine: Towards Health for All", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", "4. Screening for Disease", "5. Communicable Diseases: Respiratory Infections", "5. Communicable Diseases: Intestinal Infections", "5. Communicable Diseases: Arthropod-borne Infections", "5. Communicable Diseases: Zoonoses", "5. Communicable Diseases: Surface Infections", "5. Communicable Diseases: Emerging and re-emerging", "5. Communicable Diseases: Hospital acquired", "6. Epidemiology of Chronic Non-Communicable Diseases", "7. Health Programmes in India", "8. Demography and Family Planning", "9. Preventive Medicine in Obstetrics - Pediatrics and Geriatrics", "10. Health Care of the Community", "11. Nutrition and Health", "12. Medicine and Social Sciences", "13. Tribal Health in India", "14. Sustainable Development Goals", "15. Environment and Health", "16. Hospital Waste Management", "17. Disaster Management", "18. Occupational Health", "19. Genetics and Health", "20. Mental Health", "21. Health Information and Basic Medical Statistics", "22. Communication for Health Education", "23. Health Planning and Management", "24. Essential Medicines and Counterfeit Medicines", "25. International Health"],
             "anatomy": ["1. General Anatomy", "2. Upper Limb", "3. Lower Limb", "4. Thorax", "5. Abdomen & Pelvis", "6. Head & Neck", "7. Neuroanatomy", "8. Histology & Embryology"],
             "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"],
             // Add remaining subjects here...
@@ -280,14 +280,18 @@
 
         function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
+            window.curriculumChapters = curriculumForSubject; // Save globally for the Deck!
             
             let processedData = rawData.filter(item => item !== null).map(item => {
                 let chapterMatch = "Uncategorized";
+                
+                // Fixed: Robust matching logic that handles commas perfectly
                 for(let c of curriculumForSubject) {
                     if(item.subject && (c.toLowerCase().includes(item.subject.toLowerCase()) || item.subject.toLowerCase().includes(c.toLowerCase()))) {
                         chapterMatch = c; break;
                     }
                 }
+                
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
@@ -300,6 +304,9 @@
             const chapSel = document.getElementById('filterChapter');
             const yearSel = document.getElementById('filterYear');
             const years = [...new Set(processedData.map(i => i.year))].sort().reverse();
+            
+            chapSel.innerHTML = '<option value="">All Chapters</option>';
+            yearSel.innerHTML = '<option value="">All Exams</option>';
             
             curriculumForSubject.forEach(c => chapSel.innerHTML += `<option value="${c}">${c}</option>`);
             years.forEach(y => yearSel.innerHTML += `<option value="${y}">${y}</option>`);
@@ -393,14 +400,14 @@
             // Don't auto-render here, let UD_toggleMode handle it if open
         }
 
-        // --- FIXED: DECK FILTERS NOW PULL EXACT DATA ---
+       // --- FIXED: DECK FILTERS NOW PULL CLEAN MASTER LIST ---
         function buildDeckFilters() {
             const filterArea = document.getElementById('ud-dynamic-filters');
             filterArea.innerHTML = "";
 
-            // Pull unique values directly from the database to guarantee 100% matching
-            const chapters = [...new Set(ud_db.map(i => i.chapter))].filter(c => c).sort();
-            const years = [...new Set(ud_db.map(i => i.year))].filter(y => y).sort().reverse();
+            // Use the clean, official curriculum list instead of raw data
+            const chapters = window.curriculumChapters || [];
+            const years = [...new Set(ud_db.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
 
             let html = `<div style="margin-bottom: 20px;"><div style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Chapters</div>`;
             chapters.forEach(c => {
