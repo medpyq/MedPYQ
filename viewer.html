@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPYQ Viewer</title>
+    <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
+    
+    <style>
+        :root {
+            --app-blue: #0f2b52;
+            --app-gold: #eebb4d;
+            --app-bg: #F4F6F8;
+        }
+        body { font-family: 'Roboto', sans-serif; background: var(--app-bg); padding: 20px; color: #334155; margin: 0; }
+        
+        /* Header */
+        .app-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
+        .app-header h1 { margin: 0; color: var(--app-blue); font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
+        .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; }
+        .q-count { background: var(--app-blue); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+
+        /* View Toggles & Filters */
+        .controls-bar { display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .view-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--app-blue); background: white; color: var(--app-blue); cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .view-btn.active { background: var(--app-blue); color: white; }
+        .filter-select, .search-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: inherit; }
+
+        /* Table View */
+        .post-table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; display: block; }
+        .post-table { width: 100%; border-collapse: collapse; }
+        .post-table th { background: var(--app-blue); color: white; padding: 12px; text-align: left; font-size: 0.85rem; text-transform: uppercase; }
+        .post-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        
+        .opt-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .opt-row { display: flex; gap: 10px; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; }
+        .reveal-active .opt-row.is-correct { background: #dcfce7; color: #14532d; font-weight: bold; border: 1px solid #86efac; }
+        .q-img { max-width: 200px; border-radius: 8px; margin: 10px 0; }
+
+        /* Deck View */
+        #deck-container { display: none; max-width: 700px; margin: 0 auto; }
+        .flashcard { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .flashcard-img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; }
+        .deck-opt { padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .deck-opt:hover { background: #f8fafc; }
+        .deck-opt.correct { background: #dcfce7; border-color: #22c55e; color: #14532d; font-weight: bold; }
+        .deck-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #7f1d1d; }
+        .deck-opt.disabled { pointer-events: none; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; font-size: 0.9rem; }
+
+        /* Floating Answer Reveal Button (For Table) */
+        #float-eye-btn { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; }
+        #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
+
+        /* Paywall */
+        #paywall-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="paywall-overlay" style="display:none;">
+        <i class="fas fa-lock" style="font-size: 40px; margin-bottom: 20px; color: var(--app-gold);"></i>
+        <h2>Pro Access Required</h2>
+        <p>Please log in from the homepage to access this Question Bank.</p>
+        <button onclick="window.location.href='index.html'" style="padding: 10px 20px; background: var(--app-gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">Go to Homepage</button>
+    </div>
+
+    <div id="main-content" style="display:none;">
+        <header class="app-header">
+            <div>
+                <h1 id="dynamic-title">Loading...</h1>
+                <p id="dynamic-subtitle">Chapter-wise PYQs</p>
+            </div>
+            <div class="q-count" id="q-count">0 Qs</div>
+        </header>
+
+        <div class="controls-bar">
+            <div>
+                <button id="btn-table" class="view-btn active" onclick="switchView('table')"><i class="fas fa-list"></i> Table</button>
+                <button id="btn-deck" class="view-btn" onclick="switchView('deck')"><i class="fas fa-clone"></i> Deck</button>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="postSearch" class="search-input" placeholder="Search questions..." onkeyup="APP_applyFilters()">
+                <select id="filterChapter" class="filter-select" onchange="APP_applyFilters()"><option value="">All Chapters</option></select>
+                <select id="filterYear" class="filter-select" onchange="APP_applyFilters()"><option value="">All Exams</option></select>
+            </div>
+        </div>
+
+        <div id="table-container" class="post-table-container">
+            <table class="post-table" id="cfmTable">
+                <thead><tr><th style="width: 60px;">ID</th><th>Question</th><th style="width: 150px;">Details</th></tr></thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="3" style="text-align:center;">Fetching secure data from Firebase...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="deck-container"></div>
+        
+        <button id="float-eye-btn" onclick="toggleTableAnswers()"><i class="fas fa-eye"></i></button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
+            authDomain: "medpyq-elearning.firebaseapp.com",
+            databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com",
+            projectId: "medpyq-elearning"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let processedData = [];
+
+        // 1. URL Routing Logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
+        const activeExam = (urlParams.get('exam') || 'neet-pg').toLowerCase();
+
+        document.getElementById('dynamic-title').innerText = activeSubject.replace(/-/g, ' ');
+        document.getElementById('dynamic-subtitle').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
+
+        // 2. Master Curriculum Dictionary (To populate dropdowns)
+        const masterCurriculum = {
+            "anatomy": ["1. General Anatomy", "2. Upper Limb", "3. Lower Limb", "4. Thorax", "5. Abdomen & Pelvis", "6. Head & Neck", "7. Neuroanatomy"],
+            "cfm": ["1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology", "4. Screening for Disease", "5. Communicable Diseases", "6. Non-Communicable Diseases", "7. Health Programmes in India", "8. Demography", "9. Preventive Medicine in Obstetrics & Pediatrics", "10. Nutrition and Health", "11. Environment and Health", "12. Occupational Health", "13. Health Information", "14. Health Planning"],
+            "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology"],
+            // Add remaining subjects here as needed
+        };
+
+        // 3. Security: Check if user is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('paywall-overlay').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                fetchData();
+            } else {
+                document.getElementById('paywall-overlay').style.display = 'flex';
+            }
+        });
+
+        // 4. Fetch Data securely from Firebase
+        async function fetchData() {
+            try {
+                // This targets the exact folder for the exam and subject
+                const dbPath = `question_banks/${activeExam}/${activeSubject}`;
+                const snapshot = await get(ref(db, dbPath));
+                
+                if (snapshot.exists()) {
+                    processData(snapshot.val());
+                } else {
+                    document.getElementById('tableBody').innerHTML = "<tr><td colspan='3' style='text-align:center;'>No questions uploaded yet for this subject.</td></tr>";
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        // 5. Process Data and Populate Filters
+        function processData(rawData) {
+            const curriculumForSubject = masterCurriculum[activeSubject] || [];
+            
+            processedData = rawData.filter(item => item !== null).map(item => {
+                let chapterMatch = "Uncategorized";
+                for(let c of curriculumForSubject) {
+                    if(item.subject && item.subject.toLowerCase().includes(c.split('.')[1].trim().toLowerCase())) {
+                        chapterMatch = c; break;
+                    }
+                }
+                let fullYear = item.exam || "Exam";
+                if(item.year_paper) fullYear += " " + item.year_paper;
+
+                return { ...item, topic: chapterMatch !== "Uncategorized" ? chapterMatch : item.subject, year: fullYear };
+            });
+
+            // Populate Dropdowns
+            const chapSel = document.getElementById('filterChapter');
+            const yearSel = document.getElementById('filterYear');
+            const years = [...new Set(processedData.map(i => i.year))].sort().reverse();
+            
+            curriculumForSubject.forEach(c => chapSel.innerHTML += `<option value="${c}">${c}</option>`);
+            years.forEach(y => yearSel.innerHTML += `<option value="${y}">${y}</option>`);
+
+            window.APP_applyFilters();
+        }
+
+        // 6. View & Filter Logic
+        window.switchView = function(view) {
+            document.getElementById('table-container').style.display = view === 'table' ? 'block' : 'none';
+            document.getElementById('float-eye-btn').style.display = view === 'table' ? 'block' : 'none';
+            document.getElementById('deck-container').style.display = view === 'deck' ? 'block' : 'none';
+            document.getElementById('btn-table').classList.toggle('active', view === 'table');
+            document.getElementById('btn-deck').classList.toggle('active', view === 'deck');
+        };
+
+        window.APP_applyFilters = function() {
+            const search = document.getElementById('postSearch').value.toLowerCase();
+            const chapter = document.getElementById('filterChapter').value;
+            const year = document.getElementById('filterYear').value;
+
+            const filtered = processedData.filter(item => {
+                const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(search);
+                const matchesChapter = chapter === "" || item.topic === chapter;
+                const matchesYear = year === "" || item.year === year;
+                return matchesSearch && matchesChapter && matchesYear;
+            });
+
+            document.getElementById('q-count').innerText = `${filtered.length} Qs`;
+            renderTable(filtered);
+            renderDeck(filtered);
+        };
+
+        // 7. Render Table
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No matches found.</td></tr>"; return; }
+            
+            let html = '';
+            data.forEach((item, index) => {
+                let opts = item.options.map((opt, i) => {
+                    const char = String.fromCharCode(65 + i);
+                    return `<div class="opt-row ${char === item.ans_key ? 'is-correct' : ''}"><strong>${char}.</strong> ${opt}</div>`;
+                }).join('');
+
+                html += `<tr>
+                    <td><strong>${item.q || index+1}</strong></td>
+                    <td>
+                        <div style="font-weight:600; margin-bottom:10px;">${item.stem}</div>
+                        ${item.img ? `<img src="${item.img}" class="q-img">` : ''}
+                        <div class="opt-grid">${opts}</div>
+                    </td>
+                    <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem;">${item.year}</span></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // 8. Render Deck
+        function renderDeck(data) {
+            const deck = document.getElementById('deck-container');
+            let html = '';
+            data.forEach((item, index) => {
+                let optsHtml = item.options.map((opt, i) => {
+                    const char = String.fromCharCode(65 + i);
+                    return `<div class="deck-opt" onclick="checkDeckAnswer(this, '${char}', '${item.ans_key}', 'expl-${index}')"><strong>${char}.</strong> ${opt}</div>`;
+                }).join('');
+
+                html += `<div class="flashcard">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:bold; margin-bottom:10px;">${item.year}</div>
+                    <div style="font-size:1.1rem; font-weight:600; margin-bottom:15px;">${item.stem}</div>
+                    ${item.img ? `<img src="${item.img}" class="flashcard-img">` : ''}
+                    <div>${optsHtml}</div>
+                    <div id="expl-${index}" class="explanation"><strong>Explanation:</strong><br>${item.explanation}</div>
+                </div>`;
+            });
+            deck.innerHTML = html;
+        }
+
+        // 9. Interactivity
+        window.toggleTableAnswers = function() {
+            document.getElementById('cfmTable').classList.toggle('reveal-active');
+            document.getElementById('float-eye-btn').classList.toggle('active');
+        };
+
+        window.checkDeckAnswer = function(element, selected, correct, explId) {
+            const parent = element.parentElement;
+            Array.from(parent.children).forEach(child => child.classList.add('disabled'));
+            
+            if (selected === correct) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('wrong');
+                const correctIndex = correct.charCodeAt(0) - 65;
+                if(parent.children[correctIndex]) parent.children[correctIndex].classList.add('correct');
+            }
+            document.getElementById(explId).style.display = 'block';
+        };
+
+    </script>
+</body>
+</html>
