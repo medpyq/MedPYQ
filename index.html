@@ -12,8 +12,6 @@
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
     
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
     <style>
     :root {
         --app-blue: #0f2b52;
@@ -103,22 +101,7 @@
     .medpyq-icon-circle { width: 50px; height: 50px; background: #f0f4ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--app-blue); font-size: 20px; }
     .medpyq-card h3 { margin: 5px 0; color: var(--app-blue); font-size: 1rem; }
     .medpyq-card p { font-size: 0.8rem; color: #666; margin-bottom: 15px; }
-
-    /* --- PRICING SECTION (NEW) --- */
-    .pricing-section { max-width: 1000px; margin: 40px auto; padding: 0 15px; text-align: center; display: none; }
-    .pricing-section h2 { font-size: 1.5rem; color: var(--app-blue); margin-bottom: 10px; font-weight: bold; }
-    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; text-align: left; }
-    .pricing-card { background: white; border-radius: 16px; padding: 30px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid #e2e8f0; position: relative; overflow: hidden; }
-    .pricing-card.popular { border-color: var(--app-gold); }
-    .popular-tag { position: absolute; top: 15px; right: -30px; background: var(--app-gold); color: var(--app-blue); font-size: 0.75rem; font-weight: 800; padding: 5px 30px; transform: rotate(45deg); }
-    .pc-title { font-size: 1.1rem; font-weight: 700; color: #64748b; margin-bottom: 10px; text-transform: uppercase; }
-    .pc-price { font-size: 2.5rem; font-weight: 800; color: var(--app-blue); margin-bottom: 20px; }
-    .pc-price span { font-size: 1rem; color: #94a3b8; }
-    .pc-features { list-style: none; padding: 0; margin: 0 0 25px 0; }
-    .pc-features li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #475569; display: flex; align-items: center; gap: 10px; }
-    .pc-features li i { color: #10b981; }
-    .btn-buy { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; background: var(--app-blue); color: white; }
-    .pricing-card.popular .btn-buy { background: var(--app-gold); color: var(--app-blue); }
+    .medpyq-card-link { color: var(--app-blue); font-weight: bold; font-size: 0.85rem; margin-top: auto; }
 
     /* --- AVAILABILITY BANDS & QBANK GRID --- */
     .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px 20px; }
@@ -150,7 +133,7 @@
     .nav-item.active { color: var(--app-blue); }
 
     /* --- MODALS & OVERLAYS --- */
-    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #loading-overlay {
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
     }
     
@@ -175,9 +158,6 @@
     .auth-error { color: #ef4444; font-size: 0.8rem; margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; display: none; text-align: left; }
     .auth-status-active { color: #22c55e !important; font-weight: bold !important; font-size: 0.8rem !important; }
     .auth-status-expired { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
-
-    .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: var(--app-gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -233,7 +213,6 @@
             <p>Your dedicated partner for mastering NEET PG, INI-CET, FMGE, and UPSC CMS.</p>
             <a class="medpyq-btn" onclick="switchTab('qbank')">Start Practicing</a>
         </div>
-
         <h2 class="medpyq-section-title">Select Your Target</h2>
         <div class="medpyq-grid">
             <div class="medpyq-card" onclick="filterExam('NEET-PG')">
@@ -253,36 +232,6 @@
                 <h3>UPSC CMS</h3><p>Targeted prep for Central Medical Services.</p>
             </div>
         </div>
-
-        <section id="pricing-section" class="pricing-section">
-            <h2>Upgrade to MedPYQ Pro</h2>
-            <p style="color: #64748b; margin-bottom:30px;">Unlock all subjects, deck mode, and AI explanations instantly.</p>
-            
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <div class="pc-title">6 Months</div>
-                    <div class="pc-price">₹499<span>/total</span></div>
-                    <ul class="pc-features">
-                        <li><i class="fas fa-check-circle"></i> Access to all 19 Subjects</li>
-                        <li><i class="fas fa-check-circle"></i> Interactive Deck Mode</li>
-                        <li><i class="fas fa-check-circle"></i> AI Medical Explanations</li>
-                    </ul>
-                    <button class="btn-buy" onclick="window.startSubscription('6 Months Pro', 6, 499)">Upgrade Now</button>
-                </div>
-                <div class="pricing-card popular">
-                    <div class="popular-tag">BEST VALUE</div>
-                    <div class="pc-title">12 Months</div>
-                    <div class="pc-price">₹799<span>/total</span></div>
-                    <ul class="pc-features">
-                        <li><i class="fas fa-check-circle"></i> Access to all 19 Subjects</li>
-                        <li><i class="fas fa-check-circle"></i> Interactive Deck Mode</li>
-                        <li><i class="fas fa-check-circle"></i> AI Explanations</li>
-                        <li><i class="fas fa-check-circle"></i> Priority Support</li>
-                    </ul>
-                    <button class="btn-buy" onclick="window.startSubscription('12 Months Pro', 12, 799)">Upgrade Now</button>
-                </div>
-            </div>
-        </section>
     </div>
 
     <div class="screen" id="view-qbank">
@@ -365,16 +314,10 @@
             <div style="font-size: 40px; margin-bottom:10px;">👑</div>
             <h2 id="paywall-title">Unlock MedPYQ Pro</h2>
             <p id="paywall-text">Premium Question Banks are reserved for members. Please sign in to continue.</p>
-            <button class="btn-gold" id="paywall-btn-pay" onclick="document.getElementById('pro-paywall-overlay').style.display='none'; switchTab('home'); document.getElementById('pricing-section').scrollIntoView({behavior: 'smooth'});" style="display:none;">Upgrade to Pro</button>
+            <button class="btn-gold" id="paywall-btn-pay" onclick="window.location.href='premium.html'" style="display:none;">Upgrade to Pro</button>
             <button class="btn-primary" id="paywall-btn-login" onclick="document.getElementById('pro-paywall-overlay').style.display='none'; window.authApp.open();" style="background:#f1f5f9; color:#475569;">Member Login</button>
             <div onclick="document.getElementById('pro-paywall-overlay').style.display='none'" style="margin-top:20px; color:#94a3b8; cursor:pointer; font-size:0.8rem;">Maybe Later</div>
         </div>
-    </div>
-
-    <div id="loading-overlay" style="color:white;">
-        <div class="spinner"></div>
-        <h2>Processing your upgrade...</h2>
-        <p>Please do not close this window.</p>
     </div>
 
     <script>
@@ -435,7 +378,12 @@
 
         function navigateToSubject(subject) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
-            if (!window.isUserPro) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
+            
+            // SECURITY CHECK: Intercepts clicks to subjects
+            if (!window.isUserPro) { 
+                document.getElementById('pro-paywall-overlay').style.display = 'flex'; 
+                return; 
+            }
             
             const currentExam = localStorage.getItem('selectedExam') || 'NEET-PG';
             const formattedSubject = subject.toLowerCase().replace(/\s+/g, '-');
@@ -464,12 +412,12 @@
         window.addEventListener('online', hideOfflineScreen);
         window.addEventListener('offline', showOfflineScreen);
 
-        function updateSidebarDisplay(email, statusText, isExpired, validityText) {
+        function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
             const userTitle = document.querySelector('.user-info h3');
             const userSub = document.querySelector('.user-info p');
-            if (validityText !== null && validityText !== undefined) {
+            if (validityDays !== null && validityDays !== undefined) {
                 if(userTitle) { userTitle.innerText = "Pro Member"; }
-                if(userSub) { userSub.innerHTML = `<div style='color: white;'>${email}</div><div style='color: #22c55e;'>Validity: ${validityText}</div>`; }
+                if(userSub) { userSub.innerHTML = `<div style='color: white;'>${email}</div><div style='color: #22c55e;'>Validity: ${validityDays}</div>`; }
             } else {
                 if(userTitle) { userTitle.innerText = email.includes('@') ? email.split('@')[0] : email; }
                 if(userSub) { userSub.innerHTML = statusText; userSub.className = isExpired ? 'auth-status-expired' : 'auth-status-active'; }
@@ -482,7 +430,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
@@ -495,17 +443,18 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- LIFETIME ADMIN EMAILS ---
+        // --- ADMIN EMAILS (LIFETIME ACCESS) ---
         const ADMIN_EMAILS = [
             "educateindiainstitute@gmail.com",
             "pankajkumarmahto1009@gmail.com"
         ];
 
+        // --- LEGACY SUBSCRIPTION DATABASE ---
         const SUB_DB = {
             'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
         };
 
-        // --- CUSTOM AUTH UI ---
+        // --- CUSTOM AUTHENTICATION MODAL ---
         window.authApp = {
             mode: 'login',
             open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
@@ -603,42 +552,36 @@
             }
         };
 
-        window.currentUser = null;
-
-        // --- THE FULLY UPGRADED SMART AUTH LISTENER ---
+        // --- CENTRAL AUTHENTICATION & SECURITY LISTENER ---
         onAuthStateChanged(auth, async (user) => {
             const loginBtn = document.getElementById('paywall-btn-login');
             const payBtn = document.getElementById('paywall-btn-pay');
             const paywallTitle = document.getElementById('paywall-title');
             const paywallText = document.getElementById('paywall-text');
-            const pricingSection = document.getElementById('pricing-section');
 
             if (user) {
-                window.currentUser = user;
                 const email = user.email.toLowerCase();
-                
                 let isPro = false;
                 let validityText = null;
-
-                // 1. Check Lifetime Admin Emails
+                
+                // 1. Check Admin status (Lifetime Access)
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true;
                     validityText = "Lifetime Access";
-                }
-                
-                // 2. Check Legacy SUB_DB
-                if (!isPro && SUB_DB[email]) {
+                } 
+                // 2. Check Legacy Manual Database (SUB_DB)
+                else if (SUB_DB[email]) {
                     const today = new Date(); today.setHours(0,0,0,0);
                     const expiry = new Date(SUB_DB[email]); expiry.setHours(0,0,0,0);
                     const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
                     
                     if (daysLeft >= 0) {
-                        isPro = true;
-                        validityText = `${daysLeft} Days`;
+                        isPro = true; 
+                        validityText = `${daysLeft} Days Left`;
                     }
                 }
 
-                // 3. Check Realtime Firebase Database (For Automated Razorpay Users)
+                // 3. Check Automated Firebase Realtime Database
                 if (!isPro) {
                     try {
                         const snapshot = await get(ref(db, `users/${user.uid}`));
@@ -648,15 +591,16 @@
                         if (userData && userData.accessLevel === 'pro' && userData.planExpiry > now) {
                             isPro = true;
                             const daysLeft = Math.ceil((userData.planExpiry - now) / (1000 * 60 * 60 * 24));
-                            validityText = `${daysLeft} Days`;
+                            validityText = `${daysLeft} Days Left`;
                         }
                     } catch(e) {
-                        console.error("DB Error:", e);
+                        console.error("Firebase Subscription Check Error:", e);
                     }
                 }
-
+                
                 window.isUserPro = isPro;
-
+                
+                // 4. Update UI based on Subscription Status
                 if (isPro) {
                     updateSidebarDisplay(email, null, false, validityText);
                     updateExamUI();
@@ -665,19 +609,16 @@
                     if(payBtn) payBtn.style.display = 'none';
                     if(paywallTitle) paywallTitle.innerText = 'Welcome Pro Member';
                     if(paywallText) paywallText.innerText = 'Your premium access is active. Enjoy MedPYQ.';
-                    if(pricingSection) pricingSection.style.display = 'none';
                 } else {
                     updateSidebarDisplay(email, 'Expired/Free Plan', true, null);
                     updateExamUI();
                     
                     if(loginBtn) loginBtn.style.display = 'none';
-                    if(payBtn) payBtn.style.display = 'block';
+                    if(payBtn) payBtn.style.display = 'block'; // Shows button linked to premium.html
                     if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
                     if(paywallText) paywallText.innerText = `Logged in as ${email}. Premium content requires a subscription.`;
-                    if(pricingSection) pricingSection.style.display = 'block';
                 }
             } else {
-                window.currentUser = null;
                 window.isUserPro = false;
                 updateSidebarDisplay('Guest', 'Free Plan', false, null);
                 updateExamUI();
@@ -686,109 +627,8 @@
                 if(payBtn) payBtn.style.display = 'none';
                 if(paywallTitle) paywallTitle.innerText = 'Unlock MedPYQ Pro';
                 if(paywallText) paywallText.innerText = 'Premium Question Banks are reserved for members. Please sign in to continue.';
-                if(pricingSection) pricingSection.style.display = 'none';
             }
         });
-
-        // -------------------------------------------------------------
-        // RAZORPAY AUTOMATION ENGINE
-        // -------------------------------------------------------------
-        window.startSubscription = function(planName, months, amountInINR) {
-            if (!window.currentUser) { alert("Please log in first to purchase a subscription."); return; }
-
-            // ==========================================
-            // TODO 1: INSERT YOUR RAZORPAY KEY ID HERE
-            // ==========================================
-            const RAZORPAY_KEY = "YOUR_RAZORPAY_KEY_ID"; 
-
-            var options = {
-                "key": RAZORPAY_KEY,
-                "amount": amountInINR * 100, 
-                "currency": "INR",
-                "name": "MedPYQ Pro",
-                "description": `${planName} Access`,
-                "handler": async function (response) {
-                    const paymentId = response.razorpay_payment_id;
-                    const loadingOverlay = document.getElementById('loading-overlay');
-                    if(loadingOverlay) loadingOverlay.style.display = 'flex';
-                    
-                    const expiryDate = Date.now() + (months * 30 * 24 * 60 * 60 * 1000); 
-                    
-                    try {
-                        // Upgrade Firebase Database instantly
-                        await update(ref(db, `users/${window.currentUser.uid}`), {
-                            email: window.currentUser.email,
-                            accessLevel: 'pro',
-                            plan: planName,
-                            planExpiry: expiryDate,
-                            lastPaymentId: paymentId,
-                            updatedAt: Date.now()
-                        });
-
-                        // Trigger Google Form entry silently
-                        silentGoogleFormSubmit(window.currentUser.email, planName, amountInINR, paymentId);
-
-                        setTimeout(() => {
-                            if(loadingOverlay) loadingOverlay.style.display = 'none';
-                            alert(`Success! You are now a Pro Member for ${months} months.`);
-                            location.reload(); // Quick refresh to unlock UI components
-                        }, 2000);
-                        
-                    } catch(err) {
-                        if(loadingOverlay) loadingOverlay.style.display = 'none';
-                        alert(`Database update failed. Please save your Payment ID: ${paymentId} and contact support.`);
-                    }
-                },
-                "prefill": { "email": window.currentUser.email },
-                "theme": { "color": "#eebb4d" }
-            };
-            var rzp = new Razorpay(options);
-            rzp.open();
-        };
-
-        // -------------------------------------------------------------
-        // SILENT GOOGLE FORM SUBMITTER
-        // -------------------------------------------------------------
-        function silentGoogleFormSubmit(email, plan, amount, paymentId) {
-            
-            // ==========================================
-            // TODO 2: PASTE YOUR GOOGLE FORM RESPONSE URL
-            // ==========================================
-            const formUrl = "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse";
-            
-            const iframeName = 'hidden_iframe_' + Date.now();
-            const iframe = document.createElement('iframe'); 
-            iframe.name = iframeName; 
-            iframe.style.display = 'none'; 
-            document.body.appendChild(iframe);
-            
-            const form = document.createElement('form'); 
-            form.method = 'POST'; 
-            form.action = formUrl; 
-            form.target = iframeName; 
-            form.style.display = 'none';
-
-            // ==========================================
-            // TODO 3: REPLACE THESE "entry." IDs WITH YOUR ACTUAL IDs
-            // ==========================================
-            const formData = {
-                "entry.111111111": email,       
-                "entry.222222222": plan,        
-                "entry.333333333": amount,      
-                "entry.444444444": paymentId    
-            };
-
-            for (let key in formData) {
-                let input = document.createElement('input'); 
-                input.name = key; 
-                input.value = formData[key]; 
-                form.appendChild(input);
-            }
-
-            document.body.appendChild(form); 
-            form.submit();
-            setTimeout(() => { iframe.remove(); form.remove(); }, 3000);
-        }
     </script>
 </body>
 </html>
