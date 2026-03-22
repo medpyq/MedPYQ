@@ -160,62 +160,72 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         // --- 1. CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
             authDomain: "medpyq-elearning.firebaseapp.com",
-            projectId: "medpyq-elearning"
+            projectId: "medpyq-elearning",
+            databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com"
         };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getDatabase(app);
 
         const RZP_KEY_ID = "rzp_live_SDVpg3TnFNQeS5"; 
-        const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScmD2mnN4Iosoz_AFrgJwg9c3SCXek2tg11njRarHjrh6uuow/viewform";
+        
+        // Use /formResponse instead of /viewform to allow silent POST submission
+        const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScmD2mnN4Iosoz_AFrgJwg9c3SCXek2tg11njRarHjrh6uuow/formResponse";
         
         const FORM_IDS = {
             name: "entry.80537101", email: "entry.2147321729", city: "entry.2037486442",
             phone: "entry.774909092", country: "entry.1551773751", plan: "entry.1274324494", payId: "entry.2079800398"
         };
 
-        // --- 2. DATA ---
+        // --- 2. DATA (WITH MONTHS ADDED FOR FIREBASE CALCULATION) ---
         const topCountries = ["India", "United States", "United Kingdom", "Canada", "Australia", "Nepal", "Bangladesh", "UAE", "Saudi Arabia"];
+        
         const plansIndia = [
-            { id: 'in_1m', name: '1 Month', desc: 'Quick Revision', price: 29, display: '₹29', badge: '' },
-            { id: 'in_3m', name: '3 Months', desc: 'Exam Prep', price: 49, display: '₹49', badge: 'POPULAR' },
-            { id: 'in_1y', name: '1 Year', desc: 'Full Access', price: 99, display: '₹99', badge: 'BEST VALUE' }
+            { id: 'in_1m', name: '1 Month', desc: 'Quick Revision', price: 29, display: '₹29', badge: '', months: 1 },
+            { id: 'in_3m', name: '3 Months', desc: 'Exam Prep', price: 49, display: '₹49', badge: 'POPULAR', months: 3 },
+            { id: 'in_1y', name: '1 Year', desc: 'Full Access', price: 99, display: '₹99', badge: 'BEST VALUE', months: 12 }
         ];
         const plansGlobal = [
-            { id: 'gl_3m', name: '3 Months', desc: 'Quarterly Pass', price: 1.29, display: '$1.29', badge: '' },
-            { id: 'gl_1y', name: '1 Year', desc: 'Annual Pass', price: 2.49, display: '$2.49', badge: 'SAVE 50%' }
+            { id: 'gl_3m', name: '3 Months', desc: 'Quarterly Pass', price: 1.29, display: '$1.29', badge: '', months: 3 },
+            { id: 'gl_1y', name: '1 Year', desc: 'Annual Pass', price: 2.49, display: '$2.49', badge: 'SAVE 50%', months: 12 }
         ];
 
         let selectedCountry = "";
         let isIndia = false;
         let selectedPlan = null;
         let currentUserEmail = "";
+        let currentUserUid = "";
 
         // --- 3. AUTHENTICATION CHECK ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserEmail = user.email;
+                currentUserUid = user.uid;
                 document.getElementById('inp-email').value = currentUserEmail;
-                document.getElementById('view-country').classList.remove('hidden'); // Show flow
+                document.getElementById('view-country').classList.remove('hidden'); 
                 populateCountries();
             } else {
-                document.getElementById('view-auth-warning').classList.remove('hidden'); // Block flow
+                document.getElementById('view-auth-warning').classList.remove('hidden'); 
             }
         });
 
         // --- 4. UI LOGIC ---
         function populateCountries() {
             const select = document.getElementById('country-selector');
+            select.innerHTML = '<option value="" disabled selected>Select your country...</option>'; // Reset
+            
             topCountries.forEach(c => { select.appendChild(new Option(c, c)); });
             select.appendChild(new Option("──────────", "", true, true)).disabled = true;
             
             const otherCountries = ["Afghanistan","Argentina","Belgium","Brazil","China","Denmark","Egypt","France","Germany","Indonesia","Italy","Japan","Malaysia","Mexico","Netherlands","New Zealand","Nigeria","Philippines","Russia","Singapore","South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland","Thailand","Turkey","Ukraine","Vietnam"];
             otherCountries.sort().forEach(c => { if(!topCountries.includes(c)) select.appendChild(new Option(c, c)); });
-            select.value = ""; // Reset
+            select.value = ""; 
         }
 
         window.handleCountrySelection = function() {
@@ -243,7 +253,7 @@
             document.getElementById('pricing-title').innerText = isIndia ? "Pro Access (India)" : "Global Pro Access";
 
             plans.forEach((plan, index) => {
-                const isSelected = index === (plans.length - 1); // Default to last plan
+                const isSelected = index === (plans.length - 1); 
                 if(isSelected) selectedPlan = plan;
 
                 const card = document.createElement('div');
@@ -275,7 +285,7 @@
             document.getElementById('btn-pay-text').innerHTML = `Pay ${selectedPlan.display} <i class="fa-solid fa-arrow-right"></i>`;
         }
 
-        // --- 5. RAZORPAY & FORM SUBMISSION ---
+        // --- 5. RAZORPAY PAYMENT ---
         window.initiatePayment = function() {
             const name = document.getElementById('inp-name').value;
             const city = document.getElementById('inp-city').value;
@@ -288,12 +298,12 @@
 
             var options = {
                 "key": RZP_KEY_ID,
-                "amount": Math.round(selectedPlan.price * 100), // convert to paise/cents
+                "amount": Math.round(selectedPlan.price * 100), 
                 "currency": isIndia ? "INR" : "USD",
                 "name": "MedPYQ Pro",
                 "description": `${selectedPlan.name} (${selectedCountry})`,
                 "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmZCvBG0AQGL_GETLyEhJk2AFjghV6myUYLndf7t7Ev0s7n2v3TGtrhnLo8pGCpW2AdN6FYNEzXLRSr1wGUfqwJOxmP4GMX_5O-Mm0TYjGbiXLYzB-E_2JnZwUzaNiWLsxN4zNO8wSDRe9_BgYm-D5ufatVrKQqu5BnWz57KPiOXq6iTuQTCUqSNMCxJ0/s1024/1763696369451.jpg",
-                "handler": function (response){ handleSuccess(response.razorpay_payment_id); },
+                "handler": function (response){ window.handleSuccess(response.razorpay_payment_id); },
                 "prefill": { "name": name, "email": currentUserEmail, "contact": phone },
                 "theme": { "color": "#0f2b52" },
                 "modal": { "ondismiss": function() { btn.disabled = false; updatePayButton(); } }
@@ -307,7 +317,8 @@
             rzp.open();
         }
 
-        function handleSuccess(paymentId) {
+        // --- 6. FIREBASE UPGRADE & SILENT SUBMIT ---
+        window.handleSuccess = async function(paymentId) {
             document.getElementById('view-pricing').classList.add('hidden');
             document.getElementById('view-loading').classList.remove('hidden');
 
@@ -315,18 +326,71 @@
             const city = document.getElementById('inp-city').value;
             const phone = document.getElementById('inp-phone').value;
 
-            // Submit silently to Google Forms
-            const finalUrl = `${GOOGLE_FORM_URL}?usp=pp_url` + 
-                `&${FORM_IDS.name}=${encodeURIComponent(name)}` +
-                `&${FORM_IDS.email}=${encodeURIComponent(currentUserEmail)}` +
-                `&${FORM_IDS.city}=${encodeURIComponent(city)}` +
-                `&${FORM_IDS.phone}=${encodeURIComponent(phone)}` +
-                `&${FORM_IDS.country}=${encodeURIComponent(selectedCountry)}` +
-                `&${FORM_IDS.plan}=${encodeURIComponent(selectedPlan.name + " (" + selectedPlan.display + ")")}` +
-                `&${FORM_IDS.payId}=${encodeURIComponent(paymentId)}`;
+            // 1. Calculate Expiry Date based on selected plan
+            const expiryDate = Date.now() + (selectedPlan.months * 30 * 24 * 60 * 60 * 1000); 
 
-            // Use a tiny delay, then redirect to the form which logs the payment
-            setTimeout(() => { window.location.replace(finalUrl); }, 1500);
+            try {
+                // 2. Update Firebase Realtime Database
+                await update(ref(db, `users/${currentUserUid}`), {
+                    email: currentUserEmail,
+                    accessLevel: 'pro',
+                    plan: selectedPlan.name,
+                    planExpiry: expiryDate,
+                    lastPaymentId: paymentId,
+                    updatedAt: Date.now()
+                });
+
+                // 3. Submit silently to Google Forms
+                silentGoogleFormSubmit(name, currentUserEmail, city, phone, selectedCountry, selectedPlan.name + " (" + selectedPlan.display + ")", paymentId);
+
+                // 4. Redirect back to Home Page
+                setTimeout(() => { 
+                    alert("Success! Your Pro Access has been activated.");
+                    window.location.href = "index.html"; 
+                }, 2000);
+
+            } catch (error) {
+                console.error(error);
+                alert("Payment was successful but database update failed. Please contact support with Payment ID: " + paymentId);
+                document.getElementById('view-loading').classList.add('hidden');
+                document.getElementById('view-pricing').classList.remove('hidden');
+            }
+        }
+
+        // --- 7. HIDDEN IFRAME FORM SUBMITTER ---
+        function silentGoogleFormSubmit(name, email, city, phone, country, plan, payId) {
+            const iframeName = 'hidden_iframe_' + Date.now();
+            const iframe = document.createElement('iframe'); 
+            iframe.name = iframeName; 
+            iframe.style.display = 'none'; 
+            document.body.appendChild(iframe);
+            
+            const form = document.createElement('form'); 
+            form.method = 'POST'; 
+            form.action = GOOGLE_FORM_URL; 
+            form.target = iframeName; 
+            form.style.display = 'none';
+
+            const formData = {};
+            formData[FORM_IDS.name] = name;
+            formData[FORM_IDS.email] = email;
+            formData[FORM_IDS.city] = city;
+            formData[FORM_IDS.phone] = phone;
+            formData[FORM_IDS.country] = country;
+            formData[FORM_IDS.plan] = plan;
+            formData[FORM_IDS.payId] = payId;
+
+            for (let key in formData) {
+                let input = document.createElement('input'); 
+                input.name = key; 
+                input.value = formData[key]; 
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form); 
+            form.submit();
+            
+            setTimeout(() => { iframe.remove(); form.remove(); }, 3000);
         }
     </script>
 </body>
