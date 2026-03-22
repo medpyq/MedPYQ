@@ -23,15 +23,15 @@
         .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; font-weight: bold; }
         .q-count { background: var(--app-blue); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
 
-        /* --- CUSTOM MULTI-SELECT DROPDOWNS --- */
+        /* --- CUSTOM MULTI-SELECT DROPDOWNS FOR TABLE --- */
         .controls-bar { display: flex; flex-wrap: wrap; gap: 12px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .search-input { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit; }
         
         .ms-dropdown { position: relative; flex: 1; min-width: 200px; }
         .ms-btn { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; text-align: left; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: 0.9rem; font-family: inherit;}
-        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
+        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
         .ms-content.show { display: block; }
-        .ms-label { display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .ms-label { display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; transition: 0.2s;}
         .ms-label:hover { background-color: #f8fafc; }
         .ms-label input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer; }
 
@@ -137,7 +137,7 @@
         </header>
 
         <div class="controls-bar">
-            <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="SYNC_updateState('search', this.value)">
+            <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="SYNC_updateState('search', this.value, true)">
             
             <div class="ms-dropdown">
                 <button class="ms-btn" onclick="toggleDropdown('table-chap-content')">
@@ -257,6 +257,7 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // 1. URL Routing
         const urlParams = new URLSearchParams(window.location.search);
         const activeSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
         const activeExam = (urlParams.get('exam') || 'neet-pg').toLowerCase();
@@ -266,8 +267,18 @@
         document.getElementById('dynamic-subtitle').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
         document.getElementById('ud-top-title').innerText = formattedTitle.toUpperCase();
 
+        // FULL 25 CHAPTERS OF CFM
         const masterCurriculum = {
-            "cfm": ["1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology", "4. Screening for Disease", "5. Communicable Diseases", "6. Non-Communicable Diseases", "7. Health Programmes in India", "8. Demography", "9. Preventive Medicine in Obstetrics & Pediatrics", "10. Nutrition and Health", "11. Environment and Health", "12. Occupational Health", "13. Health Information", "14. Health Planning"],
+            "cfm": [
+                "1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology", 
+                "4. Screening for Disease", "5. Communicable Diseases", "6. Epidemiology of Chronic Non-Communicable Diseases", 
+                "7. Health Programmes in India", "8. Demography and Family Planning", "9. Preventive Medicine in Obstetrics - Pediatrics", 
+                "10. Health Care of the Community", "11. Nutrition and Health", "12. Medicine and Social Sciences", 
+                "13. Tribal Health in India", "14. Sustainable Development Goals", "15. Environment and Health", 
+                "16. Hospital Waste Management", "17. Disaster Management", "18. Occupational Health", 
+                "19. Genetics and Health", "20. Mental Health", "21. Health Information and Basic Medical Statistics", 
+                "22. Communication for Health Education", "23. Health Planning and Management", "24. Essential Medicines", "25. International Health"
+            ],
             "anatomy": ["1. General Anatomy", "2. Upper Limb", "3. Lower Limb", "4. Thorax", "5. Abdomen & Pelvis", "6. Head & Neck", "7. Neuroanatomy", "8. Histology & Embryology"],
             "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"],
         };
@@ -275,7 +286,7 @@
         window.medpyqExam = activeExam.toUpperCase();
         window.medpyqSubject = formattedTitle.toUpperCase();
 
-        // The Central State for Syncing Filters
+        // Central State for Syncing Filters
         window.filterState = {
             chapters: [],
             years: [],
@@ -316,39 +327,31 @@
         function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             
-            // Collect exact chapters that exist in the JSON to guarantee they show up in the filter
-            let allChaptersInData = new Set();
-
             let processedData = rawData.filter(item => item !== null).map(item => {
-                let matchedChapters = [];
+                let chapterMatch = "Uncategorized";
                 for(let c of curriculumForSubject) {
-                    if(item.subject && item.subject.toLowerCase().includes(c.toLowerCase())) {
-                        matchedChapters.push(c);
+                    // Extract core chapter number/name to handle your blogger tags robustly
+                    let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
+                    if(item.subject && item.subject.toLowerCase().includes(coreName)) {
+                        chapterMatch = c; break;
                     }
                 }
-                // Assign the first match, or fallback to the raw tag if no match is found
-                let primaryTopic = matchedChapters.length > 0 ? matchedChapters[0] : (item.subject ? item.subject.split(',')[0].trim() : "General");
-                
-                allChaptersInData.add(primaryTopic);
-
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
-                return { ...item, topic: primaryTopic, year: fullYear };
+                return { ...item, topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.subject || "General"), year: fullYear };
             });
 
             window.appData = processedData;
 
-            // Generate precise dropdowns based on actual data
-            const uniqueChapters = Array.from(allChaptersInData).sort();
+            // Generate precise dropdowns (Use Full Curriculum Array to guarantee all 25 chapters show up!)
             const uniqueYears = [...new Set(processedData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
-            
-            buildSynchronizedFilters(uniqueChapters, uniqueYears);
+            buildSynchronizedFilters(curriculumForSubject, uniqueYears);
             
             // Initialize Deck Data
             initUniversalDeck(processedData);
             
-            // Run the initial master sync
+            // Run the initial master sync (Show all data)
             window.SYNC_applyFilters();
             
             // DEFAULT VIEW: Open Deck automatically on load!
@@ -358,9 +361,8 @@
         }
 
         // ---------------------------------------------------------
-        // THE NEW MASTER SYNC ENGINE (Perfect Multi-Select Sync)
+        // THE MASTER SYNC ENGINE (Perfect Multi-Select Sync)
         // ---------------------------------------------------------
-        
         function buildSynchronizedFilters(chapters, years) {
             const tableChapDiv = document.getElementById('table-chap-content');
             const tableYearDiv = document.getElementById('table-year-content');
@@ -370,7 +372,9 @@
             let deckHtml = `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Chapters</div>`;
             
             chapters.forEach(c => {
-                const row = `<label class="ms-label ud-chk-row"><input type="checkbox" data-filter-type="chapter" value="${c}" onchange="SYNC_updateState('chapter', '${c}', this.checked)"> <span>${c}</span></label>`;
+                // Escape quotes just in case your chapters have them
+                const cleanVal = c.replace(/"/g, '&quot;');
+                const row = `<label class="ms-label ud-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
                 tableChapHtml += row;
                 deckHtml += row;
             });
@@ -380,7 +384,8 @@
             deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
             
             years.forEach(y => {
-                const row = `<label class="ms-label ud-chk-row"><input type="checkbox" data-filter-type="year" value="${y}" onchange="SYNC_updateState('year', '${y}', this.checked)"> <span>${y}</span></label>`;
+                const cleanVal = y.replace(/"/g, '&quot;');
+                const row = `<label class="ms-label ud-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
                 tableYearHtml += row;
                 deckHtml += row;
             });
@@ -393,27 +398,27 @@
             document.getElementById(id).classList.toggle('show');
         }
 
-        // Close dropdowns if clicked outside
         window.onclick = function(event) {
             if (!event.target.matches('.ms-btn') && !event.target.closest('.ms-content')) {
                 document.querySelectorAll('.ms-content').forEach(el => el.classList.remove('show'));
             }
         }
 
+        // Handles updates from BOTH Table and Deck Checkboxes
         window.SYNC_updateState = function(type, value, isChecked) {
             if(type === 'chapter') {
                 if(isChecked) window.filterState.chapters.push(value);
                 else window.filterState.chapters = window.filterState.chapters.filter(c => c !== value);
             }
-            if(type === 'year') {
+            else if(type === 'year') {
                 if(isChecked) window.filterState.years.push(value);
                 else window.filterState.years = window.filterState.years.filter(y => y !== value);
             }
-            if(type === 'search') {
+            else if(type === 'search') {
                 window.filterState.search = value.toLowerCase();
             }
 
-            // Sync Checkboxes Visually
+            // Sync Checkboxes Visually (If you check it in Deck, it visually checks the Table dropdown too)
             document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
                 cb.checked = window.filterState.chapters.includes(cb.value);
             });
@@ -421,7 +426,7 @@
                 cb.checked = window.filterState.years.includes(cb.value);
             });
 
-            // Update Button Text
+            // Update Table Button Text
             const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
             const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
             document.getElementById('chap-btn-text').innerText = chapText;
@@ -451,8 +456,10 @@
                 return matchesSearch && matchesChapter && matchesYear;
             });
 
-            // Push to Table
+            // Update Count
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
+            
+            // Push to Table
             renderTable(filtered);
 
             // Push to Deck
