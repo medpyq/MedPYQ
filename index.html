@@ -544,8 +544,13 @@
             }
         };
 
-        // --- AUTH LISTENER & PAYWALL LOGIC ---
+// --- AUTH LISTENER & PAYWALL LOGIC ---
         onAuthStateChanged(auth, (user) => {
+            const loginBtn = document.getElementById('paywall-btn-login');
+            const payBtn = document.getElementById('paywall-btn-pay');
+            const paywallTitle = document.getElementById('paywall-title');
+            const paywallText = document.getElementById('paywall-text');
+
             if (user) {
                 const email = user.email.toLowerCase();
                 const expiryStr = SUB_DB[email];
@@ -569,14 +574,30 @@
                     updateSidebarDisplay(user.email, 'Expired/Free Plan', true, null); 
                 }
                 
-                const paywallBtn = document.getElementById('paywall-btn-login');
-                if(paywallBtn) {
-                   paywallBtn.style.display = isPro ? 'none' : 'block';
-                   document.getElementById('paywall-title').innerText = isPro ? 'Welcome Pro Member' : 'Upgrade to Pro';
+                // --- THIS IS THE FIX ---
+                // Shows the gold "Get Pro Access" button for free users!
+                if(loginBtn && payBtn) {
+                   if (isPro) {
+                       loginBtn.style.display = 'none';
+                       payBtn.style.display = 'none';
+                       if(paywallTitle) paywallTitle.innerText = 'Welcome Pro Member';
+                   } else {
+                       loginBtn.style.display = 'none';
+                       payBtn.style.display = 'block';
+                       if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
+                       if(paywallText) paywallText.innerText = `Logged in as ${user.email}. Premium content requires a subscription.`;
+                   }
                 }
             } else {
                 window.isUserPro = false;
                 updateSidebarDisplay('Guest', 'Free Plan', false, null);
+                
+                if(loginBtn && payBtn) {
+                    loginBtn.style.display = 'block';
+                    payBtn.style.display = 'none';
+                    if(paywallTitle) paywallTitle.innerText = 'Unlock MedPYQ Pro';
+                    if(paywallText) paywallText.innerText = 'Premium Question Banks are reserved for members. Please sign in to continue.';
+                }
             }
         });
     </script>
