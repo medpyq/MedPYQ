@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPYQ Pro | Premium Access</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        :root { --app-blue: #0f2b52; --app-gold: #eebb4d; }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; color: #0f172a;}
+        * { box-sizing: border-box; transition: all 0.2s ease-in-out; }
+
+        /* BACKGROUND ORBS */
+        .orb { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.5; pointer-events: none; }
+        .orb-1 { width: 300px; height: 300px; background: #c7d2fe; top: -10%; left: -10%; }
+        .orb-2 { width: 400px; height: 400px; background: #bae6fd; bottom: -10%; right: -10%; }
+
+        /* --- MAIN CARD --- */
+        #premium-wrapper {
+            width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px);
+            border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+            padding: 40px; position: relative; margin: 20px;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.02em; }
+        p.subtext { margin: 0 0 32px 0; color: #64748b; font-size: 0.95rem; line-height: 1.5; }
+        
+        .brand-logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem; margin-bottom: 24px; color: var(--app-blue); }
+        .brand-icon { width: 32px; height: 32px; background: var(--app-blue); color: white; border-radius: 8px; display: grid; place-items: center; font-size: 0.9rem; }
+        .back-btn { position: absolute; top: 40px; right: 40px; background: #f1f5f9; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: #64748b; text-decoration: none; font-size: 0.85rem;}
+        .back-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* --- FORMS & INPUTS --- */
+        .country-select-wrapper { position: relative; }
+        .premium-select { width: 100%; appearance: none; background: #fff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 18px 20px; font-size: 1rem; font-family: inherit; font-weight: 600; color: #0f172a; cursor: pointer; }
+        .premium-select:hover { border-color: #cbd5e1; }
+        .premium-select:focus { outline: none; border-color: var(--app-blue); }
+        .select-arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #64748b; }
+
+        .input-group { margin-bottom: 16px; text-align: left;}
+        .input-row { display: flex; gap: 12px; } 
+        .input-col { flex: 1; }
+        .floating-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; display: block; letter-spacing: 0.05em; }
+        .premium-input { width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; font-family: inherit; color: #0f172a; box-sizing: border-box; }
+        .premium-input:focus { outline: none; border-color: var(--app-blue); box-shadow: 0 0 0 3px rgba(15, 43, 82, 0.1); }
+        .premium-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+        /* --- PLAN CARDS --- */
+        .plans-container { display: grid; gap: 12px; margin-bottom: 24px; }
+        .plan-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white; text-align: left;}
+        .plan-card:hover { border-color: #94a3b8; transform: translateY(-2px); }
+        .plan-card.active { border-color: var(--app-blue); background: #f8fafc; box-shadow: 0 0 0 1px var(--app-blue); }
+        .plan-details h3 { margin: 0; font-size: 0.95rem; font-weight: 700; color: #0f172a;}
+        .plan-details span { font-size: 0.8rem; color: #64748b; }
+        .plan-price { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+        .check-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 12px; display: grid; place-items: center; flex-shrink: 0;}
+        .plan-card.active .check-circle { border-color: var(--app-blue); background: var(--app-blue); }
+        .plan-card.active .check-circle::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+
+        .badge { background: #fff8e1; color: #b45309; padding: 2px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; margin-left: 6px; border: 1px solid var(--app-gold);}
+
+        /* --- BUTTONS --- */
+        .pay-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; background: var(--app-blue); color: white; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 20px -5px rgba(15, 43, 82, 0.3); }
+        .pay-btn:hover { background: #1e3a8a; transform: translateY(-2px); }
+        .pay-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .divider { height: 1px; background: #e2e8f0; margin: 24px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div id="premium-wrapper">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+        
+        <div class="brand-logo">
+            <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div> MedPYQ Pro
+        </div>
+
+        <div id="view-auth-warning" class="hidden text-center fade-in" style="text-align:center; padding: 20px 0;">
+            <i class="fa-solid fa-lock" style="font-size: 40px; color: #94a3b8; margin-bottom: 15px;"></i>
+            <h1>Login Required</h1>
+            <p class="subtext">You must be signed in to purchase a Pro Subscription.</p>
+            <a href="index.html" class="pay-btn" style="text-decoration:none;">Go to Login Page</a>
+        </div>
+
+        <div id="view-country" class="hidden fade-in">
+            <h1>Where are you based?</h1>
+            <p class="subtext">We'll customize your pricing plan and currency automatically.</p>
+            
+            <div class="country-select-wrapper">
+                <select id="country-selector" class="premium-select" onchange="handleCountrySelection()">
+                    <option value="" disabled selected>Select your country...</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
+            </div>
+            
+            <div style="margin-top: 30px; display: flex; gap: 15px; opacity: 0.4; justify-content: center;">
+                <i class="fa-brands fa-cc-visa fa-2x"></i>
+                <i class="fa-brands fa-cc-mastercard fa-2x"></i>
+                <i class="fa-brands fa-google-pay fa-2x"></i>
+                <i class="fa-solid fa-globe fa-2x"></i>
+            </div>
+        </div>
+
+        <div id="view-pricing" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 id="pricing-title">Pro Access</h1>
+                <button onclick="resetFlow()" style="background:none; border:none; color:#64748b; font-size:0.85rem; font-weight:700; cursor:pointer; text-decoration:underline;">Change Country</button>
+            </div>
+
+            <div id="plans-container" class="plans-container"></div>
+            <div class="divider"></div>
+
+            <div class="input-group">
+                <label class="floating-label">Account Email (Auto-filled)</label>
+                <input type="email" id="inp-email" class="premium-input" disabled>
+            </div>
+            <div class="input-group">
+                <label class="floating-label">Full Name</label>
+                <input type="text" id="inp-name" class="premium-input" placeholder="Dr. John Doe">
+            </div>
+            <div class="input-row">
+                <div class="input-col">
+                    <label class="floating-label">City</label>
+                    <input type="text" id="inp-city" class="premium-input" placeholder="Your City">
+                </div>
+                <div class="input-col">
+                    <label class="floating-label">Phone</label>
+                    <input type="tel" id="inp-phone" class="premium-input" placeholder="Mobile Number">
+                </div>
+            </div>
+
+            <button onclick="initiatePayment()" class="pay-btn" id="btn-pay-text">
+                Proceed to Pay <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <div style="text-align: center; margin-top: 15px; font-size: 0.75rem; color: #94a3b8; font-weight: 600;">
+                <i class="fa-solid fa-lock"></i> Secured by Razorpay
+            </div>
+        </div>
+
+        <div id="view-loading" class="hidden fade-in" style="text-align: center; padding: 40px 0;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--app-blue); margin-bottom: 20px;"></i>
+            <h2>Processing Payment</h2>
+            <p class="subtext">Please do not close or refresh this window.</p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+        // --- 1. CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
+            authDomain: "medpyq-elearning.firebaseapp.com",
+            projectId: "medpyq-elearning"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const RZP_KEY_ID = "rzp_live_SDVpg3TnFNQeS5"; 
+        const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScmD2mnN4Iosoz_AFrgJwg9c3SCXek2tg11njRarHjrh6uuow/viewform";
+        
+        const FORM_IDS = {
+            name: "entry.80537101", email: "entry.2147321729", city: "entry.2037486442",
+            phone: "entry.774909092", country: "entry.1551773751", plan: "entry.1274324494", payId: "entry.2079800398"
+        };
+
+        // --- 2. DATA ---
+        const topCountries = ["India", "United States", "United Kingdom", "Canada", "Australia", "Nepal", "Bangladesh", "UAE", "Saudi Arabia"];
+        const plansIndia = [
+            { id: 'in_1m', name: '1 Month', desc: 'Quick Revision', price: 29, display: '₹29', badge: '' },
+            { id: 'in_3m', name: '3 Months', desc: 'Exam Prep', price: 49, display: '₹49', badge: 'POPULAR' },
+            { id: 'in_1y', name: '1 Year', desc: 'Full Access', price: 99, display: '₹99', badge: 'BEST VALUE' }
+        ];
+        const plansGlobal = [
+            { id: 'gl_3m', name: '3 Months', desc: 'Quarterly Pass', price: 1.29, display: '$1.29', badge: '' },
+            { id: 'gl_1y', name: '1 Year', desc: 'Annual Pass', price: 2.49, display: '$2.49', badge: 'SAVE 50%' }
+        ];
+
+        let selectedCountry = "";
+        let isIndia = false;
+        let selectedPlan = null;
+        let currentUserEmail = "";
+
+        // --- 3. AUTHENTICATION CHECK ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserEmail = user.email;
+                document.getElementById('inp-email').value = currentUserEmail;
+                document.getElementById('view-country').classList.remove('hidden'); // Show flow
+                populateCountries();
+            } else {
+                document.getElementById('view-auth-warning').classList.remove('hidden'); // Block flow
+            }
+        });
+
+        // --- 4. UI LOGIC ---
+        function populateCountries() {
+            const select = document.getElementById('country-selector');
+            topCountries.forEach(c => { select.appendChild(new Option(c, c)); });
+            select.appendChild(new Option("──────────", "", true, true)).disabled = true;
+            
+            const otherCountries = ["Afghanistan","Argentina","Belgium","Brazil","China","Denmark","Egypt","France","Germany","Indonesia","Italy","Japan","Malaysia","Mexico","Netherlands","New Zealand","Nigeria","Philippines","Russia","Singapore","South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland","Thailand","Turkey","Ukraine","Vietnam"];
+            otherCountries.sort().forEach(c => { if(!topCountries.includes(c)) select.appendChild(new Option(c, c)); });
+            select.value = ""; // Reset
+        }
+
+        window.handleCountrySelection = function() {
+            selectedCountry = document.getElementById('country-selector').value;
+            isIndia = (selectedCountry === "India");
+            document.getElementById('view-country').classList.add('hidden');
+            
+            const pricingView = document.getElementById('view-pricing');
+            pricingView.classList.remove('hidden');
+            pricingView.classList.add('fade-in');
+            renderPlans();
+        }
+
+        window.resetFlow = function() {
+            document.getElementById('view-pricing').classList.add('hidden');
+            document.getElementById('view-pricing').classList.remove('fade-in');
+            document.getElementById('view-country').classList.remove('hidden');
+            document.getElementById('country-selector').value = "";
+        }
+
+        function renderPlans() {
+            const container = document.getElementById('plans-container');
+            container.innerHTML = "";
+            const plans = isIndia ? plansIndia : plansGlobal;
+            document.getElementById('pricing-title').innerText = isIndia ? "Pro Access (India)" : "Global Pro Access";
+
+            plans.forEach((plan, index) => {
+                const isSelected = index === (plans.length - 1); // Default to last plan
+                if(isSelected) selectedPlan = plan;
+
+                const card = document.createElement('div');
+                card.className = `plan-card ${isSelected ? 'active' : ''}`;
+                card.onclick = () => selectPlanUI(card, plan);
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <div class="check-circle"></div>
+                        <div class="plan-details">
+                            <h3>${plan.name} ${plan.badge ? `<span class="badge">${plan.badge}</span>` : ''}</h3>
+                            <span>${plan.desc}</span>
+                        </div>
+                    </div>
+                    <div class="plan-price">${plan.display}</div>
+                `;
+                container.appendChild(card);
+            });
+            updatePayButton();
+        }
+
+        function selectPlanUI(element, planObj) {
+            document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            selectedPlan = planObj;
+            updatePayButton();
+        }
+
+        function updatePayButton() {
+            document.getElementById('btn-pay-text').innerHTML = `Pay ${selectedPlan.display} <i class="fa-solid fa-arrow-right"></i>`;
+        }
+
+        // --- 5. RAZORPAY & FORM SUBMISSION ---
+        window.initiatePayment = function() {
+            const name = document.getElementById('inp-name').value;
+            const city = document.getElementById('inp-city').value;
+            const phone = document.getElementById('inp-phone').value;
+
+            if(!name || !city || !phone) { alert("Please complete all fields."); return; }
+
+            const btn = document.getElementById('btn-pay-text');
+            btn.disabled = true; btn.innerText = "Connecting to Secure Gateway...";
+
+            var options = {
+                "key": RZP_KEY_ID,
+                "amount": Math.round(selectedPlan.price * 100), // convert to paise/cents
+                "currency": isIndia ? "INR" : "USD",
+                "name": "MedPYQ Pro",
+                "description": `${selectedPlan.name} (${selectedCountry})`,
+                "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmZCvBG0AQGL_GETLyEhJk2AFjghV6myUYLndf7t7Ev0s7n2v3TGtrhnLo8pGCpW2AdN6FYNEzXLRSr1wGUfqwJOxmP4GMX_5O-Mm0TYjGbiXLYzB-E_2JnZwUzaNiWLsxN4zNO8wSDRe9_BgYm-D5ufatVrKQqu5BnWz57KPiOXq6iTuQTCUqSNMCxJ0/s1024/1763696369451.jpg",
+                "handler": function (response){ handleSuccess(response.razorpay_payment_id); },
+                "prefill": { "name": name, "email": currentUserEmail, "contact": phone },
+                "theme": { "color": "#0f2b52" },
+                "modal": { "ondismiss": function() { btn.disabled = false; updatePayButton(); } }
+            };
+
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response){ 
+                alert("Payment Failed: " + response.error.description); 
+                btn.disabled = false; updatePayButton();
+            });
+            rzp.open();
+        }
+
+        function handleSuccess(paymentId) {
+            document.getElementById('view-pricing').classList.add('hidden');
+            document.getElementById('view-loading').classList.remove('hidden');
+
+            const name = document.getElementById('inp-name').value;
+            const city = document.getElementById('inp-city').value;
+            const phone = document.getElementById('inp-phone').value;
+
+            // Submit silently to Google Forms
+            const finalUrl = `${GOOGLE_FORM_URL}?usp=pp_url` + 
+                `&${FORM_IDS.name}=${encodeURIComponent(name)}` +
+                `&${FORM_IDS.email}=${encodeURIComponent(currentUserEmail)}` +
+                `&${FORM_IDS.city}=${encodeURIComponent(city)}` +
+                `&${FORM_IDS.phone}=${encodeURIComponent(phone)}` +
+                `&${FORM_IDS.country}=${encodeURIComponent(selectedCountry)}` +
+                `&${FORM_IDS.plan}=${encodeURIComponent(selectedPlan.name + " (" + selectedPlan.display + ")")}` +
+                `&${FORM_IDS.payId}=${encodeURIComponent(paymentId)}`;
+
+            // Use a tiny delay, then redirect to the form which logs the payment
+            setTimeout(() => { window.location.replace(finalUrl); }, 1500);
+        }
+    </script>
+</body>
+</html>
