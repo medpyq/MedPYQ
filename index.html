@@ -464,12 +464,12 @@
         window.addEventListener('online', hideOfflineScreen);
         window.addEventListener('offline', showOfflineScreen);
 
-        function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
+        function updateSidebarDisplay(email, statusText, isExpired, validityText) {
             const userTitle = document.querySelector('.user-info h3');
             const userSub = document.querySelector('.user-info p');
-            if (validityDays !== null && validityDays !== undefined) {
+            if (validityText !== null && validityText !== undefined) {
                 if(userTitle) { userTitle.innerText = "Pro Member"; }
-                if(userSub) { userSub.innerHTML = `<div style='color: white;'>${email}</div><div style='color: #22c55e;'>Validity: ${validityDays}</div>`; }
+                if(userSub) { userSub.innerHTML = `<div style='color: white;'>${email}</div><div style='color: #22c55e;'>Validity: ${validityText}</div>`; }
             } else {
                 if(userTitle) { userTitle.innerText = email.includes('@') ? email.split('@')[0] : email; }
                 if(userSub) { userSub.innerHTML = statusText; userSub.className = isExpired ? 'auth-status-expired' : 'auth-status-active'; }
@@ -482,7 +482,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
@@ -500,6 +500,10 @@
             "educateindiainstitute@gmail.com",
             "pankajkumarmahto1009@gmail.com"
         ];
+
+        const SUB_DB = {
+            'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
+        };
 
         // --- CUSTOM AUTH UI ---
         window.authApp = {
@@ -599,72 +603,87 @@
             }
         };
 
-        // --- SMART AUTH LISTENER & PAYWALL LOGIC ---
-        let currentUser = null;
+        window.currentUser = null;
 
+        // --- THE FULLY UPGRADED SMART AUTH LISTENER ---
         onAuthStateChanged(auth, async (user) => {
-            const paywallBtnLogin = document.getElementById('paywall-btn-login');
-            const paywallBtnPay = document.getElementById('paywall-btn-pay');
+            const loginBtn = document.getElementById('paywall-btn-login');
+            const payBtn = document.getElementById('paywall-btn-pay');
             const paywallTitle = document.getElementById('paywall-title');
             const paywallText = document.getElementById('paywall-text');
             const pricingSection = document.getElementById('pricing-section');
 
             if (user) {
-                currentUser = user;
+                window.currentUser = user;
                 const email = user.email.toLowerCase();
-                const isAdmin = ADMIN_EMAILS.includes(email);
                 
-                if (isAdmin) {
-                    window.isUserPro = true;
-                    updateSidebarDisplay(email, null, false, "Lifetime Access");
-                    updateExamUI();
+                let isPro = false;
+                let validityText = null;
+
+                // 1. Check Lifetime Admin Emails
+                if (ADMIN_EMAILS.includes(email)) {
+                    isPro = true;
+                    validityText = "Lifetime Access";
+                }
+                
+                // 2. Check Legacy SUB_DB
+                if (!isPro && SUB_DB[email]) {
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const expiry = new Date(SUB_DB[email]); expiry.setHours(0,0,0,0);
+                    const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
                     
-                    if(paywallBtnLogin) paywallBtnLogin.style.display = 'none';
-                    if(paywallBtnPay) paywallBtnPay.style.display = 'none';
-                    if(paywallTitle) paywallTitle.innerText = 'Welcome Admin';
-                    if(paywallText) paywallText.innerText = 'Lifetime Pro Access Enabled.';
-                    if(pricingSection) pricingSection.style.display = 'none';
-                } else {
-                    // Normal User: Check Firebase Realtime Database for active Subscription
+                    if (daysLeft >= 0) {
+                        isPro = true;
+                        validityText = `${daysLeft} Days`;
+                    }
+                }
+
+                // 3. Check Realtime Firebase Database (For Automated Razorpay Users)
+                if (!isPro) {
                     try {
                         const snapshot = await get(ref(db, `users/${user.uid}`));
                         const userData = snapshot.val();
                         const now = Date.now();
                         
                         if (userData && userData.accessLevel === 'pro' && userData.planExpiry > now) {
-                            window.isUserPro = true;
+                            isPro = true;
                             const daysLeft = Math.ceil((userData.planExpiry - now) / (1000 * 60 * 60 * 24));
-                            updateSidebarDisplay(email, null, false, `${daysLeft} Days Left`);
-                            updateExamUI();
-                            
-                            if(paywallBtnLogin) paywallBtnLogin.style.display = 'none';
-                            if(paywallBtnPay) paywallBtnPay.style.display = 'none';
-                            if(paywallTitle) paywallTitle.innerText = 'Welcome Pro Member';
-                            if(paywallText) paywallText.innerText = `You have ${daysLeft} days remaining.`;
-                            if(pricingSection) pricingSection.style.display = 'none';
-                        } else {
-                            window.isUserPro = false;
-                            updateSidebarDisplay(email, 'Free Plan', true, null);
-                            updateExamUI();
-                            
-                            if(paywallBtnLogin) paywallBtnLogin.style.display = 'none';
-                            if(paywallBtnPay) paywallBtnPay.style.display = 'block';
-                            if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
-                            if(paywallText) paywallText.innerText = `Logged in as ${email}. Premium content requires a subscription.`;
-                            if(pricingSection) pricingSection.style.display = 'block';
+                            validityText = `${daysLeft} Days`;
                         }
                     } catch(e) {
-                        console.error("Subscription Check Error:", e);
+                        console.error("DB Error:", e);
                     }
                 }
+
+                window.isUserPro = isPro;
+
+                if (isPro) {
+                    updateSidebarDisplay(email, null, false, validityText);
+                    updateExamUI();
+                    
+                    if(loginBtn) loginBtn.style.display = 'none';
+                    if(payBtn) payBtn.style.display = 'none';
+                    if(paywallTitle) paywallTitle.innerText = 'Welcome Pro Member';
+                    if(paywallText) paywallText.innerText = 'Your premium access is active. Enjoy MedPYQ.';
+                    if(pricingSection) pricingSection.style.display = 'none';
+                } else {
+                    updateSidebarDisplay(email, 'Expired/Free Plan', true, null);
+                    updateExamUI();
+                    
+                    if(loginBtn) loginBtn.style.display = 'none';
+                    if(payBtn) payBtn.style.display = 'block';
+                    if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
+                    if(paywallText) paywallText.innerText = `Logged in as ${email}. Premium content requires a subscription.`;
+                    if(pricingSection) pricingSection.style.display = 'block';
+                }
             } else {
-                currentUser = null;
+                window.currentUser = null;
                 window.isUserPro = false;
                 updateSidebarDisplay('Guest', 'Free Plan', false, null);
                 updateExamUI();
                 
-                if(paywallBtnLogin) paywallBtnLogin.style.display = 'block';
-                if(paywallBtnPay) paywallBtnPay.style.display = 'none';
+                if(loginBtn) loginBtn.style.display = 'block';
+                if(payBtn) payBtn.style.display = 'none';
                 if(paywallTitle) paywallTitle.innerText = 'Unlock MedPYQ Pro';
                 if(paywallText) paywallText.innerText = 'Premium Question Banks are reserved for members. Please sign in to continue.';
                 if(pricingSection) pricingSection.style.display = 'none';
@@ -672,10 +691,10 @@
         });
 
         // -------------------------------------------------------------
-        // RAZORPAY & FIREBASE AUTOMATION (THE MAGIC ENGINE)
+        // RAZORPAY AUTOMATION ENGINE
         // -------------------------------------------------------------
         window.startSubscription = function(planName, months, amountInINR) {
-            if (!currentUser) { alert("Please log in first."); return; }
+            if (!window.currentUser) { alert("Please log in first to purchase a subscription."); return; }
 
             // ==========================================
             // TODO 1: INSERT YOUR RAZORPAY KEY ID HERE
@@ -684,22 +703,21 @@
 
             var options = {
                 "key": RAZORPAY_KEY,
-                "amount": amountInINR * 100, // Amount in paise
+                "amount": amountInINR * 100, 
                 "currency": "INR",
                 "name": "MedPYQ Pro",
                 "description": `${planName} Access`,
                 "handler": async function (response) {
                     const paymentId = response.razorpay_payment_id;
                     const loadingOverlay = document.getElementById('loading-overlay');
-                    loadingOverlay.style.display = 'flex';
+                    if(loadingOverlay) loadingOverlay.style.display = 'flex';
                     
-                    // 1. Calculate Expiry Date
                     const expiryDate = Date.now() + (months * 30 * 24 * 60 * 60 * 1000); 
                     
                     try {
-                        // 2. Upgrade Firebase Instantly
-                        await update(ref(db, `users/${currentUser.uid}`), {
-                            email: currentUser.email,
+                        // Upgrade Firebase Database instantly
+                        await update(ref(db, `users/${window.currentUser.uid}`), {
+                            email: window.currentUser.email,
                             accessLevel: 'pro',
                             plan: planName,
                             planExpiry: expiryDate,
@@ -707,26 +725,21 @@
                             updatedAt: Date.now()
                         });
 
-                        // 3. Silently trigger Google Form in background
-                        silentGoogleFormSubmit(currentUser.email, planName, amountInINR, paymentId);
+                        // Trigger Google Form entry silently
+                        silentGoogleFormSubmit(window.currentUser.email, planName, amountInINR, paymentId);
 
-                        // Complete
                         setTimeout(() => {
-                            loadingOverlay.style.display = 'none';
+                            if(loadingOverlay) loadingOverlay.style.display = 'none';
                             alert(`Success! You are now a Pro Member for ${months} months.`);
-                            // Trigger auth state check to refresh UI
-                            auth.currentUser.reload().then(() => {
-                                onAuthStateChanged(auth, (user) => { /* Will refresh UI based on DB */ });
-                            });
-                            location.reload(); // Quick refresh to unlock everything
+                            location.reload(); // Quick refresh to unlock UI components
                         }, 2000);
                         
                     } catch(err) {
-                        loadingOverlay.style.display = 'none';
+                        if(loadingOverlay) loadingOverlay.style.display = 'none';
                         alert(`Database update failed. Please save your Payment ID: ${paymentId} and contact support.`);
                     }
                 },
-                "prefill": { "email": currentUser.email },
+                "prefill": { "email": window.currentUser.email },
                 "theme": { "color": "#eebb4d" }
             };
             var rzp = new Razorpay(options);
