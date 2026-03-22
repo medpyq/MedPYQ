@@ -23,17 +23,19 @@
         .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; font-weight: bold; }
         .q-count { background: var(--app-blue); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
 
-        /* --- CUSTOM MULTI-SELECT DROPDOWNS FOR TABLE --- */
+        /* --- CUSTOM MULTI-SELECT DROPDOWNS --- */
         .controls-bar { display: flex; flex-wrap: wrap; gap: 12px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .search-input { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit; }
         
         .ms-dropdown { position: relative; flex: 1; min-width: 200px; }
         .ms-btn { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; text-align: left; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: 0.9rem; font-family: inherit;}
-        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
+        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 350px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
         .ms-content.show { display: block; }
-        .ms-label { display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; transition: 0.2s;}
-        .ms-label:hover { background-color: #f8fafc; }
-        .ms-label input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer; }
+        
+        /* Checkbox styling shared between Table & Deck */
+        .sync-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; transition: 0.2s; }
+        .sync-chk-row:hover { background-color: #f8fafc; }
+        .sync-chk-row input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer; }
 
         .post-table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
         .post-table { width: 100%; border-collapse: collapse; }
@@ -98,10 +100,6 @@
         .ud-nav-item.active { background: #0f2b52; color: white; border: 2px solid #0f2b52; }
         .ud-nav-item.status-correct { background: #22c55e; color: white; }
         .ud-nav-item.status-wrong { background: #ef4444; color: white; }
-
-        .ud-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; font-size: 0.85rem;}
-        .ud-chk-row:hover { background: #f8fafc; }
-        .ud-chk-row input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer;}
         .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .icon-btn:hover { background: #e2e8f0; }
 
@@ -270,14 +268,16 @@
         // FULL 25 CHAPTERS OF CFM
         const masterCurriculum = {
             "cfm": [
-                "1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology", 
-                "4. Screening for Disease", "5. Communicable Diseases", "6. Epidemiology of Chronic Non-Communicable Diseases", 
-                "7. Health Programmes in India", "8. Demography and Family Planning", "9. Preventive Medicine in Obstetrics - Pediatrics", 
+                "1. Man and Medicine: Towards Health for All", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", 
+                "4. Screening for Disease", "5. Communicable Diseases: Respiratory Infections", "5. Communicable Diseases: Intestinal Infections", 
+                "5. Communicable Diseases: Arthropod-borne Infections", "5. Communicable Diseases: Zoonoses", "5. Communicable Diseases: Surface Infections", 
+                "5. Communicable Diseases: Emerging and re-emerging", "5. Communicable Diseases: Hospital acquired", "6. Epidemiology of Chronic Non-Communicable Diseases", 
+                "7. Health Programmes in India", "8. Demography and Family Planning", "9. Preventive Medicine in Obstetrics - Pediatrics and Geriatrics", 
                 "10. Health Care of the Community", "11. Nutrition and Health", "12. Medicine and Social Sciences", 
                 "13. Tribal Health in India", "14. Sustainable Development Goals", "15. Environment and Health", 
                 "16. Hospital Waste Management", "17. Disaster Management", "18. Occupational Health", 
                 "19. Genetics and Health", "20. Mental Health", "21. Health Information and Basic Medical Statistics", 
-                "22. Communication for Health Education", "23. Health Planning and Management", "24. Essential Medicines", "25. International Health"
+                "22. Communication for Health Education", "23. Health Planning and Management", "24. Essential Medicines and Counterfeit Medicines", "25. International Health"
             ],
             "anatomy": ["1. General Anatomy", "2. Upper Limb", "3. Lower Limb", "4. Thorax", "5. Abdomen & Pelvis", "6. Head & Neck", "7. Neuroanatomy", "8. Histology & Embryology"],
             "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"],
@@ -330,7 +330,6 @@
             let processedData = rawData.filter(item => item !== null).map(item => {
                 let chapterMatch = "Uncategorized";
                 for(let c of curriculumForSubject) {
-                    // Extract core chapter number/name to handle your blogger tags robustly
                     let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
                     if(item.subject && item.subject.toLowerCase().includes(coreName)) {
                         chapterMatch = c; break;
@@ -339,19 +338,19 @@
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
-                return { ...item, topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.subject || "General"), year: fullYear };
+                return { ...item, topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.subject ? item.subject.split(',')[0].trim() : "General"), year: fullYear };
             });
 
             window.appData = processedData;
 
-            // Generate precise dropdowns (Use Full Curriculum Array to guarantee all 25 chapters show up!)
+            // Generate precise dropdowns (Using the full curriculum array guarantees all 25 chapters show up!)
             const uniqueYears = [...new Set(processedData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
             buildSynchronizedFilters(curriculumForSubject, uniqueYears);
             
             // Initialize Deck Data
             initUniversalDeck(processedData);
             
-            // Run the initial master sync (Show all data)
+            // Run the initial master sync
             window.SYNC_applyFilters();
             
             // DEFAULT VIEW: Open Deck automatically on load!
@@ -361,7 +360,7 @@
         }
 
         // ---------------------------------------------------------
-        // THE MASTER SYNC ENGINE (Perfect Multi-Select Sync)
+        // THE NEW MASTER SYNC ENGINE (Perfect Multi-Select Sync)
         // ---------------------------------------------------------
         function buildSynchronizedFilters(chapters, years) {
             const tableChapDiv = document.getElementById('table-chap-content');
@@ -372,9 +371,8 @@
             let deckHtml = `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Chapters</div>`;
             
             chapters.forEach(c => {
-                // Escape quotes just in case your chapters have them
                 const cleanVal = c.replace(/"/g, '&quot;');
-                const row = `<label class="ms-label ud-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                const row = `<label class="sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
                 tableChapHtml += row;
                 deckHtml += row;
             });
@@ -385,7 +383,7 @@
             
             years.forEach(y => {
                 const cleanVal = y.replace(/"/g, '&quot;');
-                const row = `<label class="ms-label ud-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
+                const row = `<label class="sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
                 tableYearHtml += row;
                 deckHtml += row;
             });
@@ -404,7 +402,7 @@
             }
         }
 
-        // Handles updates from BOTH Table and Deck Checkboxes
+        // Central State Updater (Syncs Checkboxes visually across Table & Deck)
         window.SYNC_updateState = function(type, value, isChecked) {
             if(type === 'chapter') {
                 if(isChecked) window.filterState.chapters.push(value);
@@ -418,7 +416,7 @@
                 window.filterState.search = value.toLowerCase();
             }
 
-            // Sync Checkboxes Visually (If you check it in Deck, it visually checks the Table dropdown too)
+            // Visually sync all checkboxes everywhere
             document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
                 cb.checked = window.filterState.chapters.includes(cb.value);
             });
@@ -448,6 +446,7 @@
             window.SYNC_applyFilters();
         };
 
+        // Master Filter Application
         window.SYNC_applyFilters = function() {
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
@@ -456,13 +455,13 @@
                 return matchesSearch && matchesChapter && matchesYear;
             });
 
-            // Update Count
+            // Update Global Count
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
             
             // Push to Table
             renderTable(filtered);
 
-            // Push to Deck
+            // Push to Deck (And update the local deck state so prev/next works perfectly)
             ud_activeDb = filtered;
             ud_currentIndex = 0;
             if(isDeckOpen) UD_renderCard();
@@ -507,9 +506,7 @@
     </script>
 
     <script>
-        var ud_db=[], ud_activeDb=[], ud_currentIndex=0, ud_userStatus={}, isDeckOpen=false;
-        let currentQIDForReport = "";
-
+        // These variables are shared with the master sync engine
         function initUniversalDeck(data) {
             ud_db = data.map((item, i) => ({
                 id: item.q || ("Q" + i),
@@ -523,7 +520,7 @@
                 year: item.year || "Unknown",
                 props: item
             }));
-            ud_activeDb = [...ud_db];
+            // ud_activeDb is assigned instantly when SYNC_applyFilters is called right after this
         }
 
         window.UD_toggleMode = function() {
