@@ -27,7 +27,7 @@
         .controls-bar { display: flex; flex-wrap: wrap; gap: 12px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .search-input { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit; }
         
-        .ms-dropdown { position: relative; flex: 1; min-width: 200px; }
+        .ms-dropdown { position: relative; flex: 1; min-width: 150px; }
         .ms-btn { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; text-align: left; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: 0.9rem; font-family: inherit;}
         .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
         .ms-content.show { display: block; }
@@ -44,10 +44,13 @@
         .reveal-active .opt-row.is-correct { background: #dcfce7; color: #14532d; font-weight: bold; border-color: #86efac; }
         .q-img { max-width: 250px; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; cursor: zoom-in; }
 
+        .badge-unit { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; margin-right: 4px; }
+        .badge-chapter { display: inline-block; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; margin-right: 4px;}
+
         .btn-ask-ai { display: inline-flex; align-items: center; gap: 5px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .btn-ask-ai:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
 
-        /* --- STACKED FABs (Eye Button above Red Button, perfectly centered) --- */
+        /* --- STACKED FABs --- */
         #float-eye-btn { position: fixed; bottom: 100px; right: 30px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; display: none; align-items: center; justify-content: center; padding: 0; }
         #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
 
@@ -64,7 +67,6 @@
         
         #ud-card-area { flex: 1; overflow-y: auto; padding: 18px; display: block; }
         
-        /* WIDER CARD FOR LAPTOPS/TABLETS */
         .ud-card { background: white; width: 100%; max-width: 900px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
         
         .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -144,6 +146,13 @@
         <div class="controls-bar">
             <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
             
+            <div class="ms-dropdown" id="unit-dropdown-container" style="display:none;">
+                <button class="ms-btn" onclick="window.toggleDropdown('table-unit-content')">
+                    <span id="unit-btn-text">All Units</span> <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="ms-content" id="table-unit-content"></div>
+            </div>
+
             <div class="ms-dropdown">
                 <button class="ms-btn" onclick="window.toggleDropdown('table-chap-content')">
                     <span id="chap-btn-text">All Chapters</span> <i class="fas fa-chevron-down"></i>
@@ -251,9 +260,8 @@
         // GLOBAL APPLICATION STATE
         window.appData = [];
         window.currentQIDForReport = "";
-        window.filterState = { chapters: [], years: [], search: "" };
+        window.filterState = { units: [], chapters: [], years: [], search: "" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
-        window.nestedCurriculum = null;
 
         const firebaseConfig = {
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
@@ -278,7 +286,7 @@
         window.medpyqExam = activeExam.toUpperCase();
         window.medpyqSubject = formattedTitle.toUpperCase();
 
-        // THE ADVANCED MASTER DICTIONARY (Supports both Flat arrays & Nested Unit/Chapter arrays)
+        // THE ADVANCED MASTER DICTIONARY (Supports Flat arrays & Nested Unit/Chapter arrays)
         const masterCurriculum = {
             "cfm": [
                 "1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", 
@@ -301,6 +309,11 @@
                 { unit: "Head Neck & Face", chapters: ["39. Scalp & Face", "40. Posterior Triangle of Neck", "41. Anterior Triangle of Neck", "42. Parotid Region", "43. Temporal & Infratemporal Region", "44. Submandibular Region", "45. Deep Structures of Neck", "46. Prevertebral & Paravertebral Region", "47. Oral Cavity & Tongue", "48. Pharynx & Larynx", "49. Nose & Paranasal Sinuses", "50. Ear", "51. Orbit & Eye"] },
                 { unit: "Neuroanatomy", chapters: ["52. Spinal Cord", "53. Brainstem", "54. Cerebellum", "55. Cerebrum (Sulci, Gyri, Functional Areas)", "56. White Matter & Basal Ganglia", "57. Ventricles & CSF", "58. Blood Supply of Brain"] },
                 { unit: "Embryology & Genetics", chapters: ["59. General Embryology (Weeks 1-8)", "60. Systemic Embryology", "61. Genetics"] }
+            ],
+            "radiology": [
+                { unit: "Fundamentals of Radiology", chapters: ["1. X-Ray Fundamentals", "2. X-Ray Production and Interactions", "3. CT Basics", "4. USG Basics", "5. MRI Basics", "6. Contrast Media", "7. USG Interpretation", "8. CT Interpretation"] },
+                { unit: "Radiotherapy and Nuclear Medicine", chapters: ["9. PET scan", "10. Systemic Radionuclide Imaging", "11. Radiotherapy"] },
+                { unit: "Systemic Radiology", chapters: ["12. CXR Interpretation", "13. Silhouette Sign : Basics", "14. Silhouette Sign : Applications", "15. Pleural Abnormalities", "16. Mediastinum and Lung Tumours", "17. Congenital Heart Disease", "18. Acquired Cardiac Disease", "19. Structural Anatomy of Brain", "20. Basics of Neuroimaging", "21. Stroke Imaging", "22. Head Trauma Imaging", "23. Brain Tumors", "24. CNS Infections and Miscellaneous", "25. Conventional Procedures in GUT", "26. GUT Imaging", "27. Conventional Procedures in GIT", "28. GIT Imaging", "29. Hepatobiliary Imaging", "30. Obstetrics and Gynaecology Imaging", "31. Breast Imaging", "32. Arthritis and Bone Infections", "33. Systemic Bone Disorders", "34. Bone Tumors", "35. Musculoskeletal Trauma Imaging"] }
             ],
             "surgery": ["1. General Surgery", "2. Burns & Wound Healing", "3. Head, Neck & Breast", "4. Endocrine Surgery", "5. Gastrointestinal", "6. Hernia", "7. Urology", "8. Cardiothoracic & Vascular"],
         };
@@ -333,47 +346,78 @@
             }
         }
 
+        // ==========================================
+        // UNIVERSAL DATA PROCESSOR
+        // ==========================================
         function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
-            
-            // Check if curriculum is nested (like Anatomy) or flat (like CFM)
             let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
-            window.nestedCurriculum = isNested ? curriculumForSubject : null;
-            
-            let flatChapters = [];
-            if (isNested) {
-                curriculumForSubject.forEach(u => flatChapters.push(...u.chapters));
-            } else {
-                flatChapters = curriculumForSubject;
-            }
-            
+
             window.appData = rawData.filter(item => item !== null).map((item, i) => {
-                let chapterMatch = "Uncategorized";
-                for(let c of flatChapters) {
-                    let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
-                    // Robust mapping: Check both item.topic and item.subject combined
-                    let targetText = ((item.topic || "") + " " + (item.subject || "")).toLowerCase();
-                    if(targetText.includes(coreName)) {
-                        chapterMatch = c; break;
-                    }
+                let matchedUnits = [];
+                let matchedTopics = [];
+
+                // 1. Force subjects into an array format
+                let rawSubjects = [];
+                if (Array.isArray(item.subject)) rawSubjects = item.subject;
+                else if (typeof item.subject === 'string') rawSubjects = item.subject.split(',').map(s => s.trim());
+                else if (item.topic) rawSubjects = [item.topic];
+                else rawSubjects = ["General Topic"];
+
+                // 2. Match against curriculum
+                if (curriculumForSubject.length > 0) {
+                    rawSubjects.forEach(sub => {
+                        let found = false;
+                        const cleanSub = sub.includes(" : Part") ? sub.split(" : Part")[0].trim() : sub;
+
+                        if (isNested) {
+                            for (let u of curriculumForSubject) {
+                                const matchedChap = u.chapters.find(c => {
+                                    const cleanC = c.includes(".") ? c.split(".")[1].trim() : c;
+                                    return cleanC.toLowerCase().includes(cleanSub.toLowerCase()) || cleanSub.toLowerCase().includes(cleanC.toLowerCase());
+                                });
+                                if (matchedChap) {
+                                    if (!matchedUnits.includes(u.unit)) matchedUnits.push(u.unit);
+                                    if (!matchedTopics.includes(matchedChap)) matchedTopics.push(matchedChap);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            // Flat curriculum matching
+                            const matchedChap = curriculumForSubject.find(c => {
+                                const cleanC = c.includes(".") ? c.split(".")[1].trim() : c;
+                                return cleanC.toLowerCase().includes(cleanSub.toLowerCase()) || cleanSub.toLowerCase().includes(cleanC.toLowerCase());
+                            });
+                            if (matchedChap) {
+                                if (!matchedTopics.includes(matchedChap)) matchedTopics.push(matchedChap);
+                                found = true;
+                            }
+                        }
+
+                        if (!found) {
+                            if (!matchedTopics.includes(cleanSub)) matchedTopics.push(cleanSub);
+                        }
+                    });
+                } else {
+                    matchedTopics = rawSubjects;
                 }
-                
+
+                if (matchedUnits.length === 0) matchedUnits = [activeSubject.charAt(0).toUpperCase() + activeSubject.slice(1)];
+
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
                 return { 
                     ...item, 
-                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.topic || item.subject ? (item.topic || item.subject).split(',')[0].trim() : "General"), 
+                    units: matchedUnits,
+                    topics: matchedTopics,
                     year: fullYear,
                     uid: item.q || ("Q" + i)
                 };
             });
 
-            // Pass the flat list to generate checkboxes, and pass nested object to group them if applicable!
-            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
-            buildSynchronizedFilters(flatChapters, uniqueYears, window.nestedCurriculum);
-            
-            initUniversalDeck(window.appData);
+            buildSynchronizedFilters();
             window.SYNC_applyFilters();
             
             // AUTO-OPEN DECK VIEW BY DEFAULT
@@ -385,47 +429,49 @@
         // ==========================================
         // UI & ADVANCED FILTER LOGIC
         // ==========================================
-
-        function buildSynchronizedFilters(chapters, years, nestedCurriculum = null) {
+        function buildSynchronizedFilters() {
+            const tableUnitDiv = document.getElementById('table-unit-content');
             const tableChapDiv = document.getElementById('table-chap-content');
             const tableYearDiv = document.getElementById('table-year-content');
             const deckFilterDiv = document.getElementById('deck-dynamic-filters');
-
-            let tableChapHtml = '';
-            let deckHtml = `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Chapters</div>`;
             
-            // If the subject uses Units and Chapters (like Anatomy), format it beautifully!
-            if (nestedCurriculum) {
-                nestedCurriculum.forEach(unitObj => {
-                    const unitHeader = `<div style="padding: 8px 15px; font-size:11px; font-weight:800; color:#0f2b52; background:#f1f5f9; text-transform:uppercase; margin-top:5px;">${unitObj.unit}</div>`;
-                    tableChapHtml += unitHeader;
-                    deckHtml += unitHeader;
+            const uniqueUnits = [...new Set(window.appData.flatMap(i => i.units))].sort();
+            const uniqueTopics = [...new Set(window.appData.flatMap(i => i.topics))].sort();
+            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
 
-                    unitObj.chapters.forEach(c => {
-                        const cleanVal = c.replace(/"/g, '&quot;');
-                        // Notice the padding-left: 25px for indentation under the Unit!
-                        const row = `<label class="ms-label sync-chk-row" style="padding-left: 25px;"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
-                        tableChapHtml += row;
-                        deckHtml += row;
-                    });
-                });
-            } else {
-                // Flat Curriculum formatting (like CFM)
-                chapters.forEach(c => {
-                    const cleanVal = c.replace(/"/g, '&quot;');
-                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
-                    tableChapHtml += row;
+            let deckHtml = '';
+
+            // Units Filter (Hide if flat structure)
+            if (uniqueUnits.length > 1) {
+                document.getElementById('unit-dropdown-container').style.display = 'block';
+                let tableUnitHtml = '';
+                deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Units</div>`;
+                uniqueUnits.forEach(u => {
+                    const cleanVal = u.replace(/"/g, '&quot;');
+                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="unit" value="${cleanVal}" onchange="window.SYNC_updateState('unit', this.value, this.checked)"> <span>${u}</span></label>`;
+                    tableUnitHtml += row;
                     deckHtml += row;
                 });
+                tableUnitDiv.innerHTML = tableUnitHtml;
+            } else {
+                document.getElementById('unit-dropdown-container').style.display = 'none';
             }
-            
+
+            // Chapters Filter
+            let tableChapHtml = '';
+            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>`;
+            uniqueTopics.forEach(c => {
+                const cleanVal = c.replace(/"/g, '&quot;');
+                const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                tableChapHtml += row;
+                deckHtml += row;
+            });
             tableChapDiv.innerHTML = tableChapHtml;
 
-            // Generate Year Filters
+            // Years Filter
             let tableYearHtml = '';
             deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
-            
-            years.forEach(y => {
+            uniqueYears.forEach(y => {
                 const cleanVal = y.replace(/"/g, '&quot;');
                 const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="window.SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
                 tableYearHtml += row;
@@ -447,7 +493,11 @@
         };
 
         window.SYNC_updateState = function(type, value, isChecked) {
-            if(type === 'chapter') {
+            if(type === 'unit') {
+                if(isChecked) window.filterState.units.push(value);
+                else window.filterState.units = window.filterState.units.filter(u => u !== value);
+            }
+            else if(type === 'chapter') {
                 if(isChecked) window.filterState.chapters.push(value);
                 else window.filterState.chapters = window.filterState.chapters.filter(c => c !== value);
             }
@@ -460,25 +510,24 @@
             }
 
             // Visually sync ALL checkboxes everywhere
-            document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
-                cb.checked = window.filterState.chapters.includes(cb.value);
-            });
-            document.querySelectorAll(`input[data-filter-type="year"]`).forEach(cb => {
-                cb.checked = window.filterState.years.includes(cb.value);
-            });
+            document.querySelectorAll(`input[data-filter-type="unit"]`).forEach(cb => { cb.checked = window.filterState.units.includes(cb.value); });
+            document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => { cb.checked = window.filterState.chapters.includes(cb.value); });
+            document.querySelectorAll(`input[data-filter-type="year"]`).forEach(cb => { cb.checked = window.filterState.years.includes(cb.value); });
 
-            const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
-            const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
-            document.getElementById('chap-btn-text').innerText = chapText;
-            document.getElementById('year-btn-text').innerText = yearText;
+            if(document.getElementById('unit-btn-text')) {
+                document.getElementById('unit-btn-text').innerText = window.filterState.units.length > 0 ? `${window.filterState.units.length} Selected` : "All Units";
+            }
+            document.getElementById('chap-btn-text').innerText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
+            document.getElementById('year-btn-text').innerText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
 
             window.SYNC_applyFilters();
         };
 
         window.SYNC_resetFilters = function() {
-            window.filterState = { chapters: [], years: [], search: "" };
+            window.filterState = { units: [], chapters: [], years: [], search: "" };
             document.getElementById('postSearch').value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if(document.getElementById('unit-btn-text')) document.getElementById('unit-btn-text').innerText = "All Units";
             document.getElementById('chap-btn-text').innerText = "All Chapters";
             document.getElementById('year-btn-text').innerText = "All Exams";
             window.SYNC_applyFilters();
@@ -487,9 +536,10 @@
         window.SYNC_applyFilters = function() {
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
-                const matchesChapter = window.filterState.chapters.length === 0 || window.filterState.chapters.includes(item.topic);
+                const matchesUnit = window.filterState.units.length === 0 || item.units.some(u => window.filterState.units.includes(u));
+                const matchesChapter = window.filterState.chapters.length === 0 || item.topics.some(t => window.filterState.chapters.includes(t));
                 const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
-                return matchesSearch && matchesChapter && matchesYear;
+                return matchesSearch && matchesUnit && matchesChapter && matchesYear;
             });
 
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
@@ -510,14 +560,19 @@
             if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#94a3b8;'>No questions match your filters.</td></tr>"; return; }
             
             let html = '';
-            data.forEach((item, index) => {
+            data.forEach((item) => {
                 let opts = item.options.map((opt, i) => {
                     const char = String.fromCharCode(65 + i);
                     return `<div class="opt-row ${char === item.ans_key ? 'is-correct' : ''}"><strong>${char}.</strong> ${opt}</div>`;
                 }).join('');
 
                 const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                let displayChapter = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
+                
+                let unitBadges = item.units.map(u => `<span class="badge-unit">${u.length > 25 ? u.substring(0, 25) + '...' : u}</span>`).join(' ');
+                let chapterBadges = item.topics.map(t => {
+                    let displayT = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
+                    return `<span class="badge-chapter">${displayT}</span>`;
+                }).join(' ');
 
                 html += `<tr>
                     <td><strong style="color:#64748b;">${item.uid}</strong></td>
@@ -527,9 +582,10 @@
                         <div class="opt-grid">${opts}</div>
                     </td>
                     <td style="text-align:center;">
-                        <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
-                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
-                        <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
+                        <div style="margin-bottom:6px;">${unitBadges}</div>
+                        <div style="margin-bottom:10px;">${chapterBadges}</div>
+                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0; display:inline-block;">${item.year}</div>
+                        <br><button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
                     </td>
                 </tr>`;
             });
@@ -587,7 +643,9 @@
                 return `<div class="ud-option" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
             }).join('');
             
-            let displayChapter = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
+            let displayChapters = q.topics.map(t => {
+                return t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
+            }).join(" | ");
 
             area.innerHTML = `
             <div class="ud-card">
@@ -601,7 +659,7 @@
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
                 <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
+                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapters}</span>
                     <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
                 </div>
                 <div id="ud-expl-box" style="display:none; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
