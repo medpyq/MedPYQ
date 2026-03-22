@@ -50,7 +50,7 @@
         #float-eye-btn { position: fixed; bottom: 30px; right: 100px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; }
         #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
 
-        /* --- TOGGLE FAB (The Red/Blue Button) --- */
+        /* --- TOGGLE FAB --- */
         #view-toggle-btn { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 22px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999999; transition: transform 0.2s; }
         #view-toggle-btn:hover { transform: scale(1.1); }
         #view-toggle-btn.btn-red { background: #ef4444; } 
@@ -63,7 +63,10 @@
         .ud-subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         
         #ud-card-area { flex: 1; overflow-y: auto; padding: 18px; display: block; }
-        .ud-card { background: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
+        
+        /* CARD WIDTH FIX: Increased max-width to 900px */
+        .ud-card { background: white; width: 100%; max-width: 900px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
+        
         .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .ud-label { background: #f1f5f9; color: #0f2b52; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; }
         .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;}
@@ -107,7 +110,7 @@
         .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .icon-btn:hover { background: #e2e8f0; }
 
-        /* Modals */
+        /* Report & AI Modals */
         .ud-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999998; display: none; align-items: center; justify-content: center; padding: 20px;}
         .ud-modal-card { background: white; width: 100%; max-width: 360px; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; text-align: center; }
         .ud-modal-card h3 { color: #0f2b52; font-size: 1.4rem; margin: 0 0 10px 0; font-weight: 800; }
