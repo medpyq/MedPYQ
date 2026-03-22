@@ -8,13 +8,12 @@
     <meta content='black-translucent' name='apple-mobile-web-app-status-bar-style'/>
     <meta content='#0f2b52' name='theme-color'/>
 
-    <title>MedPYQ</title>
+    <title>MedPYQ | Medical Exam Prep</title>
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
     
     <style>
     :root {
-        /* NAVY & GOLD THEME */
         --app-blue: #0f2b52;
         --app-blue-pale: #E8EAF6;
         --app-gold: #eebb4d;
@@ -24,7 +23,6 @@
         --sidebar-width: 300px;
     }
 
-    /* --- SCROLL FIXES (CRITICAL) --- */
     html { box-sizing: border-box; }
     *, *:before, *:after { box-sizing: inherit; }
 
@@ -38,7 +36,6 @@
     ul { list-style: none; padding: 0; margin: 0; }
     img { max-width: 100%; height: auto; display: block; } 
 
-    /* --- LAYOUT UTILS --- */
     .screen { display: none; animation: fadeIn 0.3s; width: 100%; }
     .screen.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -157,6 +154,7 @@
     .btn-gold { width: 100%; padding: 14px; background: #eebb4d; color: #0f2b52; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase; }
     .btn-secondary { background: none; border: none; color: #64748b; font-size: 0.85rem; cursor: pointer; margin-top: 15px; font-weight: 500; }
     
+    .auth-toggle-link { color: #0ea5e9; cursor: pointer; font-weight: 700; text-decoration: underline; }
     .auth-error { color: #ef4444; font-size: 0.8rem; margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; display: none; text-align: left; }
     .auth-status-active { color: #22c55e !important; font-weight: bold !important; font-size: 0.8rem !important; }
     .auth-status-expired { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
@@ -186,9 +184,9 @@
             <div class="widget">
                 <h2>Menu</h2>
                 <ul>
-                    <li><a href="javascript:void(0)">About Us</a></li>
-                    <li><a href="javascript:void(0)">Contact</a></li>
-                    <li><a href="javascript:void(0)">Privacy Policy</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
                 </ul>
             </div>
         </div>
@@ -306,7 +304,7 @@
     <div id="reset-success-overlay">
         <div class="modal-card">
             <div class="modal-icon" style="color:#166534; background:#dcfce7;"><i class="fa-solid fa-envelope-circle-check"></i></div>
-            <h3>Link Sent!</h3><p>A password reset link has been sent to your email address.</p>
+            <h3>Link Sent!</h3><p>A password reset link has been sent to your email address. Check your spam folder.</p>
             <button class="btn-primary" onclick="document.getElementById('reset-success-overlay').style.display='none';">Got it, thanks!</button>
         </div>
     </div>
@@ -317,7 +315,7 @@
             <h2 id="paywall-title">Unlock MedPYQ Pro</h2>
             <div id="pro-status-badge" style="display:none; margin-bottom: 20px;"><div style="background: #fff8e1; border: 1px solid #eebb4d; padding: 10px; border-radius: 12px;"><span id="expiry-countdown" style="font-weight: 800; color: #0f2b52; font-size: 0.9rem;">Checking status...</span></div></div>
             <p id="paywall-text">Premium Question Banks are reserved for members. Please sign in to continue.</p>
-            <button class="btn-gold" id="paywall-btn-pay" style="display:none;">Get Pro Access</button>
+            <button class="btn-gold" id="paywall-btn-pay" onclick="window.location.href='YOUR_PAYMENT_LINK_HERE'" style="display:none;">Get Pro Access</button>
             <button class="btn-primary" id="paywall-btn-login" onclick="document.getElementById('pro-paywall-overlay').style.display='none'; window.authApp.open();" style="background:#f1f5f9; color:#475569;">Member Login</button>
             <div onclick="document.getElementById('pro-paywall-overlay').style.display='none'" style="margin-top:20px; color:#94a3b8; cursor:pointer; font-size:0.8rem;">Maybe Later</div>
         </div>
@@ -335,7 +333,6 @@
             selectedExam = examName;
             localStorage.setItem('selectedExam', examName);
             updateExamUI();
-            // Automatically switch to QBank tab when exam is selected
             switchTab('qbank');
             closeSidebar();
         }
@@ -449,45 +446,128 @@
             'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
         };
 
+        // --- FULLY IMPLEMENTED AUTH SYSTEM ---
         window.authApp = {
             mode: 'login',
             open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
             close: function() { document.getElementById('auth-overlay').style.display = 'none'; this.mode = 'login'; },
             toggleMode: function(newMode) { this.mode = newMode; this.renderUI(); },
+            
+            showError: function(msg) { 
+                const el = document.getElementById('auth-error-msg'); 
+                if(el) { el.innerText = msg; el.style.display = 'block'; } else { alert(msg); }
+            },
+            cleanError: function(code) { return code.replace('auth/', '').replace(/-/g, ' '); },
+
             login: function() {
                 const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
-                if(!e || !p) return;
-                signInWithEmailAndPassword(auth, e, p).then(() => this.close()).catch(err => alert(err.message));
+                if(!e || !p) { this.showError("Please fill all fields"); return; }
+                document.getElementById('btn-action-primary').innerText = "Signing in...";
+                
+                signInWithEmailAndPassword(auth, e, p)
+                    .then(() => { this.close(); })
+                    .catch((error) => {
+                        this.showError(this.cleanError(error.code));
+                        document.getElementById('btn-action-primary').innerText = "Sign In";
+                    });
             },
+
+            signup: function() {
+                const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
+                if(!e || !p) { this.showError("Please fill all fields"); return; }
+                if(p.length < 6) { this.showError("Password min 6 chars"); return; }
+                document.getElementById('btn-action-primary').innerText = "Creating...";
+
+                createUserWithEmailAndPassword(auth, e, p)
+                    .then(() => { this.close(); alert("Account Created! Welcome to MedPYQ."); })
+                    .catch((error) => {
+                        this.showError(this.cleanError(error.code));
+                        document.getElementById('btn-action-primary').innerText = "Sign Up";
+                    });
+            },
+
+            resetPass: function() {
+                const e = document.getElementById('auth-email').value;
+                if(!e) { this.showError("Enter email first"); return; }
+                document.getElementById('btn-action-primary').innerText = "Sending...";
+
+                sendPasswordResetEmail(auth, e)
+                    .then(() => { 
+                        document.getElementById('reset-success-overlay').style.display = 'flex'; 
+                        this.toggleMode('login'); 
+                    })
+                    .catch((error) => { 
+                        this.showError(this.cleanError(error.code)); 
+                        document.getElementById('btn-action-primary').innerText = "Send Link";
+                    });
+            },
+
             logout: function() { signOut(auth).then(() => location.reload()); },
+
             renderUI: function() {
                 const container = document.getElementById('auth-box-content');
                 if(!container) return;
                 const user = auth.currentUser;
+                
                 if (user) {
-                    container.innerHTML = `<h2>${user.email.split('@')[0]}</h2><p>${user.email}</p><button class="btn-primary" onclick="window.authApp.logout()">Sign Out</button><button class="btn-secondary" onclick="window.authApp.close()">Close</button>`;
+                    container.innerHTML = `
+                        <div class="modal-icon" style="background:#dcfce7; color:#166534;"><i class="fas fa-user-check"></i></div>
+                        <h2>${user.email.split('@')[0]}</h2>
+                        <p>${user.email}</p>
+                        <button class="btn-primary" onclick="window.authApp.logout()">Sign Out</button>
+                        <button class="btn-secondary" onclick="window.authApp.close()">Close</button>`;
                 } else {
-                    let html = (this.mode === 'login') ? `<h2>Sign In</h2><input type="email" id="auth-email" class="auth-input" placeholder="Email"/><br><br><input type="password" id="auth-pass" class="auth-input" placeholder="Password"/><button class="btn-primary" onclick="window.authApp.login()">Sign In</button>` : `...`;
-                    container.innerHTML = html + '<button class="btn-secondary" onclick="window.authApp.close()">Cancel</button>';
+                    let html = '<div class="modal-icon"><i class="fas fa-lock"></i></div>';
+                    
+                    if(this.mode === 'login') {
+                        html += `<h2>Welcome Back</h2><p>Sign in to your account</p><div id="auth-error-msg" class="auth-error"></div>
+                        <div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div>
+                        <div class="auth-input-group"><label class="auth-label">Password</label><input type="password" id="auth-pass" class="auth-input" placeholder="Enter password"/></div>
+                        <button id="btn-action-primary" class="btn-primary" onclick="window.authApp.login()">Sign In</button>
+                        <div style="margin-top:15px; font-size:0.85rem; color:#64748b;">New user? <span class="auth-toggle-link" onclick="window.authApp.toggleMode('signup')">Create Account</span><br/><span style="font-size:0.8rem; cursor:pointer; margin-top:5px; display:inline-block;" onclick="window.authApp.toggleMode('reset')">Forgot Password?</span></div>`;
+                    } else if (this.mode === 'signup') {
+                        html += `<h2>Create Account</h2><p>Join MedPYQ today</p><div id="auth-error-msg" class="auth-error"></div>
+                        <div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div>
+                        <div class="auth-input-group"><label class="auth-label">Password</label><input type="password" id="auth-pass" class="auth-input" placeholder="Create password"/></div>
+                        <button id="btn-action-primary" class="btn-primary" onclick="window.authApp.signup()">Sign Up</button>
+                        <div style="margin-top:15px; font-size:0.85rem; color:#64748b;">Already have an account? <span class="auth-toggle-link" onclick="window.authApp.toggleMode('login')">Sign In</span></div>`;
+                    } else if (this.mode === 'reset') {
+                        html += `<h2>Reset Password</h2><p>Receive reset link via email</p><div id="auth-error-msg" class="auth-error"></div>
+                        <div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div>
+                        <button id="btn-action-primary" class="btn-primary" onclick="window.authApp.resetPass()">Send Link</button>
+                        <div style="margin-top:15px; font-size:0.85rem; color:#64748b;"><span class="auth-toggle-link" onclick="window.authApp.toggleMode('login')">Back to Login</span></div>`;
+                    }
+                    
+                    html += '<button class="btn-secondary" onclick="window.authApp.close()">Cancel</button>';
+                    container.innerHTML = html;
                 }
             }
         };
 
+        // --- AUTH LISTENER & PAYWALL LOGIC ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const email = user.email.toLowerCase();
                 const expiryStr = SUB_DB[email];
                 let isPro = false;
+                
                 if (expiryStr) {
-                    const today = new Date(); const expiry = new Date(expiryStr);
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const expiry = new Date(expiryStr); expiry.setHours(0,0,0,0);
                     const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                    
                     if (daysLeft >= 0) {
-                        isPro = true; window.isUserPro = true;
+                        isPro = true; 
+                        window.isUserPro = true;
                         updateSidebarDisplay(user.email, null, false, daysLeft);
                         updateExamUI();
                     }
                 }
-                if (!isPro) { window.isUserPro = false; updateSidebarDisplay(user.email, 'Expired/Free Plan', true, null); }
+                
+                if (!isPro) { 
+                    window.isUserPro = false; 
+                    updateSidebarDisplay(user.email, 'Expired/Free Plan', true, null); 
+                }
                 
                 const paywallBtn = document.getElementById('paywall-btn-login');
                 if(paywallBtn) {
