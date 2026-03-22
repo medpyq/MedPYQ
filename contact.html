@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | MedPYQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #F4F6F8; margin: 0; padding: 0; color: #334155; }
+        .app-header { background: #0f2b52; color: white; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; position: sticky; top: 0; z-index: 100;}
+        .app-header a { color: white; text-decoration: none; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 15px;}
+        .main-wrapper { padding: 40px 30px; max-width: 800px; margin: 40px auto; background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+
+        /* Your Custom Styles */
+        .page-container { font-family: 'Roboto', sans-serif; color: #334155; line-height: 1.6; font-size: 1rem; }
+        .page-title { color: #0f2b52; font-size: 1.5rem; font-weight: 800; border-bottom: 2px solid #eebb4d; padding-bottom: 10px; margin-bottom: 20px; margin-top: 0;}
+        .notice-box { background: #fff8e1; border: 1px solid #eebb4d; padding: 15px; border-radius: 8px; color: #b45309; font-size: 0.95rem; margin-bottom: 20px; font-weight: 500; display: flex; gap: 10px; align-items: flex-start; }
+        .disclaimer-box { background: #f8fafc; border-left: 4px solid #0f2b52; padding: 15px; border-radius: 0 8px 8px 0; color: #334155; font-size: 0.95rem; margin-bottom: 25px; }
+        .custom-ul { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; padding-left: 10px; }
+        .custom-li { display: flex; align-items: flex-start; gap: 10px; }
+        .custom-li::before { content: "\2022"; color: #0f2b52; font-weight: bold; font-size: 1.5rem; line-height: 0.8; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <a href="index.html" title="Back to Home"><i class="fas fa-arrow-left"></i> MedPYQ</a>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="page-container">
+          <h1 class="page-title">About MedPYQ</h1>
+          
+          <p>Welcome to MedPYQ, a focused platform designed to provide medical professionals and students with streamlined, high-quality practice materials for competitive medical examinations.</p>
+
+          <div class="notice-box">
+            <i class="fa-solid fa-circle-info" style="margin-top: 3px;"></i>
+            <div>
+              <strong>Content Availability Notice:</strong> Currently, our database contains Previous Year Questions (PYQs) exclusively for the <strong>NEET PG</strong> examination. Question banks for INI-CET, FMGE, and UPSC CMS are in development and will be uploaded in the future.
+            </div>
+          </div>
+
+          <p>Our core offering and primary focus is providing comprehensive, subject-wise <strong>Question Banks (QBanks)</strong>. By subscribing to MedPYQ Pro, users are paying exclusively for access to this premium QBank content.</p>
+
+          <div class="disclaimer-box">
+            <strong>Note on Additional Features:</strong> From time to time, MedPYQ may introduce extra features, such as Mock Tests or performance analytics. Please note that these are provided strictly as <strong>complimentary, additional benefits</strong>. They are not guaranteed rights of your subscription. Whenever we are able to host and maintain these extra features, subscribed users can enjoy them entirely for free alongside their QBank access.
+          </div>
+
+          <p>Our platform is committed to maintaining a distraction-free, user-friendly environment. We aim to provide exactly what you need to revise subjects efficiently and test your knowledge without unnecessary clutter.</p>
+        </div>
+    </div>
+
+</body>
+</html>
