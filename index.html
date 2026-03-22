@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+    <meta content='yes' name='mobile-web-app-capable'/>
+    <meta content='yes' name='apple-mobile-web-app-capable'/>
+    <meta content='black-translucent' name='apple-mobile-web-app-status-bar-style'/>
+    <meta content='#0f2b52' name='theme-color'/>
+
+    <title>MedPYQ</title>
+    <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
+    
+    <style>
+    :root {
+        /* NAVY & GOLD THEME */
+        --app-blue: #0f2b52;
+        --app-blue-pale: #E8EAF6;
+        --app-gold: #eebb4d;
+        --app-bg: #F4F6F8;
+        --white: #ffffff;
+        --nav-height: 60px;
+        --sidebar-width: 300px;
+    }
+
+    /* --- SCROLL FIXES (CRITICAL) --- */
+    html { box-sizing: border-box; }
+    *, *:before, *:after { box-sizing: inherit; }
+
+    body {
+        margin: 0; padding: 0; font-family: 'Roboto', sans-serif;
+        background: var(--app-bg); padding-bottom: 80px; 
+        color: #333; min-height: 100vh; overflow-x: hidden; 
+    }
+
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    img { max-width: 100%; height: auto; display: block; } 
+
+    /* --- LAYOUT UTILS --- */
+    .screen { display: none; animation: fadeIn 0.3s; width: 100%; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* --- HEADER --- */
+    .app-header {
+        background: var(--app-blue); color: var(--white);
+        padding: 10px 20px 0 20px; position: sticky; top: 0; z-index: 50;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .top-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+    .app-header h1 { font-size: 1.2rem; font-weight: 700; margin: 0; margin-left: 15px; flex:1; color: white; }
+    .btn-pro-header { 
+        border: 1px solid var(--app-gold); color: var(--app-gold);
+        border-radius: 4px; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; 
+        margin-right: 15px; white-space: nowrap; text-transform: uppercase;
+    }
+    .head-icons i { font-size: 1.3rem; margin-left: 10px; color: var(--white); cursor:pointer; }
+
+    /* --- SIDEBAR --- */
+    .sidebar-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 150; opacity: 0; transition: opacity 0.3s; pointer-events: none; 
+    }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+    .sidebar {
+        position: fixed; top: 0; left: -100%; width: 85%; max-width: var(--sidebar-width); height: 100%;
+        background: var(--app-blue); color: white; z-index: 200; transition: left 0.3s ease-in-out;
+        display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.2); overflow-y: auto;
+    }
+    .sidebar.active { left: 0; }
+    .sidebar-header { padding: 25px 20px; display: flex; align-items: center; background: rgba(0,0,0,0.2); cursor:pointer;}
+    .user-avatar { width: 60px; height: 60px; border-radius: 50%; background: #ddd; border: 2px solid var(--app-gold); margin-right: 15px; object-fit: cover;}
+    .user-info h3 { margin: 0; font-size: 1rem; font-weight: 700; text-transform: uppercase; color: var(--app-gold); }
+    .sidebar-content { flex: 1; padding: 0 20px; overflow-y: auto; }
+    
+    .exam-selector { margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-top:20px;}
+    .exam-label { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 10px; text-transform: uppercase; }
+    .exam-options { display: flex; flex-direction: column; gap: 8px; }
+    .exam-option { padding: 10px; border-radius: 4px; background: rgba(255,255,255,0.05); cursor: pointer; transition: background 0.2s; font-size: 0.9rem; color: white; }
+    .exam-option:hover { background: rgba(255,255,255,0.1); }
+    .exam-option.active { background: var(--app-gold); color: var(--app-blue); font-weight: bold; }
+
+    .sidebar .widget { margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    .sidebar .widget h2 { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 10px; text-transform: uppercase; }
+    .sidebar .widget li { margin-bottom: 12px; }
+    .sidebar .widget li a { font-size: 1rem; color: white; font-weight: 500; display: block; }
+    .sidebar .widget li a:hover { color: var(--app-gold); }
+    .sidebar-footer { padding: 20px; opacity: 0.6; font-size: 0.8rem; margin-top: auto; }
+
+    /* --- HOME: HERO & CARDS --- */
+    .medpyq-hero {
+        background: linear-gradient(135deg, #0f2b52 0%, #1a428a 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 30px;
+    }
+    .medpyq-hero h1 { font-size: 2rem; margin-bottom: 10px; font-weight: 700; }
+    .medpyq-hero p { font-size: 1rem; opacity: 0.9; margin-bottom: 20px; }
+    .medpyq-btn {
+        display: inline-block; background-color: var(--app-gold); color: var(--app-blue); padding: 10px 25px; font-weight: bold; border-radius: 50px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor:pointer;
+    }
+    .medpyq-section-title { text-align: center; font-size: 1.5rem; color: var(--app-blue); margin-bottom: 20px; font-weight: bold; }
+    .medpyq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 0 15px; margin-bottom: 40px; }
+    .medpyq-card { background: white; border: 1px solid #e1e8f0; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; cursor:pointer;}
+    .medpyq-icon-circle { width: 50px; height: 50px; background: #f0f4ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--app-blue); font-size: 20px; }
+    .medpyq-card h3 { margin: 5px 0; color: var(--app-blue); font-size: 1rem; }
+    .medpyq-card p { font-size: 0.8rem; color: #666; margin-bottom: 15px; }
+    .medpyq-card-link { color: var(--app-blue); font-weight: bold; font-size: 0.85rem; margin-top: auto; }
+
+    /* --- AVAILABILITY BANDS & QBANK GRID --- */
+    .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px 20px; }
+    .subject-card {
+        background: white; border-radius: 8px; padding: 20px 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .availability-badge {
+        position: absolute; top: 8px; right: 8px; background: #fff8e1; color: #b45309; border: 1px solid #eebb4d; font-size: 0.65rem; font-weight: 800; padding: 3px 6px; border-radius: 6px; z-index: 10; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .subject-card.locked-soon { opacity: 0.7; pointer-events: none; }
+    .icon-circle { width: 50px; height: 50px; border-radius: 50%; background: var(--app-blue-pale); color: var(--app-blue); display: flex; justify-content: center; align-items: center; font-size: 1.4rem; margin-bottom: 10px; }
+    .sub-name { font-weight: 600; font-size: 0.9rem; color: #444; }
+    .sub-count { font-size: 0.75rem; color: #999; margin-top: 4px; }
+
+    /* --- TEST LIST STYLES --- */
+    .test-list { padding: 10px 15px; }
+    .test-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--app-blue); }
+    .test-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .test-title { font-weight: 600; color: #333; font-size: 0.95rem; }
+    .tag-pro { background: #fff8e1; color: var(--app-gold); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+    .test-meta { font-size: 0.8rem; color: #888; }
+
+    /* --- BOTTOM NAV --- */
+    .bottom-nav {
+        position: fixed; bottom: 0; width: 100%; height: var(--nav-height); background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; z-index: 100;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #bbb; font-size: 0.7rem; width: 100%; height: 100%; cursor: pointer; }
+    .nav-item i { font-size: 1.2rem; margin-bottom: 4px; }
+    .nav-item.active { color: var(--app-blue); }
+
+    /* --- MODALS & OVERLAYS --- */
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
+    }
+    
+    .modal-card {
+        background: white; width: 90%; max-width: 380px; border-radius: 24px; padding: 30px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative;
+    }
+    .modal-icon { width: 60px; height: 60px; background: #eff6ff; color: #0f2b52; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; }
+    .modal-card h2, .modal-card h3 { color: #0f172a; font-size: 1.4rem; margin: 0 0 8px 0; font-weight: 800; }
+    .modal-card p { color: #64748b; font-size: 0.9rem; margin: 0 0 25px 0; }
+
+    .auth-input-group { text-align: left; margin-bottom: 15px; }
+    .auth-label { display: block; font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase; }
+    .auth-input { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none; transition: border 0.3s; box-sizing: border-box; background: #f8fafc; }
+    .auth-input:focus { border-color: #0f2b52; background: #fff; }
+    
+    .btn-primary { width: 100%; padding: 14px; background: #0f2b52; color: white; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-top: 10px; font-size: 1rem; transition: transform 0.1s; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-gold { width: 100%; padding: 14px; background: #eebb4d; color: #0f2b52; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase; }
+    .btn-secondary { background: none; border: none; color: #64748b; font-size: 0.85rem; cursor: pointer; margin-top: 15px; font-weight: 500; }
+    
+    .auth-error { color: #ef4444; font-size: 0.8rem; margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; display: none; text-align: left; }
+    .auth-status-active { color: #22c55e !important; font-weight: bold !important; font-size: 0.8rem !important; }
+    .auth-status-expired { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="app-sidebar">
+        <div class="sidebar-header" onclick="if(window.authApp) window.authApp.open();">
+            <img alt="User" class="user-avatar" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmZCvBG0AQGL_GETLyEhJk2AFjghV6myUYLndf7t7Ev0s7n2v3TGtrhnLo8pGCpW2AdN6FYNEzXLRSr1wGUfqwJOxmP4GMX_5O-Mm0TYjGbiXLYzB-E_2JnZwUzaNiWLsxN4zNO8wSDRe9_BgYm-D5ufatVrKQqu5BnWz57KPiOXq6iTuQTCUqSNMCxJ0/s1024/1763696369451.jpg"/>
+            <div class="user-info">
+                <h3>Guest</h3>
+                <p>Free Plan</p>
+            </div>
+        </div>
+        <div class="sidebar-content">
+            <div class="exam-selector">
+                <div class="exam-label">Switch Exam</div>
+                <div class="exam-options">
+                    <div class="exam-option active" onclick="filterExam('NEET-PG')">NEET-PG</div>
+                    <div class="exam-option" onclick="filterExam('INICET')">INICET</div>
+                    <div class="exam-option" onclick="filterExam('UPSC-CMS')">UPSC-CMS</div>
+                    <div class="exam-option" onclick="filterExam('FMGE')">FMGE</div>
+                </div>
+            </div>
+            <div class="widget">
+                <h2>Menu</h2>
+                <ul>
+                    <li><a href="javascript:void(0)">About Us</a></li>
+                    <li><a href="javascript:void(0)">Contact</a></li>
+                    <li><a href="javascript:void(0)">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <div style="font-weight:800; opacity:0.3; font-size:1.5rem;">MedPYQ</div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="top-row">
+            <i class="fas fa-bars" onclick="openSidebar()"></i>
+            <h1><a href="index.html">MedPYQ</a></h1>
+            <div class="btn-pro-header" id="header-exam-display">NEET-PG</div>
+            <div class="head-icons">
+                <i class="fas fa-circle-user" onclick="if(window.authApp) window.authApp.open();"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="screen active" id="view-home">
+        <div class="medpyq-hero">
+            <div style="font-size: 3rem; margin-bottom: 10px; color: #eebb4d;"><i class="fa-solid fa-user-doctor"></i></div>
+            <h1>Welcome to MedPYQ</h1>
+            <p>Your dedicated partner for mastering NEET PG, INI-CET, FMGE, and UPSC CMS.</p>
+            <a class="medpyq-btn" onclick="switchTab('qbank')">Start Practicing</a>
+        </div>
+        <h2 class="medpyq-section-title">Select Your Target</h2>
+        <div class="medpyq-grid">
+            <div class="medpyq-card" onclick="filterExam('NEET-PG')">
+                <div class="medpyq-icon-circle"><i class="fa-solid fa-stethoscope"></i></div>
+                <h3>NEET PG</h3><p>Comprehensive subject-wise PYQs.</p>
+            </div>
+            <div class="medpyq-card" onclick="filterExam('INICET')">
+                <div class="medpyq-icon-circle"><i class="fa-solid fa-brain"></i></div>
+                <h3>INI-CET</h3><p>Focused material for AIIMS aspirants.</p>
+            </div>
+            <div class="medpyq-card" onclick="filterExam('FMGE')">
+                <div class="medpyq-icon-circle"><i class="fa-solid fa-globe"></i></div>
+                <h3>FMGE</h3><p>Essential question banks for IMGs.</p>
+            </div>
+            <div class="medpyq-card" onclick="filterExam('UPSC-CMS')">
+                <div class="medpyq-icon-circle"><i class="fa-solid fa-building-columns"></i></div>
+                <h3>UPSC CMS</h3><p>Targeted prep for Central Medical Services.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="view-qbank">
+        <div style="padding:15px; color:#999; font-size:0.8rem; background:#fff;">SUBJECTS</div>
+        <div class="grid-container">
+            <a class="subject-card" onclick="navigateToSubject('Anatomy')"><div class="icon-circle"><i class="fas fa-bone"></i></div><div class="sub-name">Anatomy</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Physiology')"><div class="icon-circle"><i class="fas fa-heart-pulse"></i></div><div class="sub-name">Physiology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Biochemistry')"><div class="icon-circle"><i class="fas fa-dna"></i></div><div class="sub-name">Biochemistry</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Pharmacology')"><div class="icon-circle"><i class="fas fa-pills"></i></div><div class="sub-name">Pharmacology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Microbiology')"><div class="icon-circle"><i class="fas fa-bacterium"></i></div><div class="sub-name">Microbiology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Pathology')"><div class="icon-circle"><i class="fas fa-microscope"></i></div><div class="sub-name">Pathology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('FMT')"><div class="icon-circle"><i class="fas fa-skull-crossbones"></i></div><div class="sub-name">FMT</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('CFM')"><div class="icon-circle"><i class="fas fa-users"></i></div><div class="sub-name">CFM (PSM)</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('ENT')"><div class="icon-circle"><i class="fas fa-ear-listen"></i></div><div class="sub-name">ENT</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Orthopaedics')"><div class="icon-circle"><i class="fas fa-crutch"></i></div><div class="sub-name">Orthopaedics</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Psychiatry')"><div class="icon-circle"><i class="fas fa-brain"></i></div><div class="sub-name">Psychiatry</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Ophthalmology')"><div class="icon-circle"><i class="fas fa-eye"></i></div><div class="sub-name">Ophthalmology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Medicine')"><div class="icon-circle"><i class="fas fa-user-doctor"></i></div><div class="sub-name">Medicine</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Surgery')"><div class="icon-circle"><i class="fas fa-scissors"></i></div><div class="sub-name">Surgery</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('OBG')"><div class="icon-circle"><i class="fas fa-person-pregnant"></i></div><div class="sub-name">OBG</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Pediatrics')"><div class="icon-circle"><i class="fas fa-baby"></i></div><div class="sub-name">Pediatrics</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Dermatology')"><div class="icon-circle"><i class="fas fa-hand-dots"></i></div><div class="sub-name">Dermatology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Anesthesiology')"><div class="icon-circle"><i class="fas fa-syringe"></i></div><div class="sub-name">Anesthesiology</div><div class="sub-count">Click to Practice</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Radiology')"><div class="icon-circle"><i class="fas fa-x-ray"></i></div><div class="sub-name">Radiology</div><div class="sub-count">Click to Practice</div></a>
+        </div>
+    </div>
+
+    <div class="screen" id="view-tests">
+        <div style="padding:15px; background:white; margin-bottom:10px;">
+            <div class="test-list">
+                <div class="test-card"><div class="test-header"><div class="test-title">National INI-CET Mock</div><div class="tag-pro">Ended</div></div><div class="test-meta">Ended on 22 Oct &bull; 180 mins</div></div>
+                <div class="test-card"><div class="test-header"><div class="test-title">Grand Test 5</div><div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div></div><div class="test-meta">Ended on 17 Nov &bull; 200 MCQs</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="view-videos">
+        <div class="grid-container" style="padding-top:20px;">
+            <a class="subject-card" onclick="navigateToSubject('Anatomy')"><div class="icon-circle"><i class="fas fa-bone"></i></div><div class="sub-name">Anatomy</div><div class="sub-count">Video Modules</div></a>
+            <a class="subject-card" onclick="navigateToSubject('Biochemistry')"><div class="icon-circle"><i class="fas fa-dna"></i></div><div class="sub-name">Biochemistry</div><div class="sub-count">Video Modules</div></a>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><span>Home</span></div>
+        <div class="nav-item" onclick="switchTab('qbank', this)"><i class="fas fa-layer-group"></i><span>QBank</span></div>
+        <div class="nav-item" onclick="switchTab('tests', this)"><i class="fas fa-clipboard-check"></i><span>Tests</span></div>
+        <div class="nav-item" onclick="switchTab('videos', this)"><i class="fas fa-video"></i><span>Videos</span></div>
+    </div>
+
+    <div id="offline-overlay">
+        <div class="modal-card">
+            <div class="modal-icon"><i class="fas fa-wifi"></i></div>
+            <h2>No Internet Connection</h2>
+            <p>Please check your internet settings to continue.</p>
+            <button class="btn-gold" onclick="checkConnection()">Try Again</button>
+        </div>
+    </div>
+
+    <div id="auth-overlay"><div class="modal-card" id="auth-box-content"></div></div>
+
+    <div id="session-conflict-overlay">
+        <div class="modal-card">
+            <div class="modal-icon" style="color:#ef4444; background:#fee2e2;"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <h3>Device Conflict</h3><p>You have logged in on another device. For security, this session has been paused.</p>
+            <button class="btn-primary" onclick="window.forceLogout()">Use Here Instead</button>
+        </div>
+    </div>
+
+    <div id="reset-success-overlay">
+        <div class="modal-card">
+            <div class="modal-icon" style="color:#166534; background:#dcfce7;"><i class="fa-solid fa-envelope-circle-check"></i></div>
+            <h3>Link Sent!</h3><p>A password reset link has been sent to your email address.</p>
+            <button class="btn-primary" onclick="document.getElementById('reset-success-overlay').style.display='none';">Got it, thanks!</button>
+        </div>
+    </div>
+
+    <div id="pro-paywall-overlay">
+        <div class="modal-card" style="border: 1px solid rgba(255,255,255,0.3);">
+            <div style="font-size: 40px; margin-bottom:10px;">👑</div>
+            <h2 id="paywall-title">Unlock MedPYQ Pro</h2>
+            <div id="pro-status-badge" style="display:none; margin-bottom: 20px;"><div style="background: #fff8e1; border: 1px solid #eebb4d; padding: 10px; border-radius: 12px;"><span id="expiry-countdown" style="font-weight: 800; color: #0f2b52; font-size: 0.9rem;">Checking status...</span></div></div>
+            <p id="paywall-text">Premium Question Banks are reserved for members. Please sign in to continue.</p>
+            <button class="btn-gold" id="paywall-btn-pay" style="display:none;">Get Pro Access</button>
+            <button class="btn-primary" id="paywall-btn-login" onclick="document.getElementById('pro-paywall-overlay').style.display='none'; window.authApp.open();" style="background:#f1f5f9; color:#475569;">Member Login</button>
+            <div onclick="document.getElementById('pro-paywall-overlay').style.display='none'" style="margin-top:20px; color:#94a3b8; cursor:pointer; font-size:0.8rem;">Maybe Later</div>
+        </div>
+    </div>
+
+    <script>
+        let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
+        window.isUserPro = false;
+
+        function openSidebar() { document.getElementById('app-sidebar').classList.add('active'); document.getElementById('sidebar-overlay').classList.add('active'); updateExamUI(); }
+        function closeSidebar() { document.getElementById('app-sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active'); }
+
+        function filterExam(examName) {
+            if (!navigator.onLine) { showOfflineScreen(); return; }
+            selectedExam = examName;
+            localStorage.setItem('selectedExam', examName);
+            updateExamUI();
+            // Automatically switch to QBank tab when exam is selected
+            switchTab('qbank');
+            closeSidebar();
+        }
+
+        function updateExamUI() {
+            document.querySelectorAll('.exam-option').forEach(opt => opt.classList.toggle('active', opt.innerText === selectedExam));
+            document.getElementById('header-exam-display').textContent = selectedExam;
+            updateSubjectGridVisibility(selectedExam);
+        }
+
+        function updateSubjectGridVisibility(examName) {
+            const allowedSubjects = { 'UPSC-CMS': ['Medicine', 'Pediatrics', 'Surgery', 'OBG', 'CFM'] };
+            document.querySelectorAll('.subject-card').forEach(card => {
+                const existingBand = card.querySelector('.availability-badge');
+                if(existingBand) existingBand.remove();
+                card.classList.remove('locked-soon');
+
+                const onClickText = card.getAttribute('onclick');
+                if (!onClickText) return;
+                const match = onClickText.match(/navigateToSubject\('([^']+)'\)/);
+                if (match && match[1]) {
+                    const subjectName = match[1];
+                    let isAllowed = true;
+                    if (allowedSubjects[examName]) isAllowed = allowedSubjects[examName].includes(subjectName);
+                    
+                    if (isAllowed) {
+                        card.style.display = 'flex';
+                        if (window.isUserPro) {
+                            let bandText = "";
+                            if (examName === 'INICET') bandText = "Avl 20 April";
+                            else if (examName === 'UPSC-CMS' || examName === 'FMGE') bandText = "Coming Soon";
+                            if (bandText !== "") {
+                                const band = document.createElement('div');
+                                band.className = 'availability-badge';
+                                band.innerText = bandText;
+                                card.appendChild(band);
+                                card.classList.add('locked-soon');
+                            }
+                        }
+                    } else { card.style.display = 'none'; }
+                }
+            });
+        }
+
+        // --- DYNAMIC NAVIGATION TO VIEWER.HTML ---
+        function navigateToSubject(subject) {
+            if (!navigator.onLine) { showOfflineScreen(); return; }
+            if (!window.isUserPro) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
+            
+            const currentExam = localStorage.getItem('selectedExam') || 'NEET-PG';
+            const formattedSubject = subject.toLowerCase().replace(/\s+/g, '-');
+            
+            // Sends user to the universal viewer file with parameters
+            window.location.href = `viewer.html?exam=${currentExam}&subject=${formattedSubject}`;
+        }
+
+        function switchTab(screenName, element) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('view-' + screenName).classList.add('active');
+            window.scrollTo(0,0);
+
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(element) element.classList.add('active');
+            else {
+               const nav = document.querySelector(`.nav-item[onclick*="'${screenName}'"]`);
+               if(nav) nav.classList.add('active');
+            }
+        }
+
+        function showOfflineScreen() { document.getElementById('offline-overlay').style.display = 'flex'; }
+        function hideOfflineScreen() { document.getElementById('offline-overlay').style.display = 'none'; }
+        function checkConnection() {
+            if (navigator.onLine) hideOfflineScreen();
+            else alert("Still offline.");
+        }
+        window.addEventListener('online', hideOfflineScreen);
+        window.addEventListener('offline', showOfflineScreen);
+
+        function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
+            const userTitle = document.querySelector('.user-info h3');
+            const userSub = document.querySelector('.user-info p');
+            if (validityDays !== null && validityDays !== undefined) {
+                if(userTitle) { userTitle.innerText = "Pro Member"; }
+                if(userSub) { userSub.innerHTML = `<div style='color: white;'>${email}</div><div style='color: #22c55e;'>Validity: ${validityDays} Days</div>`; }
+            } else {
+                if(userTitle) { userTitle.innerText = email.includes('@') ? email.split('@')[0] : email; }
+                if(userSub) { userSub.innerHTML = statusText; userSub.className = isExpired ? 'auth-status-expired' : 'auth-status-active'; }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateExamUI);
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
+          authDomain: "medpyq-elearning.firebaseapp.com",
+          databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com",
+          projectId: "medpyq-elearning"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const SUB_DB = {
+            'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
+        };
+
+        window.authApp = {
+            mode: 'login',
+            open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
+            close: function() { document.getElementById('auth-overlay').style.display = 'none'; this.mode = 'login'; },
+            toggleMode: function(newMode) { this.mode = newMode; this.renderUI(); },
+            login: function() {
+                const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
+                if(!e || !p) return;
+                signInWithEmailAndPassword(auth, e, p).then(() => this.close()).catch(err => alert(err.message));
+            },
+            logout: function() { signOut(auth).then(() => location.reload()); },
+            renderUI: function() {
+                const container = document.getElementById('auth-box-content');
+                if(!container) return;
+                const user = auth.currentUser;
+                if (user) {
+                    container.innerHTML = `<h2>${user.email.split('@')[0]}</h2><p>${user.email}</p><button class="btn-primary" onclick="window.authApp.logout()">Sign Out</button><button class="btn-secondary" onclick="window.authApp.close()">Close</button>`;
+                } else {
+                    let html = (this.mode === 'login') ? `<h2>Sign In</h2><input type="email" id="auth-email" class="auth-input" placeholder="Email"/><br><br><input type="password" id="auth-pass" class="auth-input" placeholder="Password"/><button class="btn-primary" onclick="window.authApp.login()">Sign In</button>` : `...`;
+                    container.innerHTML = html + '<button class="btn-secondary" onclick="window.authApp.close()">Cancel</button>';
+                }
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const email = user.email.toLowerCase();
+                const expiryStr = SUB_DB[email];
+                let isPro = false;
+                if (expiryStr) {
+                    const today = new Date(); const expiry = new Date(expiryStr);
+                    const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                    if (daysLeft >= 0) {
+                        isPro = true; window.isUserPro = true;
+                        updateSidebarDisplay(user.email, null, false, daysLeft);
+                        updateExamUI();
+                    }
+                }
+                if (!isPro) { window.isUserPro = false; updateSidebarDisplay(user.email, 'Expired/Free Plan', true, null); }
+                
+                const paywallBtn = document.getElementById('paywall-btn-login');
+                if(paywallBtn) {
+                   paywallBtn.style.display = isPro ? 'none' : 'block';
+                   document.getElementById('paywall-title').innerText = isPro ? 'Welcome Pro Member' : 'Upgrade to Pro';
+                }
+            } else {
+                window.isUserPro = false;
+                updateSidebarDisplay('Guest', 'Free Plan', false, null);
+            }
+        });
+    </script>
+</body>
+</html>
