@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPYQ | Pro Mock Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --blue: #0f2b52; --gold: #eebb4d; --bg: #f1f5f9; --text: #334155; --green: #22c55e; --red: #ef4444; --purple: #8b5cf6; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; }
+
+        /* --- HEADER --- */
+        .cbt-header { background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; height: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10;}
+        .cbt-title { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;}
+        .cbt-timer { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 8px; }
+        .cbt-timer.warning { color: #fca5a5; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .btn-submit-test { background: var(--green); color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
+        .btn-submit-test:hover { background: #16a34a; }
+
+        /* --- MAIN LAYOUT --- */
+        .cbt-layout { display: flex; flex: 1; overflow: hidden; }
+        
+        /* --- QUESTION AREA (LEFT) --- */
+        .cbt-main { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #e2e8f0; position: relative; }
+        .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue); }
+        .question-content { padding: 30px; overflow-y: auto; flex: 1; font-size: 1.1rem; line-height: 1.6; }
+        .q-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0; }
+        
+        .options-list { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .option-lbl { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .option-lbl:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .option-lbl input[type="radio"] { width: 20px; height: 20px; accent-color: var(--blue); cursor: pointer; }
+        .option-lbl.selected { border-color: var(--blue); background: #f0f6fc; }
+
+        /* --- FOOTER CONTROLS --- */
+        .cbt-footer { padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+        .btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-review { background: #f3e8ff; color: var(--purple); border: 2px solid #d8b4fe; }
+        .btn-review:hover { background: #e9d5ff; }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: #1e3a8a; }
+
+        /* --- PALETTE AREA (RIGHT) --- */
+        .cbt-sidebar { width: 320px; background: white; display: flex; flex-direction: column; flex-shrink: 0;}
+        .palette-header { padding: 15px; font-weight: 800; border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: var(--blue); text-align: center;}
+        
+        .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-box { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem; font-weight: bold;}
+        
+        .status-ans { background: var(--green); }
+        .status-unans { background: var(--red); }
+        .status-review { background: var(--purple); }
+        .status-ans-review { background: var(--purple); position: relative; }
+        .status-ans-review::after { content:''; position:absolute; bottom:-3px; right:-3px; width:10px; height:10px; background:var(--green); border-radius:50%; border:2px solid white; }
+        .status-notvis { background: #e2e8f0; color: #64748b; }
+
+        .palette-grid-container { padding: 15px; overflow-y: auto; flex: 1; }
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .palette-btn { aspect-ratio: 1; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.9rem; }
+        .palette-btn:active { transform: scale(0.9); }
+        .palette-btn.active-q { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+        /* --- FULLSCREEN OVERLAYS (Loading, Instructions, Report) --- */
+        .overlay-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; }
+        .hidden { display: none !important; }
+        
+        .inst-card { max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .inst-card h1 { color: var(--blue); margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;}
+        .inst-card ul { padding-left: 20px; color: #475569; line-height: 1.8; }
+        
+        /* REPORT SCREEN */
+        .report-header { background: var(--blue); color: white; padding: 40px 20px; text-align: center; }
+        .report-header h1 { margin: 0 0 10px 0; font-size: 2.5rem; }
+        .stat-grid { max-width: 900px; margin: -30px auto 30px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 0 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .stat-val { font-size: 2rem; font-weight: 800; color: var(--blue); }
+        .stat-lbl { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        
+        .review-container { max-width: 900px; margin: 0 auto 50px; padding: 0 20px; }
+        .review-q-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .review-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-bottom: 15px; }
+        .bg-correct { background: #dcfce7; color: #166534; }
+        .bg-wrong { background: #fee2e2; color: #991b1b; }
+        .bg-skipped { background: #f1f5f9; color: #475569; }
+        .expl-box { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; line-height: 1.6; }
+
+        /* Loader */
+        .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="view-loading" class="overlay-screen" style="justify-content: center; align-items: center;">
+        <div class="spinner"></div>
+        <h2 style="color: var(--blue);">Preparing Secure Test Engine...</h2>
+        <p style="color: #64748b;">Fetching questions and generating environment.</p>
+    </div>
+
+    <div id="view-instructions" class="overlay-screen hidden">
+        <div class="cbt-header">
+            <div class="cbt-title"><i class="fa-solid fa-stethoscope"></i> MedPYQ Test Engine</div>
+            <button onclick="window.location.href='index.html'" class="btn-outline" style="padding: 5px 15px; font-size: 0.8rem;">Exit</button>
+        </div>
+        <div class="inst-card">
+            <h1 id="inst-exam-title">NEET PG Mock Test 1</h1>
+            <div style="display:flex; gap:20px; margin-bottom:20px;">
+                <div style="background:#f1f5f9; padding:10px 20px; border-radius:8px;"><strong>Duration:</strong> <span id="inst-time">210 Mins</span></div>
+                <div style="background:#f1f5f9; padding:10px 20px; border-radius:8px;"><strong>Total Questions:</strong> <span id="inst-qs">200</span></div>
+                <div style="background:#f1f5f9; padding:10px 20px; border-radius:8px;"><strong>Marking:</strong> <span id="inst-marks">+4 / -1</span></div>
+            </div>
+            <h3>Please read the instructions carefully:</h3>
+            <ul>
+                <li>The clock will be set at the server. The countdown timer at the top will display the remaining time.</li>
+                <li>When the timer reaches zero, the examination will end automatically. You will not be required to end or submit your examination.</li>
+                <li>The Question Palette displayed on the right side of screen will show the status of each question.</li>
+                <li>To answer a question, select an option and click <strong>Save & Next</strong>.</li>
+                <li>To mark a question for review, click <strong>Mark for Review & Next</strong>. If an answer is selected for a question that is Marked for Review, that answer will be considered in the final evaluation.</li>
+            </ul>
+            <div style="text-align:center; margin-top:40px;">
+                <button onclick="startTest()" class="btn btn-primary" style="font-size:1.2rem; padding:15px 40px; border-radius:30px; background:var(--gold); color:var(--blue);">I am ready to begin</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-test" class="hidden" style="height:100vh; display:flex; flex-direction:column;">
+        <header class="cbt-header">
+            <div class="cbt-title" id="test-header-title">NEET PG Mock Test 1</div>
+            <div class="cbt-timer" id="test-timer"><i class="fa-regular fa-clock"></i> 00:00:00</div>
+            <button class="btn-submit-test" onclick="submitTest()">Submit Test</button>
+        </header>
+
+        <div class="cbt-layout">
+            <div class="cbt-main">
+                <div class="question-header">
+                    <span id="q-no-display">Question 1</span>
+                    <span style="font-size:0.85rem; background:#e2e8f0; color:#334155; padding:3px 10px; border-radius:12px;" id="q-mark-display">Marks: +4, -1</span>
+                </div>
+                
+                <div class="question-content">
+                    <div id="q-stem" style="font-weight:600;">Loading...</div>
+                    <div id="q-img-container"></div>
+                    <div class="options-list" id="q-options"></div>
+                </div>
+
+                <div class="cbt-footer">
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-outline" onclick="markForReview()">Mark for Review & Next</button>
+                        <button class="btn btn-outline" onclick="clearResponse()">Clear Response</button>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-outline" onclick="prevQuestion()"><i class="fas fa-chevron-left"></i> Previous</button>
+                        <button class="btn btn-primary" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cbt-sidebar">
+                <div class="palette-header">Question Palette</div>
+                <div class="legend-grid">
+                    <div class="legend-item"><div class="legend-box status-ans" id="cnt-ans">0</div> Answered</div>
+                    <div class="legend-item"><div class="legend-box status-unans" id="cnt-unans">0</div> Not Answered</div>
+                    <div class="legend-item"><div class="legend-box status-notvis" id="cnt-notvis">0</div> Not Visited</div>
+                    <div class="legend-item"><div class="legend-box status-review" id="cnt-review">0</div> Marked for Review</div>
+                    <div class="legend-item" style="grid-column: span 2;"><div class="legend-box status-ans-review" id="cnt-ans-rev">0</div> Answered & Marked for Review</div>
+                </div>
+                <div class="palette-grid-container">
+                    <div class="palette-grid" id="palette-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-report" class="overlay-screen hidden">
+        <div class="report-header">
+            <div style="font-size: 3rem; margin-bottom:10px;">🏆</div>
+            <h1 id="rep-score">0 / 0</h1>
+            <p style="font-size:1.2rem; opacity:0.9;">Test Completed Successfully</p>
+            <button onclick="window.location.href='index.html'" class="btn btn-outline" style="margin-top:20px; background:rgba(255,255,255,0.2); color:white; border:none;">Back to Dashboard</button>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card"><div class="stat-val" id="rep-acc">0%</div><div class="stat-lbl">Accuracy</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--green);" id="rep-corr">0</div><div class="stat-lbl">Correct</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--red);" id="rep-wrong">0</div><div class="stat-lbl">Incorrect</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#94a3b8;" id="rep-skip">0</div><div class="stat-lbl">Skipped</div></div>
+        </div>
+
+        <div class="review-container">
+            <h2 style="color:var(--blue); border-bottom: 2px solid #e2e8f0; padding-bottom:10px; margin-bottom:20px;">Detailed Review & Explanations</h2>
+            <div id="review-list"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const ADMIN_EMAILS = ["educateindiainstitute@gmail.com", "pankajkumarmahto1009@gmail.com"];
+
+        // --- STATE ---
+        let questions = [];
+        let state = {}; 
+        let currentQIndex = 0;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const examType = (urlParams.get('exam') || 'neet-pg').toLowerCase();
+        
+        const EXAM_CONFIG = {
+            'neet-pg': { title: "NEET PG Grand Test", marksCorrect: 4, marksWrong: 1, durationMins: 210 },
+            'inicet': { title: "INI-CET Mock Test", marksCorrect: 1, marksWrong: 0.33, durationMins: 180 },
+            'fmge': { title: "FMGE Screening Test", marksCorrect: 1, marksWrong: 0, durationMins: 150 },
+            'upsc-cms': { title: "UPSC CMS Mock", marksCorrect: 2.08, marksWrong: 0.69, durationMins: 120 }
+        };
+        const config = EXAM_CONFIG[examType] || EXAM_CONFIG['neet-pg'];
+
+        // --- AUTH & DATA FETCH ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                if (ADMIN_EMAILS.includes(user.email)) {
+                    loadTestData();
+                } else {
+                    const snap = await get(ref(db, `users/${user.uid}`));
+                    const data = snap.val();
+                    if (data && data.accessLevel === 'pro' && data.planExpiry > Date.now()) {
+                        loadTestData();
+                    } else {
+                        alert("Pro Access Required for Mock Tests."); window.location.href = "premium.html";
+                    }
+                }
+            } else {
+                alert("Please log in to access tests."); window.location.href = "index.html";
+            }
+        });
+
+        async function loadTestData() {
+            try {
+                const snap = await get(ref(db, `question_banks/${examType}/anatomy`));
+                if(snap.exists()) {
+                    let allQs = [];
+                    const val = snap.val();
+                    if(Array.isArray(val)) allQs = val; else allQs = Object.values(val);
+                    
+                    questions = allQs.filter(q => q !== null).slice(0, 20); 
+                    
+                    questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+                    state[0].status = 'unans'; 
+                    timeRemaining = config.durationMins * 60;
+
+                    document.getElementById('inst-exam-title').innerText = config.title;
+                    document.getElementById('inst-time').innerText = config.durationMins + " Mins";
+                    document.getElementById('inst-qs').innerText = questions.length;
+                    document.getElementById('inst-marks').innerText = `+${config.marksCorrect} / -${config.marksWrong}`;
+
+                    document.getElementById('test-header-title').innerText = config.title;
+                    document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
+
+                    document.getElementById('view-loading').classList.add('hidden');
+                    document.getElementById('view-instructions').classList.remove('hidden');
+                } else {
+                    alert("No questions found in database to generate mock.");
+                    window.location.href = "index.html";
+                }
+            } catch (e) {
+                console.error(e); alert("Failed to load test engine.");
+            }
+        }
+
+        // --- ENGINE LOGIC ---
+        window.startTest = function() {
+            document.getElementById('view-instructions').classList.add('hidden');
+            document.getElementById('view-test').classList.remove('hidden');
+            renderPalette();
+            renderQuestion(0);
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                let hrs = Math.floor(timeRemaining / 3600);
+                let mins = Math.floor((timeRemaining % 3600) / 60);
+                let secs = timeRemaining % 60;
+                const timeStr = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                
+                const timerEl = document.getElementById('test-timer');
+                timerEl.innerHTML = `<i class="fa-regular fa-clock"></i> ${timeStr}`;
+                
+                if(timeRemaining < 300) timerEl.classList.add('warning');
+                if(timeRemaining <= 0) { clearInterval(timerInterval); window.submitTest(true); }
+            }, 1000);
+        };
+
+        function renderPalette() {
+            const grid = document.getElementById('palette-grid');
+            let html = '';
+            let counts = { ans:0, unans:0, notvis:0, review:0, ansrev:0 };
+
+            for(let i=0; i<questions.length; i++) {
+                let st = state[i].status;
+                let cClass = 'status-' + st;
+                if(st==='ans') counts.ans++; else if(st==='unans') counts.unans++; else if(st==='notvis') counts.notvis++; else if(st==='review') counts.review++; else if(st==='ans-review') counts.ansrev++;
+                
+                html += `<button class="palette-btn ${cClass} ${i===currentQIndex?'active-q':''}" onclick="window.jumpTo(${i})">${i+1}</button>`;
+            }
+            grid.innerHTML = html;
+
+            document.getElementById('cnt-ans').innerText = counts.ans;
+            document.getElementById('cnt-unans').innerText = counts.unans;
+            document.getElementById('cnt-notvis').innerText = counts.notvis;
+            document.getElementById('cnt-review').innerText = counts.review;
+            document.getElementById('cnt-ans-rev').innerText = counts.ansrev;
+        }
+
+        function renderQuestion(idx) {
+            currentQIndex = idx;
+            const q = questions[idx];
+            document.getElementById('q-no-display').innerText = `Question ${idx+1}`;
+            document.getElementById('q-stem').innerHTML = q.stem;
+            
+            const imgCont = document.getElementById('q-img-container');
+            imgCont.innerHTML = q.img ? `<img src="${q.img}" class="q-img">` : '';
+
+            let optsHtml = '';
+            q.options.forEach((opt, i) => {
+                const char = String.fromCharCode(65+i);
+                const isSel = state[idx].ans === char;
+                optsHtml += `<label class="option-lbl ${isSel?'selected':''}">
+                    <input type="radio" name="opt" value="${char}" ${isSel?'checked':''} onchange="window.selectOption('${char}')">
+                    <span><strong>${char}.</strong> ${opt}</span>
+                </label>`;
+            });
+            document.getElementById('q-options').innerHTML = optsHtml;
+            renderPalette();
+        }
+
+        window.selectOption = function(char) { state[currentQIndex].ans = char; renderQuestion(currentQIndex); };
+        window.saveAndNext = function() { if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; else state[currentQIndex].status = 'unans'; moveToNext(); };
+        window.markForReview = function() { if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; else state[currentQIndex].status = 'review'; moveToNext(); };
+        window.clearResponse = function() { state[currentQIndex].ans = null; state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex); };
+        window.prevQuestion = function() { if(currentQIndex > 0) { if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex - 1); } };
+        window.jumpTo = function(idx) { if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; if(state[idx].status === 'notvis') state[idx].status = 'unans'; renderQuestion(idx); };
+
+        function moveToNext() {
+            if(currentQIndex < questions.length - 1) {
+                if(state[currentQIndex+1].status === 'notvis') state[currentQIndex+1].status = 'unans';
+                renderQuestion(currentQIndex + 1);
+            } else { renderPalette(); }
+        }
+
+        // --- SUBMISSION, REPORT & SECURE DATABASE SYNC ---
+        window.submitTest = function(autoSubmit = false) {
+            if(autoSubmit || confirm("Are you sure you want to submit the test? You cannot change your answers after this.")) {
+                clearInterval(timerInterval);
+                generateReport();
+            }
+        };
+
+        function generateReport() {
+            document.getElementById('view-test').classList.add('hidden');
+            document.getElementById('view-report').classList.remove('hidden');
+
+            let correct = 0; let wrong = 0; let skipped = 0; let score = 0;
+            let reviewHtml = '';
+
+            questions.forEach((q, i) => {
+                const userAns = state[i].ans;
+                const isAttempted = userAns !== null;
+                const isCorrect = userAns === q.ans_key;
+
+                if(!isAttempted) { skipped++; }
+                else if(isCorrect) { correct++; score += config.marksCorrect; }
+                else { wrong++; score -= config.marksWrong; }
+
+                let badge = isAttempted ? (isCorrect ? '<span class="review-badge bg-correct">Correct</span>' : '<span class="review-badge bg-wrong">Incorrect</span>') : '<span class="review-badge bg-skipped">Skipped</span>';
+                
+                let optsHtml = q.options.map((opt, j) => {
+                    const char = String.fromCharCode(65+j);
+                    let stl = "color:#64748b;";
+                    if(char === q.ans_key) stl = "color:#166534; font-weight:bold; background:#dcfce7; padding:5px; border-radius:4px;";
+                    else if(char === userAns && !isCorrect) stl = "color:#991b1b; font-weight:bold; background:#fee2e2; padding:5px; border-radius:4px;";
+                    return `<div style="${stl}; margin-bottom:5px;">${char}. ${opt}</div>`;
+                }).join('');
+
+                reviewHtml += `
+                <div class="review-q-card">
+                    ${badge}
+                    <div style="font-weight:700; margin-bottom:10px; font-size:1.05rem;">Q${i+1}. ${q.stem}</div>
+                    ${q.img ? `<img src="${q.img}" style="max-width:200px; border-radius:8px; margin-bottom:10px;">` : ''}
+                    <div style="margin-bottom:15px; padding-left:10px; border-left:2px solid #e2e8f0;">${optsHtml}</div>
+                    <div class="expl-box"><strong>Explanation:</strong><br>${q.explanation}</div>
+                </div>`;
+            });
+
+            const maxScore = questions.length * config.marksCorrect;
+            const accuracy = ((correct / (correct + wrong || 1)) * 100).toFixed(1);
+            
+            document.getElementById('rep-score').innerText = `${score.toFixed(2)} / ${maxScore}`;
+            document.getElementById('rep-acc').innerText = `${accuracy}%`;
+            document.getElementById('rep-corr').innerText = correct;
+            document.getElementById('rep-wrong').innerText = wrong;
+            document.getElementById('rep-skip').innerText = skipped;
+            document.getElementById('review-list').innerHTML = reviewHtml;
+            
+            window.scrollTo(0,0);
+
+            // --- DATABASE SYNC: SECURELY RECORD PERFORMANCE ---
+            if(auth.currentUser) {
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                const testRecord = {
+                    exam: examType,
+                    title: config.title,
+                    score: parseFloat(score.toFixed(2)),
+                    maxScore: maxScore,
+                    accuracy: parseFloat(accuracy),
+                    correct: correct,
+                    wrong: wrong,
+                    skipped: skipped,
+                    date: formattedDate,
+                    timestamp: Date.now()
+                };
+
+                const historyRef = ref(db, `users/${auth.currentUser.uid}/testHistory`);
+                push(historyRef, testRecord).catch(err => console.error("Database Sync Error:", err));
+            }
+        }
+    </script>
+</body>
+</html>
