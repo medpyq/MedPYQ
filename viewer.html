@@ -269,6 +269,7 @@
         window.currentQIDForReport = "";
         window.filterState = { units: [], chapters: [], years: [], search: "" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
+        window.nestedCurriculum = null;
 
         const firebaseConfig = {
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
@@ -281,7 +282,17 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- ALIAS SPELLING MAP IMPLEMENTED HERE ---
+        // --- SECURITY CONSTANTS ---
+        const ADMIN_EMAILS = [
+            "educateindiainstitute@gmail.com",
+            "pankajkumarmahto1009@gmail.com"
+        ];
+        
+        const SUB_DB = {
+            'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
+        };
+
+        // --- ALIAS SPELLING MAP ---
         const urlParams = new URLSearchParams(window.location.search);
         let rawSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
         
@@ -817,65 +828,53 @@
             ]
         };
 
-        const SUB_DB = {
-            'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
-        };
+        
 
-        // --- AUTH LISTENER & PAYWALL LOGIC ---
-        onAuthStateChanged(auth, (user) => {
-            const loginBtn = document.getElementById('paywall-btn-login');
-            const payBtn = document.getElementById('paywall-btn-pay');
-            const paywallTitle = document.getElementById('paywall-title');
-            const paywallText = document.getElementById('paywall-text');
 
+
+        // --- SECURITY CHECK & AUTHENTICATION ---
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const email = user.email.toLowerCase();
-                const expiryStr = SUB_DB[email];
-                let isPro = false;
+                const isAdmin = ADMIN_EMAILS.includes(user.email);
                 
-                if (expiryStr) {
-                    const today = new Date(); today.setHours(0,0,0,0);
-                    const expiry = new Date(expiryStr); expiry.setHours(0,0,0,0);
-                    const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
-                    
-                    if (daysLeft >= 0) {
-                        isPro = true; 
-                        window.isUserPro = true;
-                    }
-                }
-                
-                if (!isPro) { 
-                    window.isUserPro = false; 
-                }
-                
-                if (isPro) {
-                    document.getElementById('paywall-overlay').style.display = 'none';
-                    document.getElementById('main-content').style.display = 'block';
-                    document.getElementById('view-toggle-btn').style.display = 'flex';
-                    fetchData();
+                if (isAdmin) {
+                    grantAccess();
                 } else {
-                    document.getElementById('paywall-overlay').style.display = 'flex';
-                    document.getElementById('view-toggle-btn').style.display = 'none';
-                    if(loginBtn && payBtn) {
-                        loginBtn.style.display = 'none';
-                        payBtn.style.display = 'block';
-                        if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
-                        if(paywallText) paywallText.innerText = `Logged in as ${user.email}. Premium content requires a subscription.`;
+                    // Check Firebase Database for Subscription Status
+                    try {
+                        const snapshot = await get(ref(db, `users/${user.uid}`));
+                        const userData = snapshot.val();
+                        const now = Date.now();
+                        
+                        if (userData && userData.accessLevel === 'pro' && userData.planExpiry > now) {
+                            grantAccess();
+                        } else {
+                            denyAccess("Subscription Expired", "Your Pro subscription is not active. Please renew from the homepage.");
+                        }
+                    } catch (error) {
+                        console.error("Error verifying subscription:", error);
+                        denyAccess("Verification Error", "Error verifying subscription. Please refresh the page.");
                     }
                 }
             } else {
-                window.isUserPro = false;
-                document.getElementById('paywall-overlay').style.display = 'flex';
-                document.getElementById('view-toggle-btn').style.display = 'none';
-                
-                if(loginBtn && payBtn) {
-                    loginBtn.style.display = 'block';
-                    payBtn.style.display = 'none';
-                    if(paywallTitle) paywallTitle.innerText = 'Unlock MedPYQ Pro';
-                    if(paywallText) paywallText.innerText = 'Premium Question Banks are reserved for members. Please sign in to continue.';
-                }
+                denyAccess("Pro Access Required", "Please log in from the homepage to access this Question Bank.");
             }
         });
+
+        function grantAccess() {
+            document.getElementById('paywall-overlay').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('view-toggle-btn').style.display = 'flex';
+            fetchData();
+        }
+
+        function denyAccess(title, message) {
+            document.getElementById('paywall-overlay').style.display = 'flex';
+            document.getElementById('paywall-title').innerText = title;
+            document.getElementById('paywall-text').innerText = message;
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('view-toggle-btn').style.display = 'none';
+        }
 
         async function fetchData() {
             try {
@@ -893,118 +892,47 @@
             }
         }
 
-        // ==========================================
-        // UNIVERSAL DATA PROCESSOR
-        // ==========================================
         function processData(rawData) {
-            // --- NEW: FIREBASE OBJECT FIX ---
-            let dataArray = [];
-            if (Array.isArray(rawData)) {
-                dataArray = rawData;
-            } else if (typeof rawData === 'object' && rawData !== null) {
-                const keys = Object.keys(rawData);
-                if (keys.length === 1 && Array.isArray(rawData[keys[0]])) {
-                    dataArray = rawData[keys[0]];
-                } else {
-                    dataArray = Object.values(rawData);
-                }
-            }
-
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
+            
             let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
-
-            window.appData = dataArray.filter(item => item !== null).map((item, i) => {
-                let matchedUnits = [];
-                let matchedTopics = [];
-
-                let rawSubjects = [];
-                if (item.subject) {
-                    if (Array.isArray(item.subject)) rawSubjects.push(...item.subject);
-                    else if (typeof item.subject === 'string') rawSubjects.push(...item.subject.split(',').map(s => s.trim()));
-                }
-                if (item.topic) {
-                    if (Array.isArray(item.topic)) rawSubjects.push(...item.topic);
-                    else if (typeof item.topic === 'string') rawSubjects.push(...item.topic.split(',').map(s => s.trim()));
+            window.nestedCurriculum = isNested ? curriculumForSubject : null;
+            
+            let flatChapters = [];
+            if (isNested) {
+                curriculumForSubject.forEach(u => flatChapters.push(...u.chapters));
+            } else {
+                flatChapters = curriculumForSubject;
+            }
+            
+            window.appData = rawData.filter(item => item !== null).map((item, i) => {
+                let chapterMatch = "Uncategorized";
+                for(let c of flatChapters) {
+                    let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
+                    let targetText = ((item.topic || "") + " " + (item.subject || "")).toLowerCase();
+                    if(targetText.includes(coreName)) {
+                        chapterMatch = c; break;
+                    }
                 }
                 
-                rawSubjects = [...new Set(rawSubjects)].filter(s => s);
-                if (rawSubjects.length === 0) rawSubjects = ["General Topic"];
-
-                if (curriculumForSubject.length > 0) {
-                    rawSubjects.forEach(sub => {
-                        let foundUnit = false;
-                        let foundChap = false;
-                        const cleanSub = sub.includes(" : Part") ? sub.split(" : Part")[0].trim() : sub;
-
-                        if (isNested) {
-                            for (let u of curriculumForSubject) {
-                                if (cleanSub.toLowerCase() === u.unit.toLowerCase() || 
-                                    cleanSub.toLowerCase().includes(u.unit.toLowerCase()) || 
-                                    u.unit.toLowerCase().includes(cleanSub.toLowerCase())) {
-                                    if (!matchedUnits.includes(u.unit)) matchedUnits.push(u.unit);
-                                    foundUnit = true;
-                                }
-
-                                const matchedChap = u.chapters.find(c => {
-                                    const cleanC = c.includes(".") ? c.split(".")[1].trim() : c;
-                                    return cleanC.toLowerCase() === cleanSub.toLowerCase() || 
-                                           cleanC.toLowerCase().includes(cleanSub.toLowerCase()) || 
-                                           cleanSub.toLowerCase().includes(cleanC.toLowerCase());
-                                });
-                                
-                                if (matchedChap) {
-                                    if (!matchedUnits.includes(u.unit)) matchedUnits.push(u.unit);
-                                    if (!matchedTopics.includes(matchedChap)) matchedTopics.push(matchedChap);
-                                    foundChap = true;
-                                    foundUnit = true;
-                                }
-                            }
-                        } else {
-                            const matchedChap = curriculumForSubject.find(c => {
-                                const cleanC = c.includes(".") ? c.split(".")[1].trim() : c;
-                                return cleanC.toLowerCase() === cleanSub.toLowerCase() || 
-                                       cleanC.toLowerCase().includes(cleanSub.toLowerCase()) || 
-                                       cleanSub.toLowerCase().includes(cleanC.toLowerCase());
-                            });
-                            if (matchedChap) {
-                                if (!matchedTopics.includes(matchedChap)) matchedTopics.push(matchedChap);
-                                foundChap = true;
-                            }
-                        }
-
-                        if (!foundChap) {
-                            if (cleanSub.toLowerCase() !== activeSubject.toLowerCase() && !matchedTopics.includes(cleanSub)) {
-                                matchedTopics.push(cleanSub);
-                            }
-                        }
-                    });
-                } else {
-                    matchedTopics = rawSubjects.filter(s => s.toLowerCase() !== activeSubject.toLowerCase());
-                    if(matchedTopics.length === 0) matchedTopics = ["General"];
-                }
-
-                if (matchedUnits.length === 0) {
-                    matchedUnits = [activeSubject.charAt(0).toUpperCase() + activeSubject.slice(1)];
-                }
-                if (matchedTopics.length === 0) {
-                    matchedTopics = ["General"];
-                }
-
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
                 return { 
                     ...item, 
-                    units: matchedUnits,
-                    topics: matchedTopics,
+                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.topic || item.subject ? (item.topic || item.subject).split(',')[0].trim() : "General"), 
                     year: fullYear,
                     uid: item.q || ("Q" + i)
                 };
             });
 
-            buildSynchronizedFilters();
+            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
+            buildSynchronizedFilters(flatChapters, uniqueYears, window.nestedCurriculum);
+            
+            initUniversalDeck(window.appData);
             window.SYNC_applyFilters();
             
+            // AUTO-OPEN DECK VIEW BY DEFAULT
             if (!window.deckState.isOpen) {
                 window.UD_toggleMode();
             }
@@ -1013,61 +941,43 @@
         // ==========================================
         // UI & ADVANCED FILTER LOGIC
         // ==========================================
-        function buildSynchronizedFilters() {
-            const tableUnitDiv = document.getElementById('table-unit-content');
+
+        function buildSynchronizedFilters(chapters, years, nestedCurriculum = null) {
             const tableChapDiv = document.getElementById('table-chap-content');
             const tableYearDiv = document.getElementById('table-year-content');
             const deckFilterDiv = document.getElementById('deck-dynamic-filters');
-            
-            let allUnits = [];
-            let allTopics = [];
-
-            const curriculumForSubject = masterCurriculum[activeSubject] || [];
-            let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
-
-            if (isNested) {
-                allUnits = curriculumForSubject.map(u => u.unit);
-                curriculumForSubject.forEach(u => allTopics.push(...u.chapters));
-            } else if (curriculumForSubject.length > 0) {
-                allUnits = [activeSubject.charAt(0).toUpperCase() + activeSubject.slice(1)];
-                allTopics = [...curriculumForSubject];
-            } else {
-                allUnits = [...new Set(window.appData.flatMap(i => i.units))].sort();
-                allTopics = [...new Set(window.appData.flatMap(i => i.topics))].sort();
-            }
-
-            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
-
-            let deckHtml = '';
-
-            if (allUnits.length > 1) {
-                document.getElementById('unit-dropdown-container').style.display = 'block';
-                let tableUnitHtml = '';
-                deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Units</div>`;
-                allUnits.forEach(u => {
-                    const cleanVal = u.replace(/"/g, '&quot;');
-                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="unit" value="${cleanVal}" onchange="window.SYNC_updateState('unit', this.value, this.checked)"> <span>${u}</span></label>`;
-                    tableUnitHtml += row;
-                    deckHtml += row;
-                });
-                tableUnitDiv.innerHTML = tableUnitHtml;
-            } else {
-                document.getElementById('unit-dropdown-container').style.display = 'none';
-            }
 
             let tableChapHtml = '';
-            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>`;
-            allTopics.forEach(c => {
-                const cleanVal = c.replace(/"/g, '&quot;');
-                const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
-                tableChapHtml += row;
-                deckHtml += row;
-            });
+            let deckHtml = `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Chapters</div>`;
+            
+            if (nestedCurriculum) {
+                nestedCurriculum.forEach(unitObj => {
+                    const unitHeader = `<div style="padding: 8px 15px; font-size:11px; font-weight:800; color:#0f2b52; background:#f1f5f9; text-transform:uppercase; margin-top:5px;">${unitObj.unit}</div>`;
+                    tableChapHtml += unitHeader;
+                    deckHtml += unitHeader;
+
+                    unitObj.chapters.forEach(c => {
+                        const cleanVal = c.replace(/"/g, '&quot;');
+                        const row = `<label class="ms-label sync-chk-row" style="padding-left: 25px;"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                        tableChapHtml += row;
+                        deckHtml += row;
+                    });
+                });
+            } else {
+                chapters.forEach(c => {
+                    const cleanVal = c.replace(/"/g, '&quot;');
+                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                    tableChapHtml += row;
+                    deckHtml += row;
+                });
+            }
+            
             tableChapDiv.innerHTML = tableChapHtml;
 
             let tableYearHtml = '';
             deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
-            uniqueYears.forEach(y => {
+            
+            years.forEach(y => {
                 const cleanVal = y.replace(/"/g, '&quot;');
                 const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="window.SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
                 tableYearHtml += row;
@@ -1089,11 +999,7 @@
         };
 
         window.SYNC_updateState = function(type, value, isChecked) {
-            if(type === 'unit') {
-                if(isChecked) window.filterState.units.push(value);
-                else window.filterState.units = window.filterState.units.filter(u => u !== value);
-            }
-            else if(type === 'chapter') {
+            if(type === 'chapter') {
                 if(isChecked) window.filterState.chapters.push(value);
                 else window.filterState.chapters = window.filterState.chapters.filter(c => c !== value);
             }
@@ -1105,15 +1011,17 @@
                 window.filterState.search = value.toLowerCase();
             }
 
-            document.querySelectorAll(`input[data-filter-type="unit"]`).forEach(cb => { cb.checked = window.filterState.units.includes(cb.value); });
-            document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => { cb.checked = window.filterState.chapters.includes(cb.value); });
-            document.querySelectorAll(`input[data-filter-type="year"]`).forEach(cb => { cb.checked = window.filterState.years.includes(cb.value); });
+            document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
+                cb.checked = window.filterState.chapters.includes(cb.value);
+            });
+            document.querySelectorAll(`input[data-filter-type="year"]`).forEach(cb => {
+                cb.checked = window.filterState.years.includes(cb.value);
+            });
 
-            if(document.getElementById('unit-btn-text')) {
-                document.getElementById('unit-btn-text').innerText = window.filterState.units.length > 0 ? `${window.filterState.units.length} Selected` : "All Units";
-            }
-            document.getElementById('chap-btn-text').innerText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
-            document.getElementById('year-btn-text').innerText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
+            const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
+            const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
+            document.getElementById('chap-btn-text').innerText = chapText;
+            document.getElementById('year-btn-text').innerText = yearText;
 
             window.SYNC_applyFilters();
         };
@@ -1122,7 +1030,6 @@
             window.filterState = { units: [], chapters: [], years: [], search: "" };
             document.getElementById('postSearch').value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            if(document.getElementById('unit-btn-text')) document.getElementById('unit-btn-text').innerText = "All Units";
             document.getElementById('chap-btn-text').innerText = "All Chapters";
             document.getElementById('year-btn-text').innerText = "All Exams";
             window.SYNC_applyFilters();
@@ -1131,10 +1038,9 @@
         window.SYNC_applyFilters = function() {
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
-                const matchesUnit = window.filterState.units.length === 0 || item.units.some(u => window.filterState.units.includes(u));
-                const matchesChapter = window.filterState.chapters.length === 0 || item.topics.some(t => window.filterState.chapters.includes(t));
+                const matchesChapter = window.filterState.chapters.length === 0 || window.filterState.chapters.includes(item.topic);
                 const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
-                return matchesSearch && matchesUnit && matchesChapter && matchesYear;
+                return matchesSearch && matchesChapter && matchesYear;
             });
 
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
@@ -1153,19 +1059,14 @@
             if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#94a3b8;'>No questions match your filters.</td></tr>"; return; }
             
             let html = '';
-            data.forEach((item) => {
+            data.forEach((item, index) => {
                 let opts = item.options.map((opt, i) => {
                     const char = String.fromCharCode(65 + i);
                     return `<div class="opt-row ${char === item.ans_key ? 'is-correct' : ''}"><strong>${char}.</strong> ${opt}</div>`;
                 }).join('');
 
                 const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                
-                let unitBadges = item.units.map(u => `<span class="badge-unit">${u.length > 25 ? u.substring(0, 25) + '...' : u}</span>`).join(' ');
-                let chapterBadges = item.topics.map(t => {
-                    let displayT = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
-                    return `<span class="badge-chapter">${displayT}</span>`;
-                }).join(' ');
+                let displayChapter = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
 
                 html += `<tr>
                     <td><strong style="color:#64748b;">${item.uid}</strong></td>
@@ -1175,10 +1076,9 @@
                         <div class="opt-grid">${opts}</div>
                     </td>
                     <td style="text-align:center;">
-                        <div style="margin-bottom:6px;">${unitBadges}</div>
-                        <div style="margin-bottom:10px;">${chapterBadges}</div>
-                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0; display:inline-block;">${item.year}</div>
-                        <br><button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
+                        <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
+                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
+                        <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
                     </td>
                 </tr>`;
             });
@@ -1193,6 +1093,12 @@
         // ==========================================
         // DECK LOGIC
         // ==========================================
+
+        function initUniversalDeck(data) {
+            window.deckState.activeDb = [...data];
+            window.deckState.currentIndex = 0;
+            window.deckState.userStatus = {};
+        }
 
         window.UD_toggleMode = function() {
             window.deckState.isOpen = !window.deckState.isOpen;
@@ -1233,12 +1139,18 @@
             let imgHtml = q.img ? `<img src="${q.img}" class="ud-img" onclick="window.open(this.src)">` : '';
             let optsHtml = q.options.map((o,i) => {
                 let c = String.fromCharCode(65+i);
-                return `<div class="ud-option" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
+                let statusClass = '';
+                
+                if (window.deckState.userStatus[q.uid]) {
+                    if (c === q.ans_key) statusClass = 'correct';
+                    else if (window.deckState.userStatus[q.uid] === c) statusClass = 'wrong';
+                    else statusClass = 'disabled';
+                }
+
+                return `<div class="ud-option ${statusClass}" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
             }).join('');
             
-            let displayChapters = q.topics.map(t => {
-                return t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
-            }).join(" | ");
+            let displayChapter = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
 
             area.innerHTML = `
             <div class="ud-card">
@@ -1252,33 +1164,20 @@
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
                 <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapters}</span>
+                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
                     <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
                 </div>
-                <div id="ud-expl-box" style="display:none; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
+                <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
             </div>`;
             
-            if(window.deckState.userStatus[q.uid]) {
-                document.getElementById('ud-expl-box').style.display = 'block';
-                document.querySelectorAll('.ud-option').forEach(b => b.classList.add('disabled'));
-                let cIdx = q.ans_key.charCodeAt(0) - 65;
-                let btns = document.querySelectorAll('.ud-option');
-                if(btns[cIdx]) btns[cIdx].classList.add('correct');
-            }
             document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
             area.scrollTop = 0; 
         };
 
-        window.UD_checkAns = function(el, p, c, id) {
-            let btns = el.parentElement.children;
-            for(let i=0; i<btns.length; i++) btns[i].classList.add('disabled');
-            if(p === c) { el.classList.add('correct'); window.deckState.userStatus[id] = 'correct'; }
-            else { 
-                el.classList.add('wrong'); window.deckState.userStatus[id] = 'wrong'; 
-                let cIdx = c.charCodeAt(0) - 65; 
-                if(btns[cIdx]) btns[cIdx].classList.add('correct'); 
-            }
-            document.getElementById('ud-expl-box').style.display = 'block';
+        window.UD_checkAns = function(el, selectedOption, correctOption, id) {
+            if (window.deckState.userStatus[id]) return; // Already answered
+            window.deckState.userStatus[id] = selectedOption;
+            window.UD_renderCard();
         };
 
         window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); } };
@@ -1287,11 +1186,16 @@
         window.UD_toggleDrawer = function(id) { 
             if(id === 'nav') {
                 document.getElementById('ud-nav-grid').innerHTML = window.deckState.activeDb.map((q,i) => {
-                    return `<div class="ud-nav-item ${window.deckState.userStatus[q.uid] ? 'status-'+window.deckState.userStatus[q.uid] : ''} ${i === window.deckState.currentIndex ? 'active' : ''}" onclick="window.UD_navJump(${i})">${i+1}</div>`;
+                    let statusClass = '';
+                    if (window.deckState.userStatus[q.uid]) {
+                        statusClass = window.deckState.userStatus[q.uid] === q.ans_key ? 'status-correct' : 'status-wrong';
+                    }
+                    return `<div class="ud-nav-item ${statusClass} ${i === window.deckState.currentIndex ? 'active' : ''}" onclick="window.UD_navJump(${i})">${i+1}</div>`;
                 }).join('');
             }
             document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
         };
+        
         window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
