@@ -11,6 +11,8 @@
     <title>MedPYQ | Medical Exam Prep</title>
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
     :root {
@@ -137,8 +139,14 @@
     .nav-item i { font-size: 1.2rem; margin-bottom: 4px; }
     .nav-item.active { color: var(--app-blue); }
 
+    /* --- ADMIN FAB --- */
+    #admin-fab {
+        position: fixed; bottom: 80px; left: 20px; width: 60px; height: 60px; background: #dc2626; color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; cursor: pointer; transition: transform 0.2s;
+    }
+    #admin-fab:hover { transform: scale(1.1); }
+
     /* --- MODALS & OVERLAYS --- */
-    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay {
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #admin-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
     }
     
@@ -163,6 +171,9 @@
     .auth-error { color: #ef4444; font-size: 0.8rem; margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; display: none; text-align: left; }
     .auth-status-active { color: #22c55e !important; font-weight: bold !important; font-size: 0.8rem !important; }
     .auth-status-expired { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
+
+    /* Admin Modal Specifics */
+    .admin-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e2e8f0; font-family: inherit; font-size: 1rem; margin-bottom: 15px; outline: none;}
     </style>
 </head>
 <body>
@@ -264,7 +275,6 @@
         </div>
 
         <div id="exam-info-container" style="max-width: 1000px; margin: 40px auto; padding: 0 15px;">
-            
             <div id="info-NEET-PG" class="exam-info-block">
                 <div style="font-family: 'Roboto', sans-serif; color: #333; line-height: 1.6;">
                     <div style="background: linear-gradient(135deg, #0f2b52 0%, #1a428a 100%); color: white; padding: 30px 20px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
@@ -273,7 +283,7 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Single Window Entrance for MD, MS & DNB in India</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>National Eligibility cum Entrance Test for Postgraduate (NEET-PG)</strong> is the eligibility-cum-ranking examination prescribed as the single entrance examination for admission to various MD/MS and PG Diploma Courses. It is conducted annually by the <strong>National Board of Examinations (NBEMS)</strong>.
+                        The <strong>National Eligibility cum Entrance Test for Postgraduate (NEET-PG)</strong> is the eligibility-cum-ranking examination prescribed as the single entrance examination for admission to various MD/MS and PG Diploma Courses.
                     </p>
                     <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                         <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
@@ -290,7 +300,7 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Gateway to AIIMS, JIPMER, PGIMER & NIMHANS</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>Institute of National Importance Combined Entrance Test (INI-CET)</strong> is the most prestigious postgraduate medical entrance exam in India. It is conducted by AIIMS New Delhi twice a year for admission into MD, MS, DM, MCh, and MDS courses at the country's top institutes.
+                        The <strong>Institute of National Importance Combined Entrance Test (INI-CET)</strong> is the most prestigious postgraduate medical entrance exam in India.
                     </p>
                     <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                         <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
@@ -307,7 +317,7 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Licensure Exam for Foreign Medical Graduates</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>Foreign Medical Graduate Examination (FMGE)</strong>, also known as the MCI Screening Test, is a licensure examination conducted by the National Board of Examinations (NBEMS). It is mandatory for Indian citizens and OCI cardholders who have completed their medical education abroad.
+                        The <strong>Foreign Medical Graduate Examination (FMGE)</strong> is mandatory for Indian citizens and OCI cardholders who have completed their medical education abroad.
                     </p>
                     <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                         <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
@@ -324,7 +334,7 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Ultimate Gateway to Central Government Medical Services</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>Combined Medical Services (CMS)</strong> examination, conducted by UPSC, is one of the most prestigious exams for medical graduates in India. It offers a direct path to becoming a Class-I Gazetted Officer with the Government of India.
+                        The <strong>Combined Medical Services (CMS)</strong> offers a direct path to becoming a Class-I Gazetted Officer with the Government of India.
                     </p>
                     <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                         <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
@@ -332,7 +342,6 @@
                     </div>
                 </div>
             </div>
-            
         </div>
     </div>
 
@@ -425,6 +434,10 @@
         <div class="nav-item" onclick="switchTab('performance', this)"><i class="fas fa-chart-line"></i><span>Analysis</span></div>
     </div>
 
+    <div id="admin-fab" onclick="document.getElementById('admin-modal-overlay').style.display='flex'">
+        <i class="fas fa-cog"></i>
+    </div>
+
     <div id="offline-overlay">
         <div class="modal-card">
             <div class="modal-icon"><i class="fas fa-wifi"></i></div>
@@ -464,16 +477,39 @@
         </div>
     </div>
 
+    <div id="admin-modal-overlay">
+        <div class="modal-card">
+            <div class="modal-icon" style="background:#fef2f2; color:#dc2626;"><i class="fas fa-file-code"></i></div>
+            <h2 style="color:#0f2b52;">Generate Mock Test</h2>
+            <p>Compile a balanced JSON test file.</p>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Target Exam</label>
+                <select id="admin-exam-select" class="admin-select">
+                    <option value="neet-pg">NEET PG</option>
+                    <option value="inicet">INI-CET</option>
+                    <option value="fmge">FMGE</option>
+                    <option value="upsc-cms">UPSC CMS</option>
+                </select>
+            </div>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Number of Questions</label>
+                <input type="number" id="admin-num-qs" class="auth-input" value="200" min="10" max="300"/>
+            </div>
+            
+            <button class="btn-primary" id="btn-generate-test" onclick="window.generateTestJSON()" style="background:#dc2626; margin-bottom: 10px;">Generate & Download</button>
+            <button class="btn-secondary" onclick="document.getElementById('admin-modal-overlay').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
     <script>
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
-        
-        // window.isUserPro is null while Firebase loads to prevent Race Conditions
         window.isUserPro = null; 
 
         function openSidebar() { document.getElementById('app-sidebar').classList.add('active'); document.getElementById('sidebar-overlay').classList.add('active'); updateExamUI(); }
         function closeSidebar() { document.getElementById('app-sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active'); }
 
-        // NEW LOGIC: SYLLABUS TOGGLE
         window.showSyllabus = function(examName) {
             filterExam(examName);
             document.querySelectorAll('.exam-info-block').forEach(b => b.style.display = 'none');
@@ -492,7 +528,6 @@
             localStorage.setItem('selectedExam', examName);
             updateExamUI();
             
-            // Highlight specific card
             document.querySelectorAll('.medpyq-card').forEach(c => c.classList.remove('active'));
             const activeCard = document.getElementById('card-' + examName);
             if(activeCard) activeCard.classList.add('active');
@@ -540,15 +575,12 @@
             });
         }
 
-        // RACE CONDITION FIX: Let navigation proceed if Firebase is still loading
         window.navigateToSubject = function(subject) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
-            
             if (window.isUserPro === false) { 
                 document.getElementById('pro-paywall-overlay').style.display = 'flex'; 
                 return; 
             }
-            
             const currentExam = localStorage.getItem('selectedExam') || 'NEET-PG';
             const formattedSubject = subject.toLowerCase().replace(/\s+/g, '-');
             window.location.href = `viewer.html?exam=${currentExam}&subject=${formattedSubject}`;
@@ -556,7 +588,6 @@
 
         window.navigateToTest = function(exam) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
-            
             if (window.isUserPro === false) { 
                 document.getElementById('pro-paywall-overlay').style.display = 'flex'; 
                 return; 
@@ -623,7 +654,6 @@
             "pankajkumarmahto1009@gmail.com"
         ];
 
-        // --- LEGACY SUBSCRIPTION DATABASE ---
         const SUB_DB = {
             'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
         };
@@ -777,6 +807,7 @@
             const payBtn = document.getElementById('paywall-btn-pay');
             const paywallTitle = document.getElementById('paywall-title');
             const paywallText = document.getElementById('paywall-text');
+            const adminFab = document.getElementById('admin-fab');
 
             if (user) {
                 const email = user.email.toLowerCase();
@@ -790,6 +821,7 @@
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true;
                     validityText = "Lifetime Access";
+                    if(adminFab) adminFab.style.display = "flex"; // UNLOCK ADMIN FAB
                 } 
                 // 2. Check Legacy Manual Database
                 else if (SUB_DB[email]) {
@@ -801,10 +833,12 @@
                         isPro = true; 
                         validityText = `${daysLeft} Days Left`;
                     }
+                    if(adminFab) adminFab.style.display = "none";
                 }
 
-                // 3. Check Automated Firebase Realtime Database
-                if (!isPro) {
+                // 3. Check Automated Firebase Database
+                if (!isPro && !ADMIN_EMAILS.includes(email)) {
+                    if(adminFab) adminFab.style.display = "none";
                     try {
                         const snapshot = await get(ref(db, `users/${user.uid}`));
                         const userData = snapshot.val();
@@ -842,6 +876,8 @@
                 }
             } else {
                 window.isUserPro = false;
+                if(adminFab) adminFab.style.display = "none";
+                
                 updateSidebarDisplay('Guest', 'Free Plan', false, null);
                 updateExamUI();
                 
@@ -853,6 +889,93 @@
                 if(paywallText) paywallText.innerText = 'Premium Question Banks are reserved for members. Please sign in to continue.';
             }
         });
+
+        // --- ADMIN: DYNAMIC TEST GENERATOR ---
+        const EXAM_WEIGHTAGE = {
+            'neet-pg': { 'anatomy': 0.08, 'physiology': 0.08, 'biochemistry': 0.08, 'pharmacology': 0.10, 'microbiology': 0.10, 'pathology': 0.12, 'fmt': 0.05, 'cfm': 0.12, 'ent': 0.05, 'ophthalmology': 0.05, 'medicine': 0.20, 'surgery': 0.20, 'obg': 0.15, 'pediatrics': 0.05, 'orthopaedics': 0.05, 'psychiatry': 0.05, 'dermatology': 0.05, 'anesthesiology': 0.05, 'radiology': 0.05 },
+            'inicet': { 'anatomy': 0.10, 'physiology': 0.10, 'biochemistry': 0.10, 'pharmacology': 0.10, 'microbiology': 0.10, 'pathology': 0.10, 'fmt': 0.05, 'cfm': 0.10, 'ent': 0.05, 'ophthalmology': 0.05, 'medicine': 0.15, 'surgery': 0.15, 'obg': 0.10, 'pediatrics': 0.05, 'orthopaedics': 0.02, 'psychiatry': 0.02, 'dermatology': 0.02, 'anesthesiology': 0.02, 'radiology': 0.02 },
+            'fmge': { 'anatomy': 0.05, 'physiology': 0.05, 'biochemistry': 0.05, 'pharmacology': 0.10, 'microbiology': 0.10, 'pathology': 0.10, 'fmt': 0.05, 'cfm': 0.10, 'ent': 0.05, 'ophthalmology': 0.05, 'medicine': 0.25, 'surgery': 0.25, 'obg': 0.15, 'pediatrics': 0.05, 'orthopaedics': 0.05, 'psychiatry': 0.05, 'dermatology': 0.05, 'anesthesiology': 0.05, 'radiology': 0.05 },
+            'upsc-cms': { 'medicine': 0.40, 'pediatrics': 0.10, 'surgery': 0.166, 'obg': 0.166, 'cfm': 0.168 }
+        };
+
+        window.generateTestJSON = async function() {
+            const btn = document.getElementById('btn-generate-test');
+            btn.innerText = "Fetching Database...";
+            btn.disabled = true;
+
+            const targetExam = document.getElementById('admin-exam-select').value;
+            const numQs = parseInt(document.getElementById('admin-num-qs').value) || 200;
+
+            try {
+                const dbRef = ref(db, `question_banks/${targetExam}`);
+                const snap = await get(dbRef);
+                const dbData = snap.val();
+
+                if (!dbData) {
+                    alert(`No subjects found in database for ${targetExam.toUpperCase()}`);
+                    btn.innerText = "Generate & Download"; btn.disabled = false;
+                    return;
+                }
+
+                const weightage = EXAM_WEIGHTAGE[targetExam];
+                
+                // Calculate total weight of *available* subjects to normalize
+                let availableWeightSum = 0;
+                let availableSubjects = Object.keys(dbData);
+                
+                availableSubjects.forEach(sub => {
+                    if (weightage[sub]) availableWeightSum += weightage[sub];
+                });
+
+                if (availableWeightSum === 0) {
+                    alert("None of the uploaded subjects match the weightage schema.");
+                    btn.innerText = "Generate & Download"; btn.disabled = false;
+                    return;
+                }
+
+                let finalQuestions = [];
+
+                // Extract questions proportionally
+                availableSubjects.forEach(sub => {
+                    if (weightage[sub]) {
+                        let qs = Array.isArray(dbData[sub]) ? dbData[sub] : Object.values(dbData[sub]);
+                        qs = qs.filter(q => q !== null);
+                        
+                        // Shuffle questions randomly
+                        qs.sort(() => 0.5 - Math.random());
+                        
+                        // Calculate how many to pull based on normalized weight
+                        const normalizedWeight = weightage[sub] / availableWeightSum;
+                        const pullCount = Math.round(numQs * normalizedWeight);
+                        
+                        finalQuestions.push(...qs.slice(0, pullCount));
+                    }
+                });
+
+                // Final shuffle and trim to exact numQs (in case of rounding discrepancies)
+                finalQuestions.sort(() => 0.5 - Math.random());
+                finalQuestions = finalQuestions.slice(0, numQs);
+
+                // Download the JSON file
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalQuestions, null, 2));
+                const dlAnchor = document.createElement('a');
+                dlAnchor.setAttribute("href", dataStr);
+                dlAnchor.setAttribute("download", `${targetExam}-mock-test-${Date.now()}.json`);
+                document.body.appendChild(dlAnchor);
+                dlAnchor.click();
+                dlAnchor.remove();
+
+                alert(`Successfully generated a ${finalQuestions.length}-question Mock Test!`);
+
+            } catch (e) {
+                console.error(e);
+                alert("Error generating test. Check console.");
+            } finally {
+                btn.innerText = "Generate & Download";
+                btn.disabled = false;
+                document.getElementById('admin-modal-overlay').style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
