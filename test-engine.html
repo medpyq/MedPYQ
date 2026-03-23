@@ -11,7 +11,6 @@
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         * { box-sizing: border-box; }
 
-        /* --- HEADER --- */
         .cbt-header { background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; height: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 110;}
         .cbt-title { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;}
         .cbt-timer { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 8px; }
@@ -22,14 +21,11 @@
         .btn-submit-test { background: var(--green); color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
         .btn-submit-test:hover { background: #16a34a; }
         
-        /* Mobile Palette Toggle */
         .mobile-palette-btn { display: none; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; }
         .close-palette-btn { display: none; background: transparent; border: none; color: var(--blue); font-size: 1.2rem; cursor: pointer; }
 
-        /* --- MAIN LAYOUT --- */
         .cbt-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* --- QUESTION AREA (LEFT) --- */
         .cbt-main { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #e2e8f0; position: relative; }
         .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue); }
         .question-content { padding: 30px; overflow-y: auto; flex: 1; font-size: 1.1rem; line-height: 1.6; }
@@ -41,7 +37,6 @@
         .option-lbl input[type="radio"] { width: 20px; height: 20px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
         .option-lbl.selected { border-color: var(--blue); background: #f0f6fc; }
 
-        /* --- FOOTER CONTROLS --- */
         .cbt-footer { padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .footer-group { display: flex; gap: 10px; flex: 1; }
         .footer-group.right { justify-content: flex-end; }
@@ -51,7 +46,6 @@
         .btn-primary { background: var(--blue); color: white; }
         .btn-primary:hover { background: #1e3a8a; }
 
-        /* --- PALETTE AREA (RIGHT) --- */
         .cbt-sidebar { width: 320px; background: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: right 0.3s ease; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
 
@@ -73,7 +67,6 @@
         .palette-btn:active { transform: scale(0.9); }
         .palette-btn.active-q { outline: 3px solid var(--gold); outline-offset: 2px; }
 
-        /* --- FULLSCREEN OVERLAYS --- */
         .overlay-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; }
         .hidden { display: none !important; }
         
@@ -83,7 +76,7 @@
         .inst-flex-box > div { background: #f1f5f9; padding: 10px 15px; border-radius: 8px; flex: 1; min-width: 120px; font-size: 0.9rem; }
         .inst-card ul { padding-left: 20px; color: #475569; line-height: 1.6; font-size: 0.95rem; }
         
-        /* --- REPORT SCREEN --- */
+        /* REPORT SCREEN */
         .report-header { background: var(--blue); color: white; padding: 40px 20px; text-align: center; }
         .report-header h1 { margin: 0 0 10px 0; font-size: 2.5rem; }
         .stat-grid { max-width: 900px; margin: -30px auto 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 0 20px; }
@@ -99,13 +92,9 @@
         .bg-skipped { background: #f1f5f9; color: #475569; }
         .expl-box { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; line-height: 1.6; }
 
-        /* Loader */
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* =========================================
-           RESPONSIVE DESIGN (MOBILE & TABLET) 
-           ========================================= */
         @media (max-width: 900px) {
             .cbt-header { padding: 10px 15px; }
             .cbt-title { font-size: 0.9rem; }
@@ -116,10 +105,7 @@
             .close-palette-btn { display: block; }
             .sidebar-overlay.open { display: block; }
 
-            .cbt-sidebar { 
-                position: fixed; top: 0; right: -100%; height: 100vh; 
-                width: 85%; max-width: 320px; box-shadow: -5px 0 20px rgba(0,0,0,0.2); 
-            }
+            .cbt-sidebar { position: fixed; top: 0; right: -100%; height: 100vh; width: 85%; max-width: 320px; box-shadow: -5px 0 20px rgba(0,0,0,0.2); }
             .cbt-sidebar.open { right: 0; }
             .palette-header { display: flex; justify-content: space-between; align-items: center; text-align: left; }
 
@@ -141,8 +127,8 @@
 
     <div id="view-loading" class="overlay-screen" style="justify-content: center; align-items: center;">
         <div class="spinner"></div>
-        <h2 style="color: var(--blue);">Preparing Secure Test Engine...</h2>
-        <p style="color: #64748b; text-align: center; padding: 0 20px;">Fetching questions and generating environment.</p>
+        <h2 style="color: var(--blue);" id="loading-title">Preparing Secure Test Engine...</h2>
+        <p style="color: #64748b; text-align: center; padding: 0 20px;" id="loading-desc">Fetching questions and validating session.</p>
     </div>
 
     <div id="view-instructions" class="overlay-screen hidden">
@@ -231,7 +217,7 @@
         <div class="report-header">
             <div style="font-size: 3rem; margin-bottom:10px;">🏆</div>
             <h1 id="rep-score">0 / 0</h1>
-            <p style="font-size:1.1rem; opacity:0.9;">Test Completed Successfully</p>
+            <p id="rep-status" style="font-size:1.1rem; opacity:0.9;">Test Completed Successfully</p>
             <button onclick="window.location.href='index.html'" class="btn btn-outline" style="margin-top:20px; background:rgba(255,255,255,0.2); color:white; border:none;">Back to Dashboard</button>
         </div>
 
@@ -251,7 +237,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
         const app = initializeApp(firebaseConfig);
@@ -260,43 +246,46 @@
 
         const ADMIN_EMAILS = ["educateindiainstitute@gmail.com", "pankajkumarmahto1009@gmail.com"];
 
-        // --- STATE ---
         let questions = [];
         let state = {}; 
         let currentQIndex = 0;
         let timeRemaining = 0;
         let timerInterval = null;
         
-        // Settings based on EXAM
+        // URL Parsing
         const urlParams = new URLSearchParams(window.location.search);
-        const examType = (urlParams.get('exam') || 'neet-pg').toLowerCase();
+        const testFileName = urlParams.get('testFile'); // e.g., neet-pg-mock-1.json
+        const reviewId = urlParams.get('reviewId');     // For Review Mode
         
+        // Extract Exam Type from filename to set proper marking scheme
+        let examType = 'neet-pg';
+        if(testFileName && testFileName.includes('inicet')) examType = 'inicet';
+        else if(testFileName && testFileName.includes('fmge')) examType = 'fmge';
+        else if(testFileName && testFileName.includes('upsc-cms')) examType = 'upsc-cms';
+
         const EXAM_CONFIG = {
-            'neet-pg': { title: "NEET PG Grand Mock 1", marksCorrect: 4, marksWrong: 1, durationMins: 210 },
+            'neet-pg': { title: "NEET PG Grand Mock", marksCorrect: 4, marksWrong: 1, durationMins: 210 },
             'inicet': { title: "INI-CET National Mock", marksCorrect: 1, marksWrong: 0.33, durationMins: 180 },
             'fmge': { title: "FMGE Screening Mock", marksCorrect: 1, marksWrong: 0, durationMins: 150 },
             'upsc-cms': { title: "UPSC CMS Mock", marksCorrect: 2.08, marksWrong: 0.69, durationMins: 120 }
         };
-        const config = EXAM_CONFIG[examType] || EXAM_CONFIG['neet-pg'];
+        const config = EXAM_CONFIG[examType];
 
-        // --- UI RESPONSIVENESS LOGIC ---
         window.togglePalette = function() {
-            const sidebar = document.getElementById('cbt-sidebar');
-            const overlay = document.getElementById('palette-overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('open');
+            document.getElementById('cbt-sidebar').classList.toggle('open');
+            document.getElementById('palette-overlay').classList.toggle('open');
         };
 
         // --- AUTH & DATA FETCH ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 if (ADMIN_EMAILS.includes(user.email)) {
-                    loadTestData();
+                    loadTest(user.uid);
                 } else {
                     const snap = await get(ref(db, `users/${user.uid}`));
                     const data = snap.val();
                     if (data && data.accessLevel === 'pro' && data.planExpiry > Date.now()) {
-                        loadTestData();
+                        loadTest(user.uid);
                     } else {
                         alert("Pro Access Required for Mock Tests."); window.location.href = "premium.html";
                     }
@@ -306,22 +295,38 @@
             }
         });
 
-        async function loadTestData() {
+        async function loadTest(uid) {
+            if(!testFileName) { alert("Test file missing."); window.location.href = "index.html"; return; }
+
             try {
-                // FALLBACK MOCK DATA LOGIC: Pulling a sample of 20 Qs from Anatomy for the Engine
-                const snap = await get(ref(db, `question_banks/${examType}/anatomy`));
-                if(snap.exists()) {
-                    let allQs = [];
-                    const val = snap.val();
-                    if(Array.isArray(val)) allQs = val; else allQs = Object.values(val);
+                // 1. Fetch the JSON file from your server/GitHub
+                const response = await fetch(testFileName);
+                if(!response.ok) throw new Error("Test file not found.");
+                questions = await response.json();
+                
+                // 2. Initialize State
+                questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+
+                // 3. CHECK IF REVIEW MODE OR TEST MODE
+                if (reviewId) {
+                    document.getElementById('loading-title').innerText = "Loading Analysis...";
+                    document.getElementById('loading-desc').innerText = "Fetching your saved answer sheet.";
                     
-                    questions = allQs.filter(q => q !== null).slice(0, 20); 
+                    // Fetch User's answers from Firebase
+                    const historySnap = await get(ref(db, `users/${uid}/testHistory/${reviewId}`));
+                    const historyData = historySnap.val();
                     
-                    questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+                    if(historyData && historyData.answers) {
+                        state = historyData.answers; // Overwrite empty state with saved answers
+                        generateReport(false); // Skip test, go straight to report
+                    } else {
+                        alert("Review data corrupted."); window.location.href = "index.html";
+                    }
+                } else {
+                    // Start Normal Test
                     state[0].status = 'unans'; 
                     timeRemaining = config.durationMins * 60;
 
-                    // Update UI text
                     document.getElementById('inst-exam-title').innerText = config.title;
                     document.getElementById('inst-time').innerText = config.durationMins + " Mins";
                     document.getElementById('inst-qs').innerText = questions.length;
@@ -331,12 +336,11 @@
 
                     document.getElementById('view-loading').classList.add('hidden');
                     document.getElementById('view-instructions').classList.remove('hidden');
-                } else {
-                    alert("No questions found in database to generate mock.");
-                    window.location.href = "index.html";
                 }
+
             } catch (e) {
-                console.error(e); alert("Failed to load test engine.");
+                console.error(e); alert("Failed to load test. Did you upload the JSON file to GitHub?");
+                window.location.href = "index.html";
             }
         }
 
@@ -406,39 +410,11 @@
         }
 
         window.selectOption = function(char) { state[currentQIndex].ans = char; renderQuestion(currentQIndex); };
-        
-        window.saveAndNext = function() { 
-            if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; 
-            else state[currentQIndex].status = 'unans'; 
-            moveToNext(); 
-        };
-        
-        window.markForReview = function() { 
-            if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; 
-            else state[currentQIndex].status = 'review'; 
-            moveToNext(); 
-        };
-        
-        window.clearResponse = function() { 
-            state[currentQIndex].ans = null; 
-            state[currentQIndex].status = 'unans'; 
-            renderQuestion(currentQIndex); 
-        };
-        
-        window.prevQuestion = function() { 
-            if(currentQIndex > 0) { 
-                if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; 
-                renderQuestion(currentQIndex - 1); 
-            } 
-        };
-        
-        window.jumpTo = function(idx) { 
-            if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; 
-            if(state[idx].status === 'notvis') state[idx].status = 'unans'; 
-            renderQuestion(idx); 
-            // Auto close palette on mobile after selection
-            if(window.innerWidth <= 900) { window.togglePalette(); }
-        };
+        window.saveAndNext = function() { if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; else state[currentQIndex].status = 'unans'; moveToNext(); };
+        window.markForReview = function() { if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; else state[currentQIndex].status = 'review'; moveToNext(); };
+        window.clearResponse = function() { state[currentQIndex].ans = null; state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex); };
+        window.prevQuestion = function() { if(currentQIndex > 0) { if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex - 1); } };
+        window.jumpTo = function(idx) { if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; if(state[idx].status === 'notvis') state[idx].status = 'unans'; renderQuestion(idx); if(window.innerWidth <= 900) { window.togglePalette(); } };
 
         function moveToNext() {
             if(currentQIndex < questions.length - 1) {
@@ -447,17 +423,20 @@
             } else { renderPalette(); }
         }
 
-        // --- SUBMISSION & SYNC ---
+        // --- SUBMISSION & REPORT ---
         window.submitTest = function(autoSubmit = false) {
-            if(autoSubmit || confirm("Are you sure you want to submit the test? You cannot change your answers after this.")) {
+            if(autoSubmit || confirm("Are you sure you want to submit the test?")) {
                 clearInterval(timerInterval);
-                generateReport();
+                generateReport(true); // true = save to database
             }
         };
 
-        function generateReport() {
+        function generateReport(saveToDatabase) {
+            document.getElementById('view-loading').classList.add('hidden');
             document.getElementById('view-test').classList.add('hidden');
             document.getElementById('view-report').classList.remove('hidden');
+
+            if(!saveToDatabase) { document.getElementById('rep-status').innerText = "Historical Review Mode"; }
 
             let correct = 0; let wrong = 0; let skipped = 0; let score = 0;
             let reviewHtml = '';
@@ -503,13 +482,14 @@
             
             window.scrollTo(0,0);
 
-            // Sync to Database
-            if(auth.currentUser) {
+            // SAVE TO FIREBASE IF TAKING THE TEST
+            if(saveToDatabase && auth.currentUser) {
                 const now = new Date();
-                const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const historyId = "TEST_" + Date.now();
                 
                 const testRecord = {
-                    exam: examType,
+                    testFile: testFileName,
                     title: config.title,
                     score: parseFloat(score.toFixed(2)),
                     maxScore: maxScore,
@@ -518,11 +498,12 @@
                     wrong: wrong,
                     skipped: skipped,
                     date: formattedDate,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    answers: state // Saves "A, B, C" to fetch later for Review Mode
                 };
 
-                const historyRef = ref(db, `users/${auth.currentUser.uid}/testHistory`);
-                push(historyRef, testRecord).catch(err => console.error("Database Sync Error:", err));
+                const historyRef = ref(db, `users/${auth.currentUser.uid}/testHistory/${historyId}`);
+                set(historyRef, testRecord).catch(err => console.error("Database Sync Error:", err));
             }
         }
     </script>
