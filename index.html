@@ -11,8 +11,6 @@
     <title>MedPYQ | Medical Exam Prep</title>
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
-    
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
     :root {
@@ -109,22 +107,6 @@
     /* --- EXAM INFO SECTION --- */
     .exam-info-block { display: none; animation: fadeIn 0.4s; }
 
-    /* --- PRICING SECTION --- */
-    .pricing-section { max-width: 1000px; margin: 40px auto; padding: 0 15px; text-align: center; display: none; }
-    .pricing-section h2 { font-size: 1.5rem; color: var(--app-blue); margin-bottom: 10px; font-weight: bold; }
-    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; text-align: left; }
-    .pricing-card { background: white; border-radius: 16px; padding: 30px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid #e2e8f0; position: relative; overflow: hidden; }
-    .pricing-card.popular { border-color: var(--app-gold); }
-    .popular-tag { position: absolute; top: 15px; right: -30px; background: var(--app-gold); color: var(--app-blue); font-size: 0.75rem; font-weight: 800; padding: 5px 30px; transform: rotate(45deg); }
-    .pc-title { font-size: 1.1rem; font-weight: 700; color: #64748b; margin-bottom: 10px; text-transform: uppercase; }
-    .pc-price { font-size: 2.5rem; font-weight: 800; color: var(--app-blue); margin-bottom: 20px; }
-    .pc-price span { font-size: 1rem; color: #94a3b8; }
-    .pc-features { list-style: none; padding: 0; margin: 0 0 25px 0; }
-    .pc-features li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #475569; display: flex; align-items: center; gap: 10px; }
-    .pc-features li i { color: #10b981; }
-    .btn-buy { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; background: var(--app-blue); color: white; }
-    .pricing-card.popular .btn-buy { background: var(--app-gold); color: var(--app-blue); }
-
     /* --- AVAILABILITY BANDS & QBANK GRID --- */
     .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px 20px; }
     .subject-card {
@@ -140,11 +122,12 @@
 
     /* --- TEST LIST STYLES --- */
     .test-list { padding: 10px 15px; }
-    .test-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--app-blue); }
+    .test-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--app-blue); cursor:pointer; transition:0.2s;}
+    .test-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
     .test-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-    .test-title { font-weight: 600; color: #333; font-size: 0.95rem; }
+    .test-title { font-weight: 600; color: #333; font-size: 1.05rem; }
     .tag-pro { background: #fff8e1; color: var(--app-gold); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-    .test-meta { font-size: 0.8rem; color: #888; }
+    .test-meta { font-size: 0.85rem; color: #64748b; }
 
     /* --- BOTTOM NAV --- */
     .bottom-nav {
@@ -155,7 +138,7 @@
     .nav-item.active { color: var(--app-blue); }
 
     /* --- MODALS & OVERLAYS --- */
-    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #loading-overlay {
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
     }
     
@@ -180,9 +163,6 @@
     .auth-error { color: #ef4444; font-size: 0.8rem; margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; display: none; text-align: left; }
     .auth-status-active { color: #22c55e !important; font-weight: bold !important; font-size: 0.8rem !important; }
     .auth-status-expired { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
-
-    .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: var(--app-gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -293,103 +273,11 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Single Window Entrance for MD, MS & DNB in India</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>National Eligibility cum Entrance Test for Postgraduate (NEET-PG)</strong> is the eligibility-cum-ranking examination prescribed as the single entrance examination for admission to various MD/MS and PG Diploma Courses. It is conducted annually by the <strong>National Board of Examinations (NBEMS)</strong> and is the gateway to over 26,000 MD and 13,000 MS seats across Government, Private, and Deemed Universities.
+                        The <strong>National Eligibility cum Entrance Test for Postgraduate (NEET-PG)</strong> is the eligibility-cum-ranking examination prescribed as the single entrance examination for admission to various MD/MS and PG Diploma Courses. It is conducted annually by the <strong>National Board of Examinations (NBEMS)</strong>.
                     </p>
-                    <div style="background: #fff; border-left: 5px solid #eebb4d; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                        <h3 style="color: #0f2b52; margin-top: 0; display: flex; align-items: center;">
-                            <i class="fas fa-check-circle" style="margin-right: 10px; color: #eebb4d;"></i> Eligibility Criteria
-                        </h3>
-                        <div style="margin-top: 15px;">
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-graduation-cap" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Educational:</strong> MBBS degree or Provisional MBBS Pass Certificate recognized by the NMC/MCI.</span>
-                            </div>
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-user-md" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Internship:</strong> Completion of one-year compulsory rotating internship on or before the cut-off date (usually mid-year, e.g., August 31st).</span>
-                            </div>
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-id-card" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Registration:</strong> Permanent or provisional registration with the NMC or State Medical Council is mandatory.</span>
-                            </div>
-                        </div>
-                    </div>
-                    <h2 style="color: #0f2b52; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">Exam Pattern (CBT Mode)</h2>
-                    <p>The exam covers the entire MBBS curriculum comprising 19 subjects, tested in a single day.</p>
-                    <div style="overflow-x: auto; margin-bottom: 30px;">
-                        <table style="width: 100%; border-collapse: collapse; background: white; font-size: 0.95rem;">
-                            <thead>
-                                <tr style="background: #0f2b52; color: white;">
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Feature</th>
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Duration</td>
-                                    <td style="padding: 12px; border: 1px solid #ddd;">3 Hours 30 Minutes (210 Mins)</td>
-                                </tr>
-                                <tr style="background: #f9f9f9;">
-                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Total Questions</td>
-                                    <td style="padding: 12px; border: 1px solid #ddd;">200 Multiple Choice Questions (MCQs)</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Marking Scheme</td>
-                                    <td style="padding: 12px; border: 1px solid #ddd;">
-                                        <div><i class="fas fa-check" style="color: green; margin-right: 5px;"></i> <strong>+4</strong> for Correct Answer</div>
-                                        <div style="margin-top: 5px;"><i class="fas fa-times" style="color: red; margin-right: 5px;"></i> <strong>-1</strong> for Wrong Answer</div>
-                                    </td>
-                                </tr>
-                                <tr style="background: #f9f9f9;">
-                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Sections</td>
-                                    <td style="padding: 12px; border: 1px solid #ddd;">Divided into time-bound sections (Pre-clinical, Para-clinical, and Clinical subjects).</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <h2 style="color: #0f2b52; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">Scope & Courses Offered</h2>
-                    <p>NEET PG scores are valid for admission to a wide range of postgraduate courses across India:</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                        <div style="background: white; padding: 15px; border: 1px solid #e1e8f0; border-radius: 8px; text-align: center;">
-                            <div style="font-weight: bold; color: #0f2b52;">MD (Doctor of Medicine)</div>
-                            <div style="font-size: 0.85rem; color: #666;">Clinical & Non-clinical specialties.</div>
-                        </div>
-                        <div style="background: white; padding: 15px; border: 1px solid #e1e8f0; border-radius: 8px; text-align: center;">
-                            <div style="font-weight: bold; color: #0f2b52;">MS (Master of Surgery)</div>
-                            <div style="font-size: 0.85rem; color: #666;">Surgical specialties (e.g., Surgery, Ortho).</div>
-                        </div>
-                        <div style="background: white; padding: 15px; border: 1px solid #e1e8f0; border-radius: 8px; text-align: center;">
-                            <div style="font-weight: bold; color: #0f2b52;">DNB</div>
-                            <div style="font-size: 0.85rem; color: #666;">Equivalent to MD/MS, offered in top hospitals.</div>
-                        </div>
-                        <div style="background: white; padding: 15px; border: 1px solid #e1e8f0; border-radius: 8px; text-align: center;">
-                            <div style="font-weight: bold; color: #0f2b52;">PG Diploma</div>
-                            <div style="font-size: 0.85rem; color: #666;">2-year specialized clinical courses.</div>
-                        </div>
-                    </div>
-                    <h2 style="color: #0f2b52; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">MedPYQ Preparation Strategy</h2>
-                    <div style="background: #f4f6f8; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                        <div style="margin-bottom: 15px;">
-                            <span style="background: #0f2b52; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 10px;">TIP 1</span>
-                            <strong>Focus on Clinical Vignettes:</strong> Practice integrating Anatomy/Physio with Clinical subjects.
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <span style="background: #0f2b52; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 10px;">TIP 2</span>
-                            <strong>High-Yield Subjects:</strong> Medicine, Surgery, OBG, and PSM carry the maximum weightage.
-                        </div>
-                        <div>
-                            <span style="background: #0f2b52; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 10px;">TIP 3</span>
-                            <strong>Grand Tests (GTs):</strong> Simulate the 3.5-hour exam regularly to master time management.
-                        </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <h3 style="margin-top: 0; color: #0f2b52;">Start Your NEET PG Prep</h3>
-                        <p style="margin-bottom: 20px; color: #666;">Practice subject-wise Previous Year Questions (PYQs).</p>
-                        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-                            <button onclick="navigateToSubject('Pharmacology')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Pharmacology</button>
-                            <button onclick="navigateToSubject('Pathology')" style="background-color: #eebb4d; color: #0f2b52; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Pathology</button>
-                            <button onclick="navigateToSubject('CFM')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">PSM (CFM)</button>
-                        </div>
+                    <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
+                        <a href="neet-pg.html" style="background-color: #eebb4d; color: #0f2b52; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: 800; font-size: 1rem; display:inline-block;">Read Full NEET PG Guide <i class="fas fa-arrow-right" style="margin-left:5px;"></i></a>
                     </div>
                 </div>
             </div>
@@ -404,45 +292,9 @@
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
                         The <strong>Institute of National Importance Combined Entrance Test (INI-CET)</strong> is the most prestigious postgraduate medical entrance exam in India. It is conducted by AIIMS New Delhi twice a year for admission into MD, MS, DM, MCh, and MDS courses at the country's top institutes.
                     </p>
-                    <div style="background: #fff; border-left: 5px solid #eebb4d; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                        <h3 style="color: #0f2b52; margin-top: 0; display: flex; align-items: center;">
-                            <i class="fas fa-check-circle" style="margin-right: 10px; color: #eebb4d;"></i> Eligibility Criteria
-                        </h3>
-                        <div style="margin-top: 15px;">
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-graduation-cap" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Educational:</strong> MBBS degree recognized by NMC/MCI. Must have completed 12 months of rotating internship.</span>
-                            </div>
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-percentage" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Minimum Marks:</strong> 55% aggregate for Gen/OBC/EWS and 50% for SC/ST.</span>
-                            </div>
-                        </div>
-                    </div>
-                    <h2 style="color: #0f2b52; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">Exam Pattern (CBT Mode)</h2>
-                    <p>The exam is known for its challenging clinical questions and unique "Multiple True/False" format.</p>
-                    <div style="overflow-x: auto; margin-bottom: 30px;">
-                        <table style="width: 100%; border-collapse: collapse; background: white; font-size: 0.95rem;">
-                            <thead>
-                                <tr style="background: #0f2b52; color: white;">
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Feature</th>
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Duration</td><td style="padding: 12px; border: 1px solid #ddd;">3 Hours (180 Minutes)</td></tr>
-                                <tr style="background: #f9f9f9;"><td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Total Questions</td><td style="padding: 12px; border: 1px solid #ddd;">200 Objective Type Questions</td></tr>
-                                <tr><td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Marking Scheme</td><td style="padding: 12px; border: 1px solid #ddd;"><div><i class="fas fa-check" style="color: green; margin-right: 5px;"></i> <strong>+1</strong> for Correct Answer</div><div style="margin-top: 5px;"><i class="fas fa-times" style="color: red; margin-right: 5px;"></i> <strong>-1/3</strong> (approx -0.33) for Wrong Answer</div></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <h3 style="margin-top: 0; color: #0f2b52;">Start Your INI-CET Prep</h3>
-                        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px;">
-                            <button onclick="navigateToSubject('Medicine')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Medicine</button>
-                            <button onclick="navigateToSubject('Surgery')" style="background-color: #eebb4d; color: #0f2b52; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Surgery</button>
-                            <button onclick="navigateToSubject('OBG')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">OBG</button>
-                        </div>
+                    <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
+                        <a href="inicet.html" style="background-color: #eebb4d; color: #0f2b52; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: 800; font-size: 1rem; display:inline-block;">Read Full INI-CET Guide <i class="fas fa-arrow-right" style="margin-left:5px;"></i></a>
                     </div>
                 </div>
             </div>
@@ -455,47 +307,11 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Licensure Exam for Foreign Medical Graduates</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>Foreign Medical Graduate Examination (FMGE)</strong>, also known as the MCI Screening Test, is a licensure examination conducted by the National Board of Examinations (NBEMS). It is mandatory for Indian citizens and OCI cardholders who have completed their medical education abroad to practice medicine in India. Unlike NEET PG, this is a qualifying exam, not a competitive one.
+                        The <strong>Foreign Medical Graduate Examination (FMGE)</strong>, also known as the MCI Screening Test, is a licensure examination conducted by the National Board of Examinations (NBEMS). It is mandatory for Indian citizens and OCI cardholders who have completed their medical education abroad.
                     </p>
-                    <div style="background: #fff; border-left: 5px solid #eebb4d; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                        <h3 style="color: #0f2b52; margin-top: 0; display: flex; align-items: center;">
-                            <i class="fas fa-check-circle" style="margin-right: 10px; color: #eebb4d;"></i> Eligibility Criteria
-                        </h3>
-                        <div style="margin-top: 15px;">
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-graduation-cap" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Educational:</strong> Must possess a primary medical qualification from an institution outside India, confirmed by the Indian Embassy.</span>
-                            </div>
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-file-signature" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Eligibility Certificate:</strong> Must hold an Eligibility Certificate issued by the NMC.</span>
-                            </div>
-                        </div>
-                    </div>
-                    <h2 style="color: #0f2b52; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">Exam Pattern (CBT Mode)</h2>
-                    <p>The exam consists of two parts (Part A and Part B) administered on a single day. You need to secure <strong>150 out of 300</strong> to pass.</p>
-                    <div style="overflow-x: auto; margin-bottom: 30px;">
-                        <table style="width: 100%; border-collapse: collapse; background: white; font-size: 0.95rem;">
-                            <thead>
-                                <tr style="background: #0f2b52; color: white;">
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Feature</th>
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Duration</td><td style="padding: 12px; border: 1px solid #ddd;">2.5 Hours per part (Total 5 Hours)</td></tr>
-                                <tr style="background: #f9f9f9;"><td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Total Questions</td><td style="padding: 12px; border: 1px solid #ddd;">300 Multiple Choice Questions</td></tr>
-                                <tr><td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Marking Scheme</td><td style="padding: 12px; border: 1px solid #ddd;"><div><i class="fas fa-check" style="color: green; margin-right: 5px;"></i> <strong>+1</strong> for Correct</div><div style="margin-top: 5px;"><i class="fas fa-smile" style="color: #0f2b52; margin-right: 5px;"></i> <strong>No Negative Marking</strong></div></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <h3 style="margin-top: 0; color: #0f2b52;">Start Your FMGE Prep</h3>
-                        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px;">
-                            <button onclick="navigateToSubject('CFM')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">PSM (CFM)</button>
-                            <button onclick="navigateToSubject('OBG')" style="background-color: #eebb4d; color: #0f2b52; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">OBG</button>
-                            <button onclick="navigateToSubject('Medicine')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Medicine</button>
-                        </div>
+                    <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
+                        <a href="fmge.html" style="background-color: #eebb4d; color: #0f2b52; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: 800; font-size: 1rem; display:inline-block;">Read Full FMGE Guide <i class="fas fa-arrow-right" style="margin-left:5px;"></i></a>
                     </div>
                 </div>
             </div>
@@ -508,61 +324,16 @@
                         <p style="opacity: 0.9; margin-top: 10px; font-size: 1.1rem;">The Ultimate Gateway to Central Government Medical Services</p>
                     </div>
                     <p style="font-size: 1.05rem; margin-bottom: 25px;">
-                        The <strong>Combined Medical Services (CMS)</strong> examination, conducted by UPSC, is one of the most prestigious exams for medical graduates in India. It offers a direct path to becoming a Class-I Gazetted Officer with the Government of India. Unlike NEET-PG which is for specialization, UPSC CMS is for direct employment with high security and perks.
+                        The <strong>Combined Medical Services (CMS)</strong> examination, conducted by UPSC, is one of the most prestigious exams for medical graduates in India. It offers a direct path to becoming a Class-I Gazetted Officer with the Government of India.
                     </p>
-                    <div style="background: #fff; border-left: 5px solid #eebb4d; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                        <h3 style="color: #0f2b52; margin-top: 0; display: flex; align-items: center;">
-                            <i class="fas fa-check-circle" style="margin-right: 10px; color: #eebb4d;"></i> Eligibility Criteria
-                        </h3>
-                        <div style="margin-top: 15px;">
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-graduation-cap" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Educational:</strong> MBBS passed or appearing in the final year.</span>
-                            </div>
-                            <div style="margin-bottom: 10px; display: flex; align-items: start;">
-                                <i class="fas fa-calendar-alt" style="color: #0f2b52; margin-top: 5px; margin-right: 10px; width: 20px;"></i>
-                                <span><strong>Age Limit:</strong> Must not have attained the age of 32 years.</span>
-                            </div>
-                        </div>
-                    </div>
-                    <h2 style="color: #0f2b52; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">Exam Pattern (Computer Based)</h2>
-                    <p>The written exam consists of two papers, both conducted on the same day. Each paper is of <strong>250 Marks</strong> and <strong>2 Hours</strong> duration.</p>
-                    <div style="overflow-x: auto; margin-bottom: 30px;">
-                        <table style="width: 100%; border-collapse: collapse; background: white; font-size: 0.95rem;">
-                            <thead>
-                                <tr style="background: #0f2b52; color: white;">
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Paper</th>
-                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Subject Breakdown</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Paper I</td>
-                                    <td style="padding: 12px; border: 1px solid #ddd;">Medicine (96 Qs) & Paediatrics (24 Qs)</td>
-                                </tr>
-                                <tr style="background: #f9f9f9;">
-                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold; color: #0f2b52;">Paper II</td>
-                                    <td style="padding: 12px; border: 1px solid #ddd;">Surgery (40 Qs), OBG (40 Qs), CFM/PSM (40 Qs)</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <h3 style="margin-top: 0; color: #0f2b52;">Start Your UPSC CMS Prep</h3>
-                        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px;">
-                            <button onclick="navigateToSubject('Medicine')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Medicine</button>
-                            <button onclick="navigateToSubject('CFM')" style="background-color: #eebb4d; color: #0f2b52; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">PSM (CFM)</button>
-                            <button onclick="navigateToSubject('Surgery')" style="background-color: #0f2b52; color: white; padding: 10px 20px; border:none; border-radius: 50px; font-weight: bold; font-size: 0.9rem; cursor:pointer;">Surgery</button>
-                        </div>
+                    <div style="text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <p style="margin-bottom: 15px; color: #666; font-size: 1.1rem;">To view the full syllabus, exam pattern, and detailed strategy, visit our dedicated page.</p>
+                        <a href="upsc-cms.html" style="background-color: #eebb4d; color: #0f2b52; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: 800; font-size: 1rem; display:inline-block;">Read Full UPSC CMS Guide <i class="fas fa-arrow-right" style="margin-left:5px;"></i></a>
                     </div>
                 </div>
             </div>
             
         </div>
-        
-        <section id="pricing-section" class="pricing-section">
-            </section>
-
     </div>
 
     <div class="screen" id="view-qbank">
@@ -593,16 +364,57 @@
     <div class="screen" id="view-tests">
         <div style="padding:15px; background:white; margin-bottom:10px;">
             <div class="test-list">
-                <div class="test-card"><div class="test-header"><div class="test-title">National INI-CET Mock</div><div class="tag-pro">Ended</div></div><div class="test-meta">Ended on 22 Oct &bull; 180 mins</div></div>
-                <div class="test-card"><div class="test-header"><div class="test-title">Grand Test 5</div><div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div></div><div class="test-meta">Ended on 17 Nov &bull; 200 MCQs</div></div>
+                <div class="test-card" onclick="navigateToTest('neet-pg')">
+                    <div class="test-header">
+                        <div class="test-title">NEET PG Grand Mock 1</div>
+                        <div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div>
+                    </div>
+                    <div class="test-meta">Live Now &bull; 210 mins &bull; 200 MCQs</div>
+                </div>
+                <div class="test-card" onclick="navigateToTest('inicet')">
+                    <div class="test-header">
+                        <div class="test-title">INI-CET National Mock</div>
+                        <div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div>
+                    </div>
+                    <div class="test-meta">Live Now &bull; 180 mins &bull; 200 MCQs</div>
+                </div>
+                <div class="test-card" onclick="navigateToTest('fmge')">
+                    <div class="test-header">
+                        <div class="test-title">FMGE Screening Test Mock</div>
+                        <div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div>
+                    </div>
+                    <div class="test-meta">Live Now &bull; 150 mins &bull; 150 MCQs</div>
+                </div>
+                <div class="test-card" onclick="navigateToTest('upsc-cms')">
+                    <div class="test-header">
+                        <div class="test-title">UPSC CMS Mock Test</div>
+                        <div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div>
+                    </div>
+                    <div class="test-meta">Live Now &bull; 120 mins &bull; 120 MCQs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="view-performance">
+        <div style="padding:20px; max-width: 800px; margin: 0 auto;">
+            <h2 style="color:var(--app-blue); margin-top:0;">My Performance</h2>
+            <p style="color:#64748b; font-size:0.95rem; margin-bottom:25px;">Review your recent test scores and analytics.</p>
+            
+            <div id="performance-list">
+                <div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px;">
+                    <i class="fas fa-chart-pie" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>
+                    Authenticating and securely fetching analytics...
+                </div>
             </div>
         </div>
     </div>
 
     <div class="screen" id="view-videos">
-        <div class="grid-container" style="padding-top:20px;">
-            <a class="subject-card" onclick="navigateToSubject('Anatomy')"><div class="icon-circle"><i class="fas fa-bone"></i></div><div class="sub-name">Anatomy</div><div class="sub-count">Video Modules</div></a>
-            <a class="subject-card" onclick="navigateToSubject('Biochemistry')"><div class="icon-circle"><i class="fas fa-dna"></i></div><div class="sub-name">Biochemistry</div><div class="sub-count">Video Modules</div></a>
+        <div style="text-align:center; padding: 80px 20px; color:#64748b;">
+            <i class="fas fa-photo-film" style="font-size: 4rem; color:#cbd5e1; margin-bottom:20px;"></i>
+            <h2 style="color:var(--app-blue); margin:0 0 10px 0;">Videos Coming Soon</h2>
+            <p style="margin:0; font-size:1rem;">Expert video lectures are currently under production.</p>
         </div>
     </div>
 
@@ -610,7 +422,7 @@
         <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><span>Home</span></div>
         <div class="nav-item" onclick="switchTab('qbank', this)"><i class="fas fa-layer-group"></i><span>QBank</span></div>
         <div class="nav-item" onclick="switchTab('tests', this)"><i class="fas fa-clipboard-check"></i><span>Tests</span></div>
-        <div class="nav-item" onclick="switchTab('videos', this)"><i class="fas fa-video"></i><span>Videos</span></div>
+        <div class="nav-item" onclick="switchTab('performance', this)"><i class="fas fa-chart-line"></i><span>Analysis</span></div>
     </div>
 
     <div id="offline-overlay">
@@ -740,6 +552,16 @@
             const currentExam = localStorage.getItem('selectedExam') || 'NEET-PG';
             const formattedSubject = subject.toLowerCase().replace(/\s+/g, '-');
             window.location.href = `viewer.html?exam=${currentExam}&subject=${formattedSubject}`;
+        }
+
+        window.navigateToTest = function(exam) {
+            if (!navigator.onLine) { showOfflineScreen(); return; }
+            
+            if (window.isUserPro === false) { 
+                document.getElementById('pro-paywall-overlay').style.display = 'flex'; 
+                return; 
+            }
+            window.location.href = `test-engine.html?exam=${exam}`;
         }
 
         function switchTab(screenName, element) {
@@ -904,6 +726,51 @@
             }
         };
 
+        // --- RENDER SECURE PERFORMANCE DATA ---
+        const renderPerformance = async (uid) => {
+            const container = document.getElementById('performance-list');
+            try {
+                const historySnap = await get(ref(db, `users/${uid}/testHistory`));
+                const historyObj = historySnap.val();
+                
+                if(!historyObj) {
+                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-chart-pie" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>No test history found. Take a mock test to see your analytics here.</div>';
+                    return;
+                }
+                
+                const historyArr = Object.keys(historyObj).map(key => historyObj[key]).reverse();
+                
+                let html = '';
+                historyArr.forEach(record => {
+                    html += `
+                    <div style="background:white; border-radius:16px; padding:25px; margin-bottom:20px; border:1px solid #e2e8f0; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:15px;">
+                            <div style="font-weight:800; color:var(--app-blue); font-size:1.15rem;">${record.title}</div>
+                            <div style="font-size:0.85rem; color:#64748b; font-weight:600; background:#f8fafc; padding:4px 10px; border-radius:6px;">${record.date}</div>
+                        </div>
+                        <div style="display:flex; gap:15px; margin-bottom:20px;">
+                            <div style="flex:1; background:#f0f6fc; padding:15px; border-radius:12px; text-align:center;">
+                                <div style="font-size:1.4rem; font-weight:800; color:var(--app-blue);">${record.score} <span style="font-size:0.85rem;color:#94a3b8;">/ ${record.maxScore}</span></div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:5px;">Score</div>
+                            </div>
+                            <div style="flex:1; background:#ecfdf5; padding:15px; border-radius:12px; text-align:center;">
+                                <div style="font-size:1.4rem; font-weight:800; color:#16a34a;">${record.accuracy}%</div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:5px;">Accuracy</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-around; font-size:0.95rem; font-weight:700; color:#475569; background:#f8fafc; padding:15px; border-radius:12px;">
+                            <span style="color:#16a34a;"><i class="fas fa-check-circle"></i> ${record.correct} Correct</span>
+                            <span style="color:#ef4444;"><i class="fas fa-times-circle"></i> ${record.wrong} Incorrect</span>
+                            <span style="color:#94a3b8;"><i class="fas fa-minus-circle"></i> ${record.skipped} Skipped</span>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#ef4444;">Failed to load analytics.</div>';
+            }
+        };
+
         // --- CENTRAL AUTHENTICATION & SECURITY LISTENER ---
         onAuthStateChanged(auth, async (user) => {
             const loginBtn = document.getElementById('paywall-btn-login');
@@ -916,12 +783,15 @@
                 let isPro = false;
                 let validityText = null;
                 
+                // Fetch user performance history
+                renderPerformance(user.uid);
+                
                 // 1. Check Admin status
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true;
                     validityText = "Lifetime Access";
                 } 
-                // 2. Check Legacy Manual Database (SUB_DB)
+                // 2. Check Legacy Manual Database
                 else if (SUB_DB[email]) {
                     const today = new Date(); today.setHours(0,0,0,0);
                     const expiry = new Date(SUB_DB[email]); expiry.setHours(0,0,0,0);
@@ -966,7 +836,7 @@
                     updateExamUI();
                     
                     if(loginBtn) loginBtn.style.display = 'none';
-                    if(payBtn) payBtn.style.display = 'block'; // Shows button linked to premium.html
+                    if(payBtn) payBtn.style.display = 'block'; 
                     if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
                     if(paywallText) paywallText.innerText = `Logged in as ${email}. Premium content requires a subscription.`;
                 }
@@ -974,6 +844,8 @@
                 window.isUserPro = false;
                 updateSidebarDisplay('Guest', 'Free Plan', false, null);
                 updateExamUI();
+                
+                document.getElementById('performance-list').innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-lock" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>Please log in to view your performance analytics.</div>';
                 
                 if(loginBtn) loginBtn.style.display = 'block';
                 if(payBtn) payBtn.style.display = 'none';
