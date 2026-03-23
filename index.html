@@ -12,6 +12,8 @@
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
     
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <style>
     :root {
         --app-blue: #0f2b52;
@@ -101,7 +103,6 @@
     .medpyq-icon-circle { width: 50px; height: 50px; background: #f0f4ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--app-blue); font-size: 20px; }
     .medpyq-card h3 { margin: 5px 0; color: var(--app-blue); font-size: 1rem; }
     .medpyq-card p { font-size: 0.8rem; color: #666; margin-bottom: 15px; }
-    .medpyq-card-link { color: var(--app-blue); font-weight: bold; font-size: 0.85rem; margin-top: auto; }
 
     /* --- AVAILABILITY BANDS & QBANK GRID --- */
     .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px 20px; }
@@ -133,7 +134,7 @@
     .nav-item.active { color: var(--app-blue); }
 
     /* --- MODALS & OVERLAYS --- */
-    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay {
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #loading-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
     }
     
@@ -158,6 +159,9 @@
     .auth-error { color: #ef4444; font-size: 0.8rem; margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fee2e2; display: none; text-align: left; }
     .auth-status-active { color: #22c55e !important; font-weight: bold !important; font-size: 0.8rem !important; }
     .auth-status-expired { color: #ef4444 !important; font-weight: bold !important; font-size: 0.8rem !important; }
+
+    .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: var(--app-gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -213,6 +217,7 @@
             <p>Your dedicated partner for mastering NEET PG, INI-CET, FMGE, and UPSC CMS.</p>
             <a class="medpyq-btn" onclick="switchTab('qbank')">Start Practicing</a>
         </div>
+
         <h2 class="medpyq-section-title">Select Your Target</h2>
         <div class="medpyq-grid">
             <div class="medpyq-card" onclick="filterExam('NEET-PG')">
@@ -322,7 +327,9 @@
 
     <script>
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
-        window.isUserPro = false;
+        
+        // NULL means the app is still fetching the user's Pro status from Firebase
+        window.isUserPro = null; 
 
         function openSidebar() { document.getElementById('app-sidebar').classList.add('active'); document.getElementById('sidebar-overlay').classList.add('active'); updateExamUI(); }
         function closeSidebar() { document.getElementById('app-sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active'); }
@@ -359,7 +366,7 @@
                     
                     if (isAllowed) {
                         card.style.display = 'flex';
-                        if (window.isUserPro) {
+                        if (window.isUserPro === true) {
                             let bandText = "";
                             if (examName === 'INICET') bandText = "Avl 20 April";
                             else if (examName === 'UPSC-CMS' || examName === 'FMGE') bandText = "Coming Soon";
@@ -376,15 +383,18 @@
             });
         }
 
+        // --- FIXED NAVIGATOR LOGIC (RACE CONDITION ELIMINATED) ---
         function navigateToSubject(subject) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
             
-            // SECURITY CHECK: Intercepts clicks to subjects
-            if (!window.isUserPro) { 
+            // If we definitely know they are a free user, show the paywall immediately
+            if (window.isUserPro === false) { 
                 document.getElementById('pro-paywall-overlay').style.display = 'flex'; 
                 return; 
             }
             
+            // If they are Pro (or if it's still loading 'null'), let them navigate! 
+            // viewer.html has an unbreakable security wall that will catch them if they shouldn't be there.
             const currentExam = localStorage.getItem('selectedExam') || 'NEET-PG';
             const formattedSubject = subject.toLowerCase().replace(/\s+/g, '-');
             window.location.href = `viewer.html?exam=${currentExam}&subject=${formattedSubject}`;
@@ -443,18 +453,15 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- ADMIN EMAILS (LIFETIME ACCESS) ---
         const ADMIN_EMAILS = [
             "educateindiainstitute@gmail.com",
             "pankajkumarmahto1009@gmail.com"
         ];
 
-        // --- LEGACY SUBSCRIPTION DATABASE ---
         const SUB_DB = {
             'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
         };
 
-        // --- CUSTOM AUTHENTICATION MODAL ---
         window.authApp = {
             mode: 'login',
             open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
@@ -564,12 +571,12 @@
                 let isPro = false;
                 let validityText = null;
                 
-                // 1. Check Admin status (Lifetime Access)
+                // 1. Check Admin status
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true;
                     validityText = "Lifetime Access";
                 } 
-                // 2. Check Legacy Manual Database (SUB_DB)
+                // 2. Check Legacy Manual Database
                 else if (SUB_DB[email]) {
                     const today = new Date(); today.setHours(0,0,0,0);
                     const expiry = new Date(SUB_DB[email]); expiry.setHours(0,0,0,0);
@@ -594,13 +601,12 @@
                             validityText = `${daysLeft} Days Left`;
                         }
                     } catch(e) {
-                        console.error("Firebase Subscription Check Error:", e);
+                        console.error("Firebase Check Error:", e);
                     }
                 }
                 
                 window.isUserPro = isPro;
                 
-                // 4. Update UI based on Subscription Status
                 if (isPro) {
                     updateSidebarDisplay(email, null, false, validityText);
                     updateExamUI();
@@ -614,7 +620,7 @@
                     updateExamUI();
                     
                     if(loginBtn) loginBtn.style.display = 'none';
-                    if(payBtn) payBtn.style.display = 'block'; // Shows button linked to premium.html
+                    if(payBtn) payBtn.style.display = 'block'; 
                     if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
                     if(paywallText) paywallText.innerText = `Logged in as ${email}. Premium content requires a subscription.`;
                 }
