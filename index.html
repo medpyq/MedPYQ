@@ -12,7 +12,7 @@
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
     
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
     :root {
@@ -124,12 +124,20 @@
 
     /* --- TEST LIST STYLES --- */
     .test-list { padding: 10px 15px; }
-    .test-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--app-blue); cursor:pointer; transition:0.2s;}
-    .test-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-    .test-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-    .test-title { font-weight: 600; color: #333; font-size: 1.05rem; }
-    .tag-pro { background: #fff8e1; color: var(--app-gold); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-    .test-meta { font-size: 0.85rem; color: #64748b; }
+    .test-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; display:flex; flex-direction: column; }
+    .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .test-title { font-weight: 800; color: var(--app-blue); font-size: 1.1rem; }
+    .tag-pro { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+    .test-meta { font-size: 0.85rem; color: #64748b; font-weight: 600; margin-bottom: 15px; }
+
+    /* --- CHART CONTAINERS --- */
+    .chart-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+    .chart-box { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .chart-box h3 { margin-top: 0; font-size: 0.9rem; color: #64748b; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; }
+    
+    @media (max-width: 768px) {
+        .chart-dashboard { grid-template-columns: 1fr; }
+    }
 
     /* --- BOTTOM NAV --- */
     .bottom-nav {
@@ -274,7 +282,7 @@
 
         <div id="exam-info-container" style="max-width: 1000px; margin: 40px auto; padding: 0 15px;">
             
-            <div id="info-NEET-PG" class="exam-info-block">
+            <div id="info-NEET-PG" class="exam-info-block" style="display:none;">
                 <div style="font-family: 'Roboto', sans-serif; color: #333; line-height: 1.6;">
                     <div style="background: linear-gradient(135deg, #0f2b52 0%, #1a428a 100%); color: white; padding: 30px 20px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
                         <i class="fa-solid fa-stethoscope" style="font-size: 3rem; color: #eebb4d; margin-bottom: 15px;"></i>
@@ -583,22 +591,16 @@
 
     <div class="screen" id="view-tests">
         <div style="padding:15px; background:white; margin-bottom:10px;">
-            <div class="test-list">
-                <div class="test-card" onclick="navigateToTest('neet-pg-mock-1.json')" style="cursor:pointer; transition:0.2s;">
-                    <div class="test-header">
-                        <div class="test-title">NEET PG Grand Mock 1</div>
-                        <div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div>
-                    </div>
-                    <div class="test-meta">Live Now &bull; 210 mins &bull; 200 MCQs</div>
-                </div>
+            <div class="test-list" id="dynamic-test-list">
+                <div style="text-align:center; padding:40px; color:#94a3b8;">Loading Tests...</div>
             </div>
         </div>
     </div>
 
     <div class="screen" id="view-performance">
         <div style="padding:20px; max-width: 800px; margin: 0 auto;">
-            <h2 style="color:var(--app-blue); margin-top:0;">My Performance</h2>
-            <p style="color:#64748b; font-size:0.95rem; margin-bottom:25px;">Review your recent test scores and analytics.</p>
+            <h2 style="color:var(--app-blue); margin-top:0;">Elite Analytics</h2>
+            <p style="color:#64748b; font-size:0.95rem; margin-bottom:25px;">Track your accuracy and score progression across all mock tests.</p>
             
             <div id="performance-list">
                 <div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px;">
@@ -606,6 +608,14 @@
                     Authenticating and securely fetching analytics...
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="screen" id="view-videos">
+        <div style="text-align:center; padding: 80px 20px; color:#64748b;">
+            <i class="fas fa-photo-film" style="font-size: 4rem; color:#cbd5e1; margin-bottom:20px;"></i>
+            <h2 style="color:var(--app-blue); margin:0 0 10px 0;">Videos Coming Soon</h2>
+            <p style="margin:0; font-size:1rem;">Expert video lectures are currently under production.</p>
         </div>
     </div>
 
@@ -685,6 +695,14 @@
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
         window.isUserPro = null; 
 
+        // Central List of Available Tests
+        const AVAILABLE_TESTS = [
+            { id: 'neet-pg', title: 'NEET PG Grand Mock 1', file: 'neet-pg-mock-1.json', time: 210, qs: 200 },
+            { id: 'inicet', title: 'INI-CET National Mock', file: 'inicet-mock-1.json', time: 180, qs: 200 },
+            { id: 'fmge', title: 'FMGE Screening Test Mock', file: 'fmge-mock-1.json', time: 150, qs: 150 },
+            { id: 'upsc-cms', title: 'UPSC CMS Mock Test', file: 'upsc-cms-mock-1.json', time: 120, qs: 120 }
+        ];
+
         function openSidebar() { document.getElementById('app-sidebar').classList.add('active'); document.getElementById('sidebar-overlay').classList.add('active'); updateExamUI(); }
         function closeSidebar() { document.getElementById('app-sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active'); }
 
@@ -759,10 +777,13 @@
             window.location.href = `viewer.html?exam=${currentExam}&subject=${formattedSubject}`;
         }
 
-        window.navigateToTest = function(testFile) {
+        window.navigateToTest = function(testFile, reviewId = null) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
             if (window.isUserPro === false) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
-            window.location.href = `test-engine.html?testFile=${testFile}`;
+            
+            let url = `test-engine.html?testFile=${testFile}`;
+            if(reviewId) url += `&reviewId=${reviewId}`;
+            window.location.href = url;
         }
 
         function switchTab(screenName, element) {
@@ -827,6 +848,7 @@
             signup: function() {
                 const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
                 if(!e || !p) { this.showError("Please fill all fields"); return; }
+                if(p.length < 6) { this.showError("Password min 6 chars"); return; }
                 document.getElementById('btn-action-primary').innerText = "Creating...";
                 createUserWithEmailAndPassword(auth, e, p).then(() => { this.close(); alert("Account Created! Welcome to MedPYQ."); }).catch((error) => { this.showError(this.cleanError(error.code)); document.getElementById('btn-action-primary').innerText = "Sign Up"; });
             },
@@ -858,6 +880,45 @@
             }
         };
 
+        // --- RENDER DYNAMIC TEST TAB ---
+        function renderTestsTab(historyArr) {
+            const container = document.getElementById('dynamic-test-list');
+            let html = '';
+            
+            AVAILABLE_TESTS.forEach(test => {
+                const attempts = historyArr.filter(h => h.testFile === test.file);
+                const hasAttempted = attempts.length > 0;
+                
+                if(hasAttempted) {
+                    const latestAttemptId = attempts[0].id;
+                    html += `
+                    <div class="test-card">
+                        <div class="test-header">
+                            <div class="test-title">${test.title}</div>
+                            <div class="tag-pro" style="background:#dcfce7; color:#166534;"><i class="fas fa-check-circle"></i> Attempted</div>
+                        </div>
+                        <div class="test-meta" style="margin-bottom: 15px;">${test.time} mins &bull; ${test.qs} MCQs</div>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="navigateToTest('${test.file}', '${latestAttemptId}')" style="flex:1; padding:10px; border-radius:8px; border:none; background:var(--app-blue); color:white; font-weight:bold; cursor:pointer;">Review Test</button>
+                            <button onclick="navigateToTest('${test.file}')" style="flex:1; padding:10px; border-radius:8px; border:2px solid var(--app-blue); background:white; color:var(--app-blue); font-weight:bold; cursor:pointer;">Reattempt</button>
+                        </div>
+                    </div>`;
+                } else {
+                    html += `
+                    <div class="test-card">
+                        <div class="test-header">
+                            <div class="test-title">${test.title}</div>
+                            <div class="tag-pro" style="color:var(--app-gold); background:rgba(238, 187, 77, 0.1);">PRO</div>
+                        </div>
+                        <div class="test-meta" style="margin-bottom: 15px;">Live Now &bull; ${test.time} mins &bull; ${test.qs} MCQs</div>
+                        <button onclick="navigateToTest('${test.file}')" style="width:100%; padding:10px; border-radius:8px; border:none; background:var(--app-blue); color:white; font-weight:bold; cursor:pointer;">Start Test</button>
+                    </div>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        // --- ELITE ANALYTICS CHARTS ---
         const renderPerformance = async (uid) => {
             const container = document.getElementById('performance-list');
             try {
@@ -865,47 +926,106 @@
                 const historyObj = historySnap.val();
                 
                 if(!historyObj) {
-                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-chart-pie" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>No test history found. Take a mock test to see your analytics here.</div>';
+                    renderTestsTab([]); // Render default tests
+                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-chart-pie" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>No test history found. Take a mock test to unlock elite analytics.</div>';
                     return;
                 }
                 
                 const historyArr = Object.keys(historyObj).map(key => ({...historyObj[key], id: key})).reverse();
                 
-                let html = '';
+                // 1. Render Smart Tests Tab
+                renderTestsTab(historyArr);
+
+                // 2. Aggregate Data for Charts
+                let totalCorrect = 0; let totalWrong = 0; let totalSkipped = 0;
+                let scoreLabels = []; let scoreData = [];
+
+                historyArr.forEach(record => {
+                    totalCorrect += record.correct || 0;
+                    totalWrong += record.wrong || 0;
+                    totalSkipped += record.skipped || 0;
+                });
+                
+                const recentTests = historyArr.slice(0, 5).reverse();
+                recentTests.forEach(t => {
+                    scoreLabels.push(t.title.substring(0, 10));
+                    scoreData.push(t.accuracy);
+                });
+
+                // 3. Build Analytics UI
+                let html = `
+                <div class="chart-dashboard">
+                    <div class="chart-box">
+                        <h3>Overall Accuracy</h3>
+                        <div style="width: 100%; max-width: 200px;"><canvas id="accChart"></canvas></div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Recent Test Scores</h3>
+                        <div style="width: 100%;"><canvas id="scoreChart"></canvas></div>
+                    </div>
+                </div>
+                <h3 style="color:var(--app-blue); font-size:1.1rem; margin-bottom:15px;">Test History Log</h3>`;
+                
                 historyArr.forEach(record => {
                     html += `
-                    <div style="background:white; border-radius:16px; padding:25px; margin-bottom:20px; border:1px solid #e2e8f0; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:15px;">
-                            <div style="font-weight:800; color:var(--app-blue); font-size:1.15rem;">${record.title}</div>
-                            <div style="font-size:0.85rem; color:#64748b; font-weight:600; background:#f8fafc; padding:4px 10px; border-radius:6px;">${record.date}</div>
+                    <div style="background:white; border-radius:12px; padding:20px; margin-bottom:15px; border:1px solid #e2e8f0; box-shadow:0 2px 10px rgba(0,0,0,0.02);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
+                            <div style="font-weight:800; color:var(--app-blue); font-size:1rem;">${record.title}</div>
+                            <div style="font-size:0.8rem; color:#64748b; font-weight:600; background:#f8fafc; padding:4px 10px; border-radius:6px;">${record.date}</div>
                         </div>
-                        <div style="display:flex; gap:15px; margin-bottom:20px;">
-                            <div style="flex:1; background:#f0f6fc; padding:15px; border-radius:12px; text-align:center;">
-                                <div style="font-size:1.4rem; font-weight:800; color:var(--app-blue);">${record.score} <span style="font-size:0.85rem;color:#94a3b8;">/ ${record.maxScore}</span></div>
-                                <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:5px;">Score</div>
+                        <div style="display:flex; justify-content:space-between; text-align:center;">
+                            <div>
+                                <div style="font-size:1.2rem; font-weight:800; color:var(--app-blue);">${record.score}</div>
+                                <div style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">Score</div>
                             </div>
-                            <div style="flex:1; background:#ecfdf5; padding:15px; border-radius:12px; text-align:center;">
-                                <div style="font-size:1.4rem; font-weight:800; color:#16a34a;">${record.accuracy}%</div>
-                                <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:5px;">Accuracy</div>
+                            <div>
+                                <div style="font-size:1.2rem; font-weight:800; color:#16a34a;">${record.accuracy}%</div>
+                                <div style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">Accuracy</div>
+                            </div>
+                            <div>
+                                <div style="font-size:1.2rem; font-weight:800; color:#ef4444;">${record.wrong}</div>
+                                <div style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">Incorrect</div>
                             </div>
                         </div>
-                        <div style="display:flex; justify-content:space-around; font-size:0.95rem; font-weight:700; color:#475569; background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:15px;">
-                            <span style="color:#16a34a;"><i class="fas fa-check-circle"></i> ${record.correct} Correct</span>
-                            <span style="color:#ef4444;"><i class="fas fa-times-circle"></i> ${record.wrong} Incorrect</span>
-                            <span style="color:#94a3b8;"><i class="fas fa-minus-circle"></i> ${record.skipped} Skipped</span>
-                        </div>
-                        <button onclick="window.location.href='test-engine.html?testFile=${record.testFile}&reviewId=${record.id}'" style="width:100%; padding:10px; background:var(--app-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Review Explanations</button>
                     </div>`;
                 });
+                
                 container.innerHTML = html;
-            } catch (e) { container.innerHTML = '<div style="text-align:center; padding:40px; color:#ef4444;">Failed to load analytics.</div>'; }
+
+                // 4. Render Chart.js
+                if(window.accChartInstance) window.accChartInstance.destroy();
+                if(window.scoreChartInstance) window.scoreChartInstance.destroy();
+
+                const ctxAcc = document.getElementById('accChart').getContext('2d');
+                window.accChartInstance = new Chart(ctxAcc, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Correct', 'Incorrect', 'Skipped'],
+                        datasets: [{ data: [totalCorrect, totalWrong, totalSkipped], backgroundColor: ['#22c55e', '#ef4444', '#cbd5e1'], borderWidth: 0 }]
+                    },
+                    options: { cutout: '75%', responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {family: 'Inter'} } } } }
+                });
+
+                const ctxScr = document.getElementById('scoreChart').getContext('2d');
+                window.scoreChartInstance = new Chart(ctxScr, {
+                    type: 'bar',
+                    data: {
+                        labels: scoreLabels,
+                        datasets: [{ label: 'Accuracy %', data: scoreData, backgroundColor: '#0f2b52', borderRadius: 4 }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: {font: {family:'Inter'}} }, x: { ticks: {font: {family:'Inter', size:10}} } } }
+                });
+
+            } catch (e) {
+                console.log(e);
+                renderTestsTab([]);
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#ef4444;">Failed to load analytics.</div>';
+            }
         };
 
         onAuthStateChanged(auth, async (user) => {
             const loginBtn = document.getElementById('paywall-btn-login');
             const payBtn = document.getElementById('paywall-btn-pay');
-            const paywallTitle = document.getElementById('paywall-title');
-            const paywallText = document.getElementById('paywall-text');
             const adminFab = document.getElementById('admin-fab');
 
             if (user) {
@@ -942,22 +1062,20 @@
                 if (isPro) {
                     updateSidebarDisplay(email, null, false, validityText); updateExamUI();
                     if(loginBtn) loginBtn.style.display = 'none'; if(payBtn) payBtn.style.display = 'none';
-                    if(paywallTitle) paywallTitle.innerText = 'Welcome Pro Member';
-                    if(paywallText) paywallText.innerText = 'Your premium access is active. Enjoy MedPYQ.';
                 } else {
                     updateSidebarDisplay(email, 'Expired/Free Plan', true, null); updateExamUI();
                     if(loginBtn) loginBtn.style.display = 'none'; if(payBtn) payBtn.style.display = 'block'; 
-                    if(paywallTitle) paywallTitle.innerText = 'Upgrade to Pro';
-                    if(paywallText) paywallText.innerText = `Logged in as ${email}. Premium content requires a subscription.`;
                 }
             } else {
                 window.isUserPro = false;
                 if(adminFab) adminFab.style.display = "none";
                 updateSidebarDisplay('Guest', 'Free Plan', false, null); updateExamUI();
+                
+                // Reset UI for Guest
+                renderTestsTab([]);
                 document.getElementById('performance-list').innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-lock" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>Please log in to view your performance analytics.</div>';
+                
                 if(loginBtn) loginBtn.style.display = 'block'; if(payBtn) payBtn.style.display = 'none';
-                if(paywallTitle) paywallTitle.innerText = 'Unlock MedPYQ Pro';
-                if(paywallText) paywallText.innerText = 'Premium Question Banks are reserved for members. Please sign in to continue.';
             }
         });
 
@@ -1003,7 +1121,7 @@
                 finalQuestions = finalQuestions.slice(0, numQs);
 
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalQuestions, null, 2));
-                const dlAnchor = document.createElement('a'); dlAnchor.setAttribute("href", dataStr); dlAnchor.setAttribute("download", `${targetExam}-mock-${Date.now()}.json`);
+                const dlAnchor = document.createElement('a'); dlAnchor.setAttribute("href", dataStr); dlAnchor.setAttribute("download", `${targetExam}-mock-1.json`);
                 document.body.appendChild(dlAnchor); dlAnchor.click(); dlAnchor.remove();
 
                 alert(`Successfully generated a ${finalQuestions.length}-question Mock Test!`);
