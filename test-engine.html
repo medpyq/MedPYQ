@@ -443,8 +443,10 @@
 
             questions.forEach((q, i) => {
                 const userAns = state[i].ans;
-                const isAttempted = userAns !== null;
-                const isCorrect = userAns === q.ans_key;
+                
+                // BUG FIX: Accurate evaluation of skipped questions
+                const isAttempted = (userAns !== null && userAns !== undefined && userAns !== "");
+                const isCorrect = isAttempted && (userAns === q.ans_key);
 
                 if(!isAttempted) { skipped++; }
                 else if(isCorrect) { correct++; score += config.marksCorrect; }
@@ -466,7 +468,7 @@
                     <div style="font-weight:700; margin-bottom:10px; font-size:1.05rem;">Q${i+1}. ${q.stem}</div>
                     ${q.img ? `<img src="${q.img}" style="max-width:200px; border-radius:8px; margin-bottom:10px;">` : ''}
                     <div style="margin-bottom:15px; padding-left:10px; border-left:2px solid #e2e8f0;">${optsHtml}</div>
-                    <div class="expl-box"><strong>Explanation:</strong><br>${q.explanation}</div>
+                    <div class="expl-box"><strong>Explanation:</strong><br>${q.explanation || 'No explanation provided.'}</div>
                 </div>`;
             });
 
