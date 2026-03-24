@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MedPYQ Viewer</title>
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;600;700;800&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
@@ -21,7 +21,7 @@
         .btn-primary:active { transform: scale(0.98); }
 
         /* --- TABLE VIEW (MAIN CONTENT) --- */
-        #main-content { padding: 20px; padding-bottom: 100px; max-width: 1200px; margin: 0 auto; }
+      #main-content { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 100px 20px; max-width: 1200px; margin: 0 auto; }
         .app-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
         .app-header h1 { margin: 0; color: var(--app-blue); font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
         .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; font-weight: bold; }
@@ -65,7 +65,7 @@
 
         /* --- UNIVERSAL DECK LAYER (Fullscreen Overlay) --- */
         #universal-deck-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8fafc; z-index: 999990; flex-direction: column; font-family: 'Inter', sans-serif; }
-        .ud-header { height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; }
+.ud-header { height: auto; min-height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top, 10px)) 16px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; }
         .ud-title { font-weight: 800; font-size: 16px; color: #0f2b52; }
         .ud-subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         
@@ -207,7 +207,7 @@
         <div class='ud-drawer' id='ud-filter-drawer'>
             <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
             <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
+           <div style='padding: max(20px, env(safe-area-inset-top, 20px)) 20px 20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
                 <div id='deck-dynamic-filters' style='padding:0; overflow-y:auto; flex:1;'></div>
                 <div style='padding:15px; border-top:1px solid #eee; display:flex; gap:10px;'>
                     <button class='ud-btn' onclick='window.SYNC_resetFilters()' style='background:#f1f5f9; color:#64748b;'>Reset All</button>
@@ -219,7 +219,7 @@
         <div class='ud-drawer' id='ud-nav-drawer'>
             <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
             <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Navigator</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
+                <div style='padding: max(20px, env(safe-area-inset-top, 20px)) 20px 20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Navigator</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
                 <div class='ud-nav-grid' id='ud-nav-grid'></div>
             </div>
         </div>
