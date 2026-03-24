@@ -822,7 +822,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
         const app = initializeApp(firebaseConfig);
@@ -1029,6 +1029,33 @@
             const adminFab = document.getElementById('admin-fab');
 
             if (user) {
+            // --- CONCURRENT SESSION CONTROL ---
+                let localSessionId = localStorage.getItem('medpyq_session_id');
+                if (!localSessionId) {
+                    localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('medpyq_session_id', localSessionId);
+                }
+                
+                const sessionRef = ref(db, `users/${user.uid}/activeSession`);
+                
+                // 1. Claim the session for this device
+                set(sessionRef, localSessionId);
+
+                // 2. Listen in real-time. If DB session changes, lock the screen.
+                onValue(sessionRef, (snapshot) => {
+                    const activeDbSession = snapshot.val();
+                    if (activeDbSession && activeDbSession !== localSessionId) {
+                        document.getElementById('session-conflict-overlay').style.display = 'flex';
+                    } else {
+                        document.getElementById('session-conflict-overlay').style.display = 'none';
+                    }
+                });
+
+                // 3. The "Use Here Instead" button logic
+                window.forceLogout = function() {
+                    set(sessionRef, localSessionId); // Steals the session back
+                };
+                // ----------------------------------
                 const email = user.email.toLowerCase();
                 let isPro = false; let validityText = null;
                 
