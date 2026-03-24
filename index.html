@@ -1041,11 +1041,13 @@
                 // 1. Claim the session for this device
                 set(sessionRef, localSessionId);
 
-                // 2. Listen in real-time. If DB session changes, lock the screen.
+              // 2. Listen in real-time. If DB session changes, lock the screen.
                 onValue(sessionRef, (snapshot) => {
                     const activeDbSession = snapshot.val();
                     if (activeDbSession && activeDbSession !== localSessionId) {
+                        // Show the overlay AND force a complete Firebase Sign Out
                         document.getElementById('session-conflict-overlay').style.display = 'flex';
+                        signOut(auth); // Kicks them completely out of the app
                     } else {
                         document.getElementById('session-conflict-overlay').style.display = 'none';
                     }
