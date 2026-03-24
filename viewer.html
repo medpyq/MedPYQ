@@ -9,7 +9,7 @@
     
     <style>
         :root { --app-blue: #0f2b52; --app-gold: #eebb4d; --app-bg: #F4F6F8; }
-        body { font-family: 'Roboto', sans-serif; background: var(--app-bg); margin: 0; padding: 0; color: #334155; }
+        body { font-family: 'Roboto', sans-serif; background: var(--app-bg); margin: 0; padding: 0; color: #334155; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         * { box-sizing: border-box; }
 
         /* --- PAYWALL MODAL --- */
@@ -20,267 +20,303 @@
         .btn-primary { width: 100%; padding: 14px; background: #0f2b52; color: white; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-top: 10px; font-size: 1rem; transition: transform 0.1s; }
         .btn-primary:active { transform: scale(0.98); }
 
-        /* --- TABLE VIEW (MAIN CONTENT) --- */
-        #main-content { padding: 20px; padding-bottom: 100px; max-width: 1200px; margin: 0 auto; }
-        .app-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
-        .app-header h1 { margin: 0; color: var(--app-blue); font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
-        .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; font-weight: bold; }
-        .q-count { background: var(--app-blue); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
-
-        /* --- CUSTOM MULTI-SELECT DROPDOWNS --- */
-        .controls-bar { display: flex; flex-wrap: wrap; gap: 12px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .search-input { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; outline: none; font-family: inherit; }
+        /* --- NAVBAR --- */
+        .navbar { background: var(--app-blue); color: white; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; flex-shrink: 0; }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .page-title { font-weight: 700; font-size: 1.1rem; display: flex; flex-direction: column; }
+        .page-subtitle { font-size: 0.7rem; color: var(--app-gold); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
         
-        .ms-dropdown { position: relative; flex: 1; min-width: 150px; }
-        .ms-btn { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; text-align: left; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: 0.9rem; font-family: inherit;}
-        .ms-content { display: none; position: absolute; top: 100%; left: 0; background-color: white; min-width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 100; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
-        .ms-content.show { display: block; }
-        .ms-label { display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; transition: 0.2s;}
-        .ms-label:hover { background-color: #f8fafc; }
-        .ms-label input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer; }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .toggle-view-btn { background: var(--app-gold); color: var(--app-blue); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .toggle-view-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(238, 187, 77, 0.3); }
+        .mobile-filter-btn { display: none; background: rgba(255,255,255,0.1); color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; }
 
-        .post-table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .post-table { width: 100%; border-collapse: collapse; }
-        .post-table th { background: var(--app-blue); color: white; padding: 14px; text-align: left; font-size: 0.85rem; text-transform: uppercase; }
-        .post-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-        .opt-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-        .opt-row { display: flex; gap: 10px; padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; border: 1px solid transparent; }
-        .reveal-active .opt-row.is-correct { background: #dcfce7; color: #14532d; font-weight: bold; border-color: #86efac; }
-        .q-img { max-width: 250px; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; cursor: zoom-in; }
+        /* --- APP LAYOUT --- */
+        .app-container { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        .badge-unit { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; margin-right: 4px; }
-        .badge-chapter { display: inline-block; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; margin-right: 4px;}
+        /* --- SIDEBAR FILTERS --- */
+        .sidebar { width: 300px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; z-index: 90; transition: left 0.3s ease; }
+        .sidebar-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 800; color: var(--app-blue); display: flex; justify-content: space-between; align-items: center; }
+        .clear-filters { color: #ef4444; font-size: 0.8rem; cursor: pointer; background: #fef2f2; padding: 4px 8px; border-radius: 6px; border: none; font-weight: bold; }
+        
+        .search-box { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; }
+        .search-input { width: 100%; padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border 0.2s; }
+        .search-input:focus { border-color: var(--app-blue); }
+
+        .filter-section { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .filter-group { margin-bottom: 20px; }
+        .filter-title { padding: 5px 20px; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-label { display: flex; align-items: flex-start; padding: 8px 20px; cursor: pointer; transition: background 0.2s; }
+        .filter-label:hover { background: #f1f5f9; }
+        .filter-label input { margin-top: 3px; margin-right: 10px; accent-color: var(--app-blue); width: 16px; height: 16px; flex-shrink: 0; }
+        .filter-label span { font-size: 0.9rem; color: #475569; font-weight: 500; line-height: 1.4; }
+        .q-count-badge { background: var(--app-blue); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-left: auto; }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content { flex: 1; overflow-y: auto; padding: 20px; position: relative; background: var(--app-bg); }
+        .stats-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
+        .stats-bar span { font-weight: 700; color: var(--app-blue); font-size: 1.1rem; }
+
+        /* --- TABLE VIEW --- */
+        .q-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .q-table th { background: var(--app-blue); color: white; text-align: left; padding: 15px; font-weight: 600; font-size: 0.9rem; }
+        .q-table td { padding: 20px 15px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        .q-table tr:last-child td { border-bottom: none; }
+        .q-stem { font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; line-height: 1.6; color: #0f172a; }
+        .q-img { max-width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; cursor: zoom-in; }
+        
+        .opt-grid { display: grid; gap: 10px; }
+        .opt-row { background: #f8fafc; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; }
+        
+        /* Table Reveal Answers Mode */
+        .table-container.reveal-active .opt-row.is-correct { background: #dcfce7; border-color: #86efac; color: #166534; font-weight: 700; }
+        .table-container.reveal-active .expl-box-table { display: block; }
+        
+        .expl-box-table { display: none; margin-top: 15px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; color: #92400e; }
+        .tag-pill { display: inline-block; background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
+        .tag-pill.gold { background: #fff8e1; color: #b45309; }
 
         .btn-ask-ai { display: inline-flex; align-items: center; gap: 5px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .btn-ask-ai:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
 
-        /* --- STACKED FABs --- */
-        #float-eye-btn { position: fixed; bottom: 100px; right: 30px; width: 56px; height: 56px; background: var(--app-blue); color: white; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; transition: 0.2s; display: none; align-items: center; justify-content: center; padding: 0; }
-        #float-eye-btn.active { background: var(--app-gold); color: var(--app-blue); }
+        /* Floating Reveal Table Answers Button */
+        .fab-reveal { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--app-blue); color: white; border: none; font-size: 24px; box-shadow: 0 4px 15px rgba(15, 43, 82, 0.4); cursor: pointer; z-index: 80; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .fab-reveal:hover { transform: scale(1.1); }
+        .fab-reveal.active { background: var(--app-gold); color: var(--app-blue); }
 
-        #view-toggle-btn { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 22px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999999; transition: transform 0.2s; }
-        #view-toggle-btn:hover { transform: scale(1.1); }
-        #view-toggle-btn.btn-red { background: #ef4444; } 
-        #view-toggle-btn.btn-blue { background: #0ea5e9; }
+        /* --- DECK VIEW (FLASHCARDS) --- */
+        .deck-container { display: none; flex-direction: column; height: 100%; max-width: 800px; margin: 0 auto; position: relative; }
+        .deck-container.active { display: flex; }
+        
+        .deck-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .deck-counter { font-weight: 800; font-size: 1.2rem; color: var(--app-blue); background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+        .deck-nav-btn { background: white; border: 1px solid #e2e8f0; width: 40px; height: 40px; border-radius: 8px; color: var(--app-blue); font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s; }
+        .deck-nav-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #cbd5e1; }
+        .deck-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* --- UNIVERSAL DECK LAYER (Fullscreen Overlay) --- */
-        #universal-deck-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8fafc; z-index: 999990; flex-direction: column; font-family: 'Inter', sans-serif; }
-        .ud-header { height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; }
-        .ud-title { font-weight: 800; font-size: 16px; color: #0f2b52; }
-        .ud-subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .deck-card { background: white; flex: 1; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; }
+        .deck-scroll-area { flex: 1; overflow-y: auto; padding: 30px; }
         
-        #ud-card-area { flex: 1; overflow-y: auto; padding: 18px; display: block; }
+        .deck-stem { font-size: 1.15rem; font-weight: 600; line-height: 1.6; color: #0f172a; margin-bottom: 20px; }
+        .deck-option { display: flex; align-items: flex-start; gap: 15px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; font-size: 1rem; color: #334155; font-weight: 500; }
+        .deck-option:hover:not(.disabled) { background: #f8fafc; border-color: #cbd5e1; }
+        .opt-char { width: 28px; height: 28px; background: #e2e8f0; color: #475569; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
         
-        .ud-card { background: white; width: 100%; max-width: 900px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
-        
-        .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .ud-label { background: #f1f5f9; color: #0f2b52; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; }
-        .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;}
-        .ud-ai-btn:hover { background: #e0f2fe; }
-        
-        .ud-stem { font-size: 17px; font-weight: 600; color: #1e293b; line-height: 1.5; margin-bottom: 20px; }
-        .ud-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 10px auto 20px; display:block; cursor: zoom-in; }
-        
-        .ud-option { padding: 14px 16px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; color: #475569; transition: all 0.2s; font-size: 15px; }
-        .ud-option:hover { background: #f8fafc; }
-        .ud-option.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #14532d !important; font-weight: 600;}
-        .ud-option.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #7f1d1d !important; }
-        .ud-option.disabled { pointer-events: none; }
-        .opt-char { font-weight: 700; min-width: 26px; height: 26px; background: #f1f5f9; color: #64748b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        /* Deck Status Colors */
+        .deck-option.correct { background: #dcfce7; border-color: #86efac; color: #166534; }
+        .deck-option.correct .opt-char { background: #22c55e; color: white; }
+        .deck-option.wrong { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+        .deck-option.wrong .opt-char { background: #ef4444; color: white; }
+        .deck-option.disabled { pointer-events: none; opacity: 0.6; cursor: default; }
+        .deck-option.disabled.correct { opacity: 1; } 
 
-        .ud-footer { padding: 16px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; justify-content: center; flex-shrink: 0; }
-        .ud-btn { flex: 1; max-width: 300px; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform 0.1s; }
-        .ud-btn:active { transform: scale(0.98); }
-        .ud-btn-prev { background: #f1f5f9; color: #64748b; }
-        .ud-btn-next { background: #0f2b52; color: white; }
+        .deck-expl { display: none; margin-top: 25px; padding: 20px; background: #f8fafc; border-left: 4px solid var(--app-gold); border-radius: 0 12px 12px 0; font-size: 1rem; line-height: 1.6; color: #334155; }
+        .deck-expl.show { display: block; animation: fadeIn 0.4s; }
         
-        /* Drawers */
-        .ud-drawer { position: fixed; inset: 0; z-index: 999995; visibility: hidden; opacity: 0; transition: all 0.3s; }
-        .ud-drawer.open { visibility: visible; opacity: 1; }
-        .ud-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
-        .ud-panel { position: absolute; background: white; transition: transform 0.3s; display: flex; flex-direction: column; }
-        #ud-filter-drawer .ud-panel { top: 0; left: 0; bottom: 0; width: 85%; max-width: 320px; transform: translateX(-100%); border-radius: 0 24px 24px 0; }
-        #ud-filter-drawer.open .ud-panel { transform: translateX(0); }
-        #ud-nav-drawer .ud-panel { top: 0; right: 0; bottom: 0; width: 85%; max-width: 320px; transform: translateX(100%); border-radius: 24px 0 0 24px; }
-        #ud-nav-drawer.open .ud-panel { transform: translateX(0); }
+        .deck-footer { padding: 15px 30px; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .btn-action { background: transparent; border: 1px solid #e2e8f0; padding: 8px 15px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-action:hover { background: #f1f5f9; color: var(--app-blue); border-color: #cbd5e1; }
+        .btn-action.ai { color: #8b5cf6; border-color: #e9d5ff; background: #faf5ff; }
+        .btn-action.ai:hover { background: #f3e8ff; border-color: #d8b4fe; }
+        .btn-action.report { color: #ef4444; border-color: #fecaca; background: #fef2f2; }
+        .btn-action.report:hover { background: #fee2e2; border-color: #fca5a5; }
 
-        .ud-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 20px; overflow-y: auto; align-content: start; max-height: 100%; }
-        .ud-nav-item { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: 700; color: #64748b; cursor: pointer; font-size: 0.85rem;}
-        .ud-nav-item.active { background: #0f2b52; color: white; border: 2px solid #0f2b52; }
-        .ud-nav-item.status-correct { background: #22c55e; color: white; }
-        .ud-nav-item.status-wrong { background: #ef4444; color: white; }
-        
-        .ud-chk-row { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; font-size: 0.85rem;}
-        .ud-chk-row:hover { background: #f8fafc; }
-        .ud-chk-row input { width: 16px; height: 16px; accent-color: #0f2b52; cursor: pointer;}
-        .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f8fafc; font-size: 16px; color: #0f2b52; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .icon-btn:hover { background: #e2e8f0; }
+        /* --- MODALS --- */
+        .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-icon { font-size: 40px; margin-bottom: 15px; }
+        .modal h2 { margin: 0 0 10px 0; color: var(--app-blue); }
+        .modal p { color: #64748b; font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; }
+        .modal-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; margin-bottom: 10px; }
+        .modal-btn.primary { background: var(--app-blue); color: white; }
+        .modal-btn.gold { background: var(--app-gold); color: var(--app-blue); text-transform: uppercase; }
+        .modal-btn.cancel { background: transparent; color: #94a3b8; }
 
-        /* Report & AI Modals */
-        .ud-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 9999998; display: none; align-items: center; justify-content: center; padding: 20px;}
-        .ud-modal-card { background: white; width: 100%; max-width: 360px; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; text-align: center; }
-        .ud-modal-card h3 { color: #0f2b52; font-size: 1.4rem; margin: 0 0 10px 0; font-weight: 800; }
-        .ud-report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; margin-top: 15px; }
-        .rep-type-btn { padding: 10px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; color: #475569; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .rep-type-btn.selected { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
-        #report-desc { width: 100%; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-family: inherit; outline: none; box-sizing: border-box; resize: none; margin-bottom: 15px; }
-        .ai-icon-box { width: 70px; height: 70px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
+        /* Loader */
+        .loader { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--app-gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Mobile Sidebar Overlay */
+        .mobile-sidebar-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 85; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .mobile-filter-btn { display: flex; align-items: center; justify-content: center; }
+            .sidebar { position: fixed; top: 60px; left: -100%; height: calc(100vh - 60px); box-shadow: 5px 0 20px rgba(0,0,0,0.1); }
+            .sidebar.open { left: 0; }
+            .mobile-sidebar-bg.open { display: block; }
+            .main-content { padding: 15px; }
+            .deck-scroll-area { padding: 20px; }
+            .deck-footer { padding: 15px; flex-wrap: wrap; gap: 10px; }
+            .btn-action span { display: none; }
+            .fab-reveal { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 20px; }
+            .toggle-view-btn span { display: none; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="paywall-overlay">
-        <div class="paywall-card">
-            <i class="fas fa-lock" style="font-size: 40px; margin-bottom: 15px; color: var(--app-gold);"></i>
-            <h2 style="margin-top: 0;" id="paywall-title">Pro Access Required</h2>
-            <p style="color:#64748b; margin-bottom: 25px;" id="paywall-text">Please log in from the homepage to access this Question Bank.</p>
+    <header class="navbar">
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+            <div class="page-title">
+                <span id="nav-subject-name">Loading...</span>
+                <span class="page-subtitle" id="nav-exam-name">MedPYQ Viewer</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="mobile-filter-btn" onclick="window.toggleSidebar()"><i class="fas fa-filter"></i></button>
+            <button class="toggle-view-btn" id="btn-toggle-view" onclick="window.toggleViewMode()">
+                <i class="fas fa-layer-group"></i> <span>Deck Mode</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <div class="mobile-sidebar-bg" id="mobile-sidebar-bg" onclick="window.toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                Filters
+                <button class="clear-filters" onclick="window.resetFilters()">Reset All</button>
+            </div>
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-input" placeholder="Search questions..." oninput="window.updateSearch(this.value)">
+            </div>
+            <div class="filter-section" id="filter-section">
+                <div style="text-align:center; padding: 20px; color:#94a3b8; font-size:0.9rem;">Building filters...</div>
+            </div>
+        </aside>
+
+        <main class="main-content" id="main-content" style="display: none;">
             
-            <button class="btn-gold" id="paywall-btn-pay" onclick="window.location.href='premium.html'" style="display:none;">Get Pro Access</button>
-            <button class="btn-primary" id="paywall-btn-login" onclick="window.location.href='index.html'" style="background:#f1f5f9; color:#475569;">Go to Homepage Login</button>
-            <div onclick="window.location.href='index.html'" style="margin-top:20px; color:#94a3b8; cursor:pointer; font-size:0.8rem;">Cancel</div>
-        </div>
-    </div>
-
-    <div id="main-content" style="display:none;">
-        <header class="app-header">
-            <div>
-                <h1 id="dynamic-title">Loading...</h1>
-                <p id="dynamic-subtitle">Chapter-wise PYQs</p>
-            </div>
-            <div class="q-count" id="q-count">0 Qs</div>
-        </header>
-
-        <div class="controls-bar">
-            <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
-            
-            <div class="ms-dropdown" id="unit-dropdown-container" style="display:none;">
-                <button class="ms-btn" onclick="window.toggleDropdown('table-unit-content')">
-                    <span id="unit-btn-text">All Units</span> <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="ms-content" id="table-unit-content"></div>
+            <div class="stats-bar">
+                <span id="display-q-count">0 Questions</span>
             </div>
 
-            <div class="ms-dropdown">
-                <button class="ms-btn" onclick="window.toggleDropdown('table-chap-content')">
-                    <span id="chap-btn-text">All Chapters</span> <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="ms-content" id="table-chap-content"></div>
+            <div class="table-container" id="view-table">
+                <table class="q-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Q.ID</th>
+                            <th>Question Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr><td colspan="2" style="text-align:center; padding:40px; color:#94a3b8;">Loading questions...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="ms-dropdown">
-                <button class="ms-btn" onclick="window.toggleDropdown('table-year-content')">
-                    <span id="year-btn-text">All Exams</span> <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="ms-content" id="table-year-content"></div>
-            </div>
-        </div>
-
-        <div id="table-container" class="post-table-container">
-            <table class="post-table" id="cfmTable">
-                <thead><tr><th style="width: 60px;">ID</th><th>Question</th><th style="width: 140px; text-align:center;">Exam & AI</th></tr></thead>
-                <tbody id="tableBody">
-                    <tr><td colspan="3" style="text-align:center; padding: 40px;">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <button id="float-eye-btn" onclick="window.toggleTableAnswers()"><i class="fas fa-eye"></i></button>
-    </div>
-
-    <div id='universal-deck-layer'>
-        <div class='ud-header'>
-            <button class='icon-btn' onclick='window.UD_toggleDrawer("filter")'><i class="fas fa-filter"></i></button>
-            <div style="text-align: center;"><div class='ud-title' id='ud-top-title'>MedPYQ Deck</div><div class='ud-subtitle' id='ud-counter'>0/0</div></div>
-            <div style='display:flex; gap:8px;'>
-                <button class='icon-btn' onclick='window.UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
-                <button class='icon-btn' onclick='window.UD_toggleDrawer("nav")'><i class="fas fa-bars-staggered"></i></button>
-            </div>
-        </div>
-        
-        <div id='ud-card-area'></div>
-        
-        <div class='ud-footer'>
-            <button class='ud-btn ud-btn-prev' onclick='window.UD_prev()'>Previous</button>
-            <button class='ud-btn ud-btn-next' onclick='window.UD_next()'>Next Question</button>
-        </div>
-        
-        <div class='ud-drawer' id='ud-filter-drawer'>
-            <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
-            <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
-                <div id='deck-dynamic-filters' style='padding:0; overflow-y:auto; flex:1;'></div>
-                <div style='padding:15px; border-top:1px solid #eee; display:flex; gap:10px;'>
-                    <button class='ud-btn' onclick='window.SYNC_resetFilters()' style='background:#f1f5f9; color:#64748b;'>Reset All</button>
-                    <button class='ud-btn' onclick='window.UD_closeDrawers()' style='background:#0f2b52; color:white;'>Done</button>
+            <div class="deck-container" id="view-deck">
+                <div class="deck-header">
+                    <button class="deck-nav-btn" id="btn-deck-prev" onclick="window.deckPrev()"><i class="fas fa-chevron-left"></i></button>
+                    <div class="deck-counter" id="deck-counter">0 / 0</div>
+                    <button class="deck-nav-btn" id="btn-deck-next" onclick="window.deckNext()"><i class="fas fa-chevron-right"></i></button>
                 </div>
+                
+                <div class="deck-card" id="deck-card-area">
+                    </div>
             </div>
-        </div>
 
-        <div class='ud-drawer' id='ud-nav-drawer'>
-            <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
-            <div class='ud-panel'>
-                <div style='padding:20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Navigator</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
-                <div class='ud-nav-grid' id='ud-nav-grid'></div>
-            </div>
+        </main>
+        
+        <button class="fab-reveal" id="fab-reveal" onclick="window.toggleTableAnswers()" title="Reveal Answers" style="display:none;">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+
+    <div class="overlay" id="loading-overlay" style="display:flex;">
+        <div style="text-align:center; color:white;">
+            <div class="loader"></div>
+            <h2 style="margin-bottom:5px;">Decrypting Question Bank</h2>
+            <p style="color:#cbd5e1; font-size:0.9rem;">Please wait while we prepare your session.</p>
         </div>
     </div>
 
-    <button class='btn-red' id='view-toggle-btn' onclick='window.UD_toggleMode()'>
-        <i class="fas fa-layer-group"></i>
-    </button>
-
-    <div class="ud-modal-backdrop" id="ud-report-modal">
-        <div class="ud-modal-card">
-            <h3>Report Issue</h3>
-            <p id="ud-report-id" style="font-size: 0.8rem; color: #64748b; margin-bottom: 15px; font-weight: bold;"></p>
-            <div class="ud-report-grid">
-                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn" data-val="Wrong Answer">Wrong Answer</button>
-                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn" data-val="Typo/Error">Typo / Error</button>
-                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn" data-val="Missing Content">Missing Img/Opt</button>
-                <button onclick="window.UD_selectReportType(this)" class="rep-type-btn selected" data-val="Other">Other</button>
-            </div>
-            <textarea id="report-desc" rows="3" placeholder="Briefly describe the error..."></textarea>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="document.getElementById('ud-report-modal').style.display='none'" class="ud-btn" style="background:#f1f5f9; color:#64748b; padding:10px;">Cancel</button>
-                <button onclick="window.UD_submitReport()" id="btn-submit-report" class="ud-btn" style="background:#ef4444; color:white; padding:10px;">Submit Report</button>
-            </div>
+    <div class="overlay" id="paywall-overlay">
+        <div class="modal">
+            <div class="modal-icon">👑</div>
+            <h2 id="paywall-title">Pro Access Required</h2>
+            <p id="paywall-text">This subject is locked. Upgrade to MedPYQ Pro to access the complete question bank.</p>
+            <button class="modal-btn gold" onclick="window.location.href='premium.html'" id="btn-upgrade">Upgrade Now</button>
+            <button class="modal-btn primary" onclick="window.location.href='index.html'">Back to Home</button>
         </div>
     </div>
 
-    <div class="ud-modal-backdrop" id="ai-interaction-overlay">
-        <div class="ud-modal-card">
-            <div class="ai-icon-box"><i class="fa-solid fa-check"></i></div>
-            <h3>Prompt Copied!</h3>
-            <p style="color:#64748b; font-size:0.9rem; margin-bottom:20px;">Question data copied. Paste it into ChatGPT or Gemini for explanation.</p>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="document.getElementById('ai-interaction-overlay').style.display='none'" class="ud-btn" style="background:#f1f5f9; color:#64748b; padding:12px;">Stay Here</button>
-                <button onclick="window.open('https://chatgpt.com/', '_blank'); document.getElementById('ai-interaction-overlay').style.display='none'" class="ud-btn" style="background:#10a37f; color:white; padding:12px;">Go to ChatGPT <i class="fas fa-external-link-alt" style="font-size:12px; margin-left:4px;"></i></button>
-            </div>
+    <div class="overlay" id="ai-modal">
+        <div class="modal">
+            <div class="modal-icon" style="color: #8b5cf6;">🤖</div>
+            <h2>Prompt Copied!</h2>
+            <p>The question, options, and correct answer have been copied to your clipboard. Paste it into ChatGPT or Gemini to get a detailed medical explanation.</p>
+            <button class="modal-btn primary" onclick="document.getElementById('ai-modal').style.display='none'">Got it</button>
+            <button class="modal-btn cancel" onclick="window.open('https://chatgpt.com/', '_blank'); document.getElementById('ai-modal').style.display='none'">Open ChatGPT</button>
         </div>
     </div>
+
+    <div class="overlay" id="report-modal">
+        <div class="modal">
+            <div class="modal-icon" style="color: #ef4444;">⚠️</div>
+            <h2>Report an Issue</h2>
+            <p>Found a mistake in Question <strong id="report-q-id">---</strong>? Let our medical team know.</p>
+            
+            <div style="text-align:left; margin-bottom:15px;">
+                <label style="font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase;">Select Issue Type:</label>
+                <select id="report-type" style="width:100%; padding:10px; border-radius:8px; border:2px solid #e2e8f0; margin-top:5px; outline:none; font-family:inherit;">
+                    <option value="Wrong Answer Key">Wrong Answer Key</option>
+                    <option value="Typo / Spelling Mistake">Typo / Spelling Mistake</option>
+                    <option value="Image Missing/Unclear">Image Missing / Unclear</option>
+                    <option value="Explanation is Wrong">Explanation is Wrong</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div style="text-align:left; margin-bottom:20px;">
+                <label style="font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase;">Details (Optional):</label>
+                <textarea id="report-desc" rows="3" style="width:100%; padding:10px; border-radius:8px; border:2px solid #e2e8f0; margin-top:5px; outline:none; font-family:inherit; resize:none;" placeholder="Briefly describe the error..."></textarea>
+            </div>
+
+            <button class="modal-btn primary" style="background:#ef4444;" id="btn-submit-report" onclick="window.submitReport()">Submit Report</button>
+            <button class="modal-btn cancel" onclick="document.getElementById('report-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // GLOBAL APPLICATION STATE
-        window.appData = [];
-        window.currentQIDForReport = "";
-        window.filterState = { units: [], chapters: [], years: [], search: "" };
-        window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
-        window.nestedCurriculum = null;
-
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
             authDomain: "medpyq-elearning.firebaseapp.com",
             databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com",
             projectId: "medpyq-elearning"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+
+        // --- GLOBAL STATE ---
+        window.appData = [];       
+        window.filteredData = [];  
+        window.isDeckMode = false; 
+        
+        window.filterState = {
+            chapters: new Set(),
+            years: new Set(),
+            search: ""
+        };
+
+        window.deckState = {
+            currentIndex: 0,
+            userStatus: {} 
+        };
+
+        window.currentReportQID = null;
 
         // --- SECURITY CONSTANTS ---
         const ADMIN_EMAILS = [
@@ -292,30 +328,28 @@
             'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
         };
 
-        // --- ALIAS SPELLING MAP ---
+        // --- URL PARSING & ALIASES ---
         const urlParams = new URLSearchParams(window.location.search);
         let rawSubject = (urlParams.get('subject') || 'cfm').toLowerCase();
         
         const subjectAliases = {
-            'pediatrics': 'paediatrics',
-            'anesthesiology': 'anaesthesia',
-            'anesthesia': 'anaesthesia',
-            'ophthalmology': 'ophthalomology', 
-            'orthopedics': 'orthopaedics'
+            'paediatrics': 'pediatrics',
+            'anaesthesia': 'anesthesiology',
+            'anesthesia': 'anesthesiology',
+            'ophthalomology': 'ophthalmology', 
+            'orthopaedics': 'orthopedics'
         };
 
         const activeSubject = subjectAliases[rawSubject] || rawSubject;
         const activeExam = (urlParams.get('exam') || 'neet-pg').toLowerCase();
 
+        // Update UI Titles
         const formattedTitle = activeSubject.replace(/-/g, ' ');
-        document.getElementById('dynamic-title').innerText = formattedTitle;
-        document.getElementById('dynamic-subtitle').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
-        document.getElementById('ud-top-title').innerText = formattedTitle.toUpperCase();
+        document.getElementById('nav-subject-name').innerText = formattedTitle.charAt(0).toUpperCase() + formattedTitle.slice(1);
+        document.getElementById('nav-exam-name').innerText = `Chapter-wise PYQs (${activeExam.toUpperCase()})`;
 
-        window.medpyqExam = activeExam.toUpperCase();
-        window.medpyqSubject = formattedTitle.toUpperCase();
-
-        // THE ADVANCED MASTER DICTIONARY
+        // --- THE MASTER CURRICULUM DICTIONARY ---
+        // EXACT match for keys generated by URL
         const masterCurriculum = {
             "cfm": [
                 "1. Man and Medicine", "2. Concept of Health and Disease", "3. Principles of Epidemiology and Epidemiologic Methods", 
@@ -473,47 +507,21 @@
                     ] 
                 }
             ],
-            "orthopaedics":[
-                "1. Basic Anatomy and Physiology of Bone",
-                "2. Basic Terminology of Fracture and Healing",
-                "3. Open Fracture and Amputations and Polytrauma",
-                "4. Metabolic Disorders of Bone",
-                "5. Upper Limb Trauma",
-                "6. Lower Limb Trauma",
-                "7. Sports Injuries Around Knee",
-                "8. Painful Regional Conditions and AVN",
-                "9. Nerve Injuries",
-                "10. Orthopaedic Oncology",
-                "11. Infection of Bone and Joints",
-                "12. Tuberculosis of Bone and Joints",
-                "13. Paediatric Orthopaedics",
-                "14. Spine : General and Trauma",
-                "15. Joint Disorders"
+            "orthopedics":[
+                "1. Basic Anatomy and Physiology of Bone", "2. Basic Terminology of Fracture and Healing", "3. Open Fracture and Amputations and Polytrauma",
+                "4. Metabolic Disorders of Bone", "5. Upper Limb Trauma", "6. Lower Limb Trauma", "7. Sports Injuries Around Knee", "8. Painful Regional Conditions and AVN",
+                "9. Nerve Injuries", "10. Orthopaedic Oncology", "11. Infection of Bone and Joints", "12. Tuberculosis of Bone and Joints", "13. Paediatric Orthopaedics",
+                "14. Spine : General and Trauma", "15. Joint Disorders"
             ],
             "psychiatry":[
-                "1. Introduction to Psychiatry",
-                "2. Psychopathology",
-                "3. Schizophrenia and Other Psychotic Disorders",
-                "4. Depressive Disorders",
-                "5. Bipolar Disorder",
-                "6. Stress, Trauma and Related Disorders",
-                "7. Anxiety and Related Disorders",
-                "8. Obsessive Compulsive Disorder",
-                "9. Somatization Disorders",
-                "10. Neurocognitive Disorders",
-                "11. Eating Disorders",
-                "12. Sex, Gender and Related Disorders",
-                "13. Sleep and Related Disorders",
-                "14. Personality and Related Disorders",
-                "15. Substance Use and Related Addictive Disorders",
-                "16. Child and Adolescent Psychiatry",
-                "17. Emergency Psychiatry and Somatic Treatments in Psychiatry",
-                "18. Psychopharmacology",
-                "19. Psychology",
-                "20. Psychological Therapies and Assessments",
-                "21. Public Health, Legal Aspects and Other Related Topics"
+                "1. Introduction to Psychiatry", "2. Psychopathology", "3. Schizophrenia and Other Psychotic Disorders", "4. Depressive Disorders",
+                "5. Bipolar Disorder", "6. Stress, Trauma and Related Disorders", "7. Anxiety and Related Disorders", "8. Obsessive Compulsive Disorder",
+                "9. Somatization Disorders", "10. Neurocognitive Disorders", "11. Eating Disorders", "12. Sex, Gender and Related Disorders",
+                "13. Sleep and Related Disorders", "14. Personality and Related Disorders", "15. Substance Use and Related Addictive Disorders",
+                "16. Child and Adolescent Psychiatry", "17. Emergency Psychiatry and Somatic Treatments in Psychiatry", "18. Psychopharmacology",
+                "19. Psychology", "20. Psychological Therapies and Assessments", "21. Public Health, Legal Aspects and Other Related Topics"
             ],
-            "ophthalomology":[
+            "ophthalmology":[
                 { unit: "A. Basic Anatomy of Eye", chapters: ["1. Layers and Structure of Eyeball", "2. Anatomy of cornea, Anatomy of Sclera and its Pathologies", "3. Anatomy of Uvea, Accomodation with its Anomalies", "4. Anatomy of Retina", "5. Ocular Routes of Drug Administration, Blood Supply of Eye and Embryology of Eye"] },
                 { unit: "B. Neuro-Ophthalmology", chapters: ["6. Visual Pathway and Visual Field Defects", "7. Pupillary Reflexes, Light Reflex and its Lesions", "8. Optic Atrophy: Optic Neuritis, Optic Neuropathies and Papilledema", "9. Congenital Anomalies of Optic Disc and Colour Blindness"] },
                 { unit: "C. Squint", chapters: ["10. Squint : Extraocular Muscles and Binocular Single Vision", "11. Squint : Classifications and Directions", "12. Squint : Investigations", "13. Paralytic Squint", "14. Gaze Defects", "15. Restrictive Squint and Comitant Squint", "16. Pseudo-strabismus and Ocular Myopathies"] },
@@ -533,93 +541,29 @@
                 { unit: "Systemic Radiology", chapters: ["12. CXR Interpretation", "13. Silhouette Sign : Basics", "14. Silhouette Sign : Applications", "15. Pleural Abnormalities", "16. Mediastinum and Lung Tumours", "17. Congenital Heart Disease", "18. Acquired Cardiac Disease", "19. Structural Anatomy of Brain", "20. Basics of Neuroimaging", "21. Stroke Imaging", "22. Head Trauma Imaging", "23. Brain Tumors", "24. CNS Infections and Miscellaneous", "25. Conventional Procedures in GUT", "26. GUT Imaging", "27. Conventional Procedures in GIT", "28. GIT Imaging", "29. Hepatobiliary Imaging", "30. Obstetrics and Gynaecology Imaging", "31. Breast Imaging", "32. Arthritis and Bone Infections", "33. Systemic Bone Disorders", "34. Bone Tumors", "35. Musculoskeletal Trauma Imaging"] }
             ],
             "medicine":[
-        {
-            unit: "Part 1: The Profession of Medicine",
-            chapters: ["1. The Practice of Medicine", "2. Promoting Good Health", "3. Vaccine Opposition and Hesitancy", "4. Decision-Making in Clinical Medicine", "5. Precision Medicine and Clinical Care", "6. Screening and Prevention of Disease", "7. The Safety and Quality of Health Care", "8. The Value of the Physical Examination", "9. Physician Well-Being", "10. Diagnosis: Reducing Errors and Improving Quality", "11. Racial and Ethnic Disparities in Health Care", "12. Ethical Issues in Clinical Medicine", "13. Palliative and End-of-Life Care"]
-        },
-        {
-            unit: "Part 2: Cardinal Manifestations of Diseases",
-            chapters: ["14. Pain: Pathophysiology and Management", "15. Chest Discomfort", "16. Abdominal Pain", "17. Headache", "18. Low Back Pain", "19. Neck Pain", "20. Fever", "21. Fever and Rash", "22. Fever of Unknown Origin", "23. Syncope", "24. Dizziness and Vertigo", "25. Fatigue", "26. Neurologic Causes of Weakness and Paralysis", "27. Numbness, Tingling, and Sensory Loss", "28. Gait Disorders, Imbalance, and Falls", "29. Confusion and Delirium", "30. Coma", "31. Dementia", "32. Aphasia, Memory Loss, and Other Cognitive Disorders", "33. Sleep Disorders", "34. Disorders of the Eye", "35. Disorders of Smell and Taste", "36. Disorders of Hearing", "37. Upper Respiratory Symptoms", "38. Oral Manifestations of Disease", "39. Dyspnea", "40. Cough", "41. Hemoptysis", "42. Hypoxia and Cyanosis", "43. Edema", "44. Approach to the Patient with a Heart Murmur", "45. Palpitations", "46. Exercise Intolerance", "47. Dysphagia", "48. Nausea, Vomiting, and Indigestion", "49. Diarrhea and Constipation", "50. Unintentional Weight Loss", "51. Gastrointestinal Bleeding", "52. Jaundice", "53. Abdominal Swelling and Ascites", "54. Interstitial Cystitis/Bladder Pain Syndrome", "55. Azotemia and Urinary Abnormalities", "56. Fluid and Electrolyte Disturbances", "57. Hypercalcemia and Hypocalcemia", "58. Acidosis and Alkalosis", "59. Approach to the Patient with a Skin Disorder", "60. Common Skin Disorders", "61. Skin Manifestations of Internal Disease", "62. Immunologically Mediated Skin Diseases", "63. Cutaneous Drug Reactions", "64. Photosensitivity", "65. Interpreting Peripheral Blood Smears", "66. Anemia and Polycythemia", "67. Disorders of Granulocytes and Monocytes", "68. Hemophagocytic Lymphohistiocytosis", "69. Bleeding and Thrombosis", "70. Enlargement of Lymph Nodes and Spleen"]
-        },
-        {
-            unit: "Part 3: Pharmacology",
-            chapters: ["71. Principles of Clinical Pharmacology", "72. Pharmacogenomics"]
-        },
-        {
-            unit: "Part 4: Oncology and Hematology",
-            chapters: ["73. Approach to the Patient with Cancer", "74. Symptom Control in Patients with Cancer", "75. Prevention and Early Detection of Cancer", "76. Cancer Genetics", "77. Cancer Cell Biology", "78. Principles of Cancer Treatment", "79. Infections in Patients with Cancer", "80. Oncologic Emergencies", "81. Cancer of the Skin", "82. Head and Neck Cancer", "83. Neoplasms of the Lung", "84. Breast Cancer", "85. Upper Gastrointestinal Tract Cancers", "86. Colorectal Cancer", "87. Tumors of the Liver and Biliary Tree", "88. Pancreatic Cancer", "89. Gastrointestinal Neuroendocrine Tumors", "90. Renal Cell Carcinoma", "91. Cancer of the Bladder and Urinary Tract", "92. Benign and Malignant Diseases of the Prostate", "93. Testicular Cancer", "94. Gynecologic Malignancies", "95. Primary and Metastatic Tumors of the Nervous System", "96. Soft Tissue and Bone Sarcomas and Bone Metastases", "97. Carcinoma of Unknown Primary", "98. Paraneoplastic Syndromes", "99. Paraneoplastic Neurologic Syndromes and Autoimmune Encephalitis", "100. Cancer Survivorship", "101. Hematopoietic Stem Cells", "102. Iron Deficiency and Other Acquired Anemias", "103. Disorders of Hemoglobin", "104. Megaloblastic Anemias", "105. Hemolytic Anemias", "106. Anemia Due to Acute Blood Loss", "107. Bone Marrow Failure Syndromes", "108. Polycythemia Vera and Other Myeloproliferative Neoplasms", "109. Acute Myeloid Leukemia", "110. Chronic Myeloid Leukemia", "111. Acute Lymphoid Leukemia", "112. Chronic Lymphocytic Leukemia", "113. Non-Hodgkin's Lymphoma", "114. Hodgkin's Lymphoma", "115. Less Common Lymphoid and Myeloid Malignancies", "116. Plasma Cell Disorders", "117. Amyloidosis", "118. Transfusion Therapy and Biology", "119. Hematopoietic Cell Transplantation", "120. Disorders of Platelets and Vessel Wall", "121. Coagulation Disorders", "122. Arterial and Venous Thrombosis", "123. Antiplatelet, Anticoagulant, and Fibrinolytic Drugs"]
-        },
-        {
-            unit: "Part 5: Infectious Diseases",
-            chapters: ["124. Approach to the Patient with an Infectious Disease", "125. Molecular Mechanisms of Microbial Pathogenesis", "126. Microbial Genomics and Infectious Disease", "127. Approach to the Acutely Ill Infected Febrile Patient", "128. Principles of Immunization", "129. Immunization Principles and Vaccine Use", "130. Health Recommendations for International Travel", "131. Pneumonia", "132. Lung Abscess", "133. Infective Endocarditis", "134. Infections of the Skin, Muscles, and Soft Tissues", "135. Infectious Arthritis", "136. Osteomyelitis", "137. Intraabdominal Infections and Abscesses", "138. Acute Infectious Diarrheal Diseases and Bacterial Food Poisoning", "139. Clostridioides difficile Infection", "140. Urinary Tract Infections", "141. Sexually Transmitted Infections", "142. Encephalitis", "143. Acute Meningitis", "144. Chronic and Recurrent Meningitis", "145. Brain Abscess and Empyema", "146. Infectious Complications of Bites", "147. Infections Acquired in Health Care Facilities", "148. Infections in Transplant Recipients", "149. Treatment and Prophylaxis of Bacterial Infections", "150. Bacterial Resistance to Antimicrobial Agents", "151. Pneumococcal Infections", "152. Staphylococcal Infections", "153. Streptococcal Infections", "154. Enterococcal Infections", "155. Diphtheria and Other Corynebacterial Infections", "156. Listeria monocytogenes Infections", "157. Tetanus", "158. Botulism", "159. Gas Gangrene and Other Clostridial Infections", "160. Meningococcal Infections", "161. Gonococcal Infections", "162. Haemophilus and Moraxella Infections", "163. Infections Due to the HACEK Group", "164. Legionella Infections", "165. Pertussis and Other Bordetella Infections", "166. Diseases Caused by Gram-Negative Enteric Bacilli", "167. Acinetobacter Infections", "168. Helicobacter pylori Infections", "169. Infections Due to Campylobacter", "170. Pseudomonas and Related Infections", "171. Salmonellosis", "172. Shigellosis", "173. Cholera and Other Vibrioses", "174. Brucellosis", "175. Tularemia", "176. Plague and Other Yersinia Infections", "177. Bartonella Infections", "178. Donovanosis", "179. Nocardiosis", "180. Actinomycosis", "181. Whipple Disease", "182. Infections Due to Mixed Anaerobic Organisms", "183. Tuberculosis", "184. Leprosy", "185. Nontuberculous Mycobacterial Infections", "186. Antimycobacterial Agents", "187. Syphilis", "188. Endemic Treponematoses", "189. Leptospirosis", "190. Relapsing Fever", "191. Lyme Borreliosis", "192. Rickettsial Diseases", "193. Infections Due to Mycoplasmas", "194. Chlamydial Infections", "195. Principles of Medical Virology", "196. Antiviral Chemotherapy", "197. Herpes Simplex Virus Infections", "198. Varicella-Zoster Virus Infections", "199. Epstein-Barr Virus Infections", "200. Cytomegalovirus and Human Herpesvirus", "201. Monkeypox and Other Poxvirus Infections", "202. Parvovirus Infections", "203. Human Papillomavirus Infections", "204. Common Viral Respiratory Infections", "205. SARS-CoV-2 and COVID-19", "206. Influenza", "207. The Human Retroviruses", "208. HIV Disease: AIDS and Related Disorders", "209. Viral Gastroenteritis", "210. Enterovirus, Parechovirus, and Reovirus Infections", "211. Measles (Rubeola)", "212. Rubella (German Measles)", "213. Mumps", "214. Rabies and Other Rhabdovirus Infections", "215. Arthropod-Borne and Rodent-Borne Virus Infections", "216. The Filovirids", "217. Fungal Infections: Pathogenesis and Treatment", "218. Histoplasmosis", "219. Coccidioidomycosis", "220. Blastomycosis", "221. Cryptococcosis", "222. Candidiasis", "223. Aspergillosis", "224. Mucormycosis", "225. Superficial Fungal Infections", "226. Uncommon Disseminated Fungal Infections", "227. Pneumocystis Infections", "228. Introduction to Parasitic Infections", "229. Agents Used to Treat Parasitic Infections", "230. Amebiasis and Free-Living Amebae", "231. Malaria", "232. Babesiosis", "233. Leishmaniasis", "234. Chagas Disease and African Trypanosomiasis", "235. Toxoplasma Infections", "236. Protozoal Intestinal Infections and Trichomoniasis", "237. Introduction to Helminthic Infections", "238. Trichinellosis and Tissue Nematodes", "239. Intestinal Nematode Infections", "240. Filarial and Related Infections", "241. Schistosomiasis and Other Trematode Infections", "242. Cestode Infections"]
-        },
-        {
-            unit: "Part 6: Disorders of the Cardiovascular System",
-            chapters: ["243. Approach to the Patient with Possible Cardiovascular Disease", "244. Basic Biology of the Cardiovascular System", "245. Epidemiology of Cardiovascular Disease", "246. Physical Examination of the Cardiovascular System", "247. Electrocardiography", "248. Noninvasive Cardiac Imaging", "249. Diagnostic Cardiac Catheterization and Coronary Angiography", "250. Principles of Clinical Cardiac Electrophysiology", "251. The Bradyarrhythmias: Sinoatrial Node", "252. The Bradyarrhythmias: Atrioventricular Node", "253. Approach to Supraventricular Arrhythmias", "254. Physiologic and Nonphysiologic Sinus Rhythm", "255. Focal Atrial Tachycardia", "256. Paroxysmal Supraventricular Tachycardias", "257. Common Atrial Flutter and Macroreentrant Tachycardias", "258. Atrial Fibrillation", "259. Approach to Ventricular Arrhythmias", "260. Premature Ventricular Contractions", "261. Sustained Ventricular Tachycardia", "262. Polymorphic Ventricular Tachycardia and Fibrillation", "263. Electrical Storm and Incessant Ventricular Tachycardia", "264. Heart Failure: Pathophysiology and Diagnosis", "265. Heart Failure: Management", "266. Classification of Cardiomyopathy", "267. Genetic Cardiomyopathies", "268. Acute and Chronic Myocarditis", "269. Dilated Cardiomyopathies", "270. Amyloidosis and Other Restrictive Cardiomyopathies", "271. Cardiac Transplantation", "272. Aortic Stenosis", "273. Aortic Regurgitation", "274. Mitral Stenosis", "275. Mitral Regurgitation", "276. Mitral Valve Prolapse", "277. Tricuspid Valve Disease", "278. Pulmonic Valve Disease", "279. Multiple and Mixed Valvular Heart Disease", "280. Congenital Heart Disease in the Adult", "281. Pericardial Disease", "282. Atrial Myxoma and Other Cardiac Tumors", "283. Cardiac Trauma", "284. Ischemic Heart Disease", "285. Non-ST-Segment Elevation Acute Coronary Syndrome", "286. ST-Segment Elevation Myocardial Infarction", "287. Percutaneous Coronary Interventions", "288. Hypertension", "289. Renovascular Disease", "290. Deep-Venous Thrombosis and Pulmonary Thromboembolism", "291. Diseases of the Aorta", "292. Arterial Diseases of the Extremities", "293. Chronic Venous Disease and Lymphedema", "294. Pulmonary Hypertension"]
-        },
-        {
-            unit: "Part 7: Disorders of the Respiratory System",
-            chapters: ["295. Approach to the Patient with Disease of the Respiratory System", "296. Disturbances of Respiratory Function", "297. Diagnostic Procedures in Respiratory Disease", "298. Asthma", "299. Hypersensitivity Pneumonitis", "300. Occupational and Environmental Lung Disease", "301. Bronchiectasis", "302. Cystic Fibrosis", "303. Chronic Obstructive Pulmonary Disease", "304. Interstitial Lung Disease", "305. Disorders of the Pleura", "306. Disorders of the Mediastinum", "307. Disorders of Ventilation", "308. Sleep Apnea", "309. Lung Transplantation", "310. Interventional Pulmonary Medicine"]
-        },
-        {
-            unit: "Part 8: Critical Care Medicine",
-            chapters: ["311. Approach to the Patient with Critical Illness", "312. Acute Respiratory Distress Syndrome", "313. Mechanical Ventilatory Support", "314. Approach to the Patient with Shock", "315. Sepsis and Septic Shock", "316. Cardiogenic Shock and Pulmonary Edema", "317. Cardiovascular Collapse, Cardiac Arrest, and Sudden Cardiac Death", "318. Nervous System Disorders in Critical Care"]
-        },
-        {
-            unit: "Part 9: Disorders of the Kidney and Urinary Tract",
-            chapters: ["319. Approach to the Patient with Renal Disease", "320. Cell Biology and Physiology of the Kidney", "321. Acute Kidney Injury", "322. Chronic Kidney Disease", "323. Dialysis in the Treatment of Kidney Failure", "324. Interventional Nephrology", "325. Kidney Transplantation", "326. Glomerular Diseases", "327. Polycystic Kidney Disease", "328. Tubulointerstitial Diseases of the Kidney", "329. Thrombotic Renovascular Disorders", "330. Nephrolithiasis", "331. Urinary Tract Obstruction"]
-        },
-        {
-            unit: "Part 10: Disorders of the Gastrointestinal System",
-            chapters: ["332. Approach to the Patient with Gastrointestinal Disease", "333. Gastrointestinal Endoscopy", "334. Diseases of the Esophagus", "335. Peptic Ulcer Disease and Related Disorders", "336. Disorders of Absorption", "337. Inflammatory Bowel Disease", "338. Irritable Bowel Syndrome", "339. Diverticular Disease and Common Anorectal Disorders", "340. Mesenteric Vascular Insufficiency", "341. Acute Intestinal Obstruction", "342. Acute Appendicitis and Peritonitis", "343. Nutrient Requirements and Dietary Assessment", "344. Vitamin and Trace Mineral Deficiency", "345. Malnutrition and Nutritional Assessment", "346. Enteral and Parenteral Nutrition", "347. Approach to the Patient with Liver Disease", "348. Evaluation of Liver Function", "349. The Hyperbilirubinemias", "350. Acute Viral Hepatitis", "351. Toxic and Drug-Induced Hepatitis", "352. Chronic Hepatitis", "353. Alcohol-Associated Liver Disease", "354. Metabolic Dysfunction-Associated Steatotic Liver Disease", "355. Cirrhosis and Its Complications", "356. Liver Transplantation", "357. Diseases of the Gallbladder and Bile Ducts", "358. Approach to the Patient with Pancreatic Disease", "359. Acute and Chronic Pancreatitis"]
-        },
-        {
-            unit: "Part 11: Immune-Mediated, Inflammatory, and Rheumatologic Disorders",
-            chapters: ["360. Introduction to the Immune System", "361. Mechanisms of Regulation and Dysregulation of the Immune System", "362. Primary Immune Deficiency Diseases", "363. Urticaria, Angioedema, and Allergic Rhinitis", "364. Anaphylaxis", "365. Desensitization", "366. Mastocytosis", "367. Autoimmunity and Autoimmune Diseases", "368. Systemic Lupus Erythematosus", "369. Antiphospholipid Syndrome", "370. Rheumatoid Arthritis", "371. Acute Rheumatic Fever", "372. Systemic Sclerosis (Scleroderma)", "373. Sjögren's Disease", "374. Spondyloarthritis", "375. The Vasculitis Syndromes", "376. Behçet Syndrome", "377. Inflammatory Myopathies", "378. Relapsing Polychondritis", "379. Sarcoidosis", "380. IgG4-Related Disease", "381. Familial Mediterranean Fever", "382. Approach to Articular and Musculoskeletal Disorders", "383. Osteoarthritis", "384. Gout and Other Crystal-Associated Arthropathies", "385. Fibromyalgia", "386. Arthritis Associated with Systemic Disease", "387. Periarticular Disorders of the Extremities"]
-        },
-        {
-            unit: "Part 12: Endocrinology and Metabolism",
-            chapters: ["388. Approach to the Patient with Endocrine Disorders", "389. Mechanisms of Hormone Action", "390. Physiology of Anterior Pituitary Hormones", "391. Hypopituitarism", "392. Pituitary Tumor Syndromes", "393. Disorders of the Neurohypophysis", "394. Thyroid Gland Physiology and Testing", "395. Hypothyroidism", "396. Hyperthyroidism", "397. Thyroid Nodular Disease and Thyroid Cancer", "398. Disorders of the Adrenal Cortex", "399. Pheochromocytoma", "400. Multiple Endocrine Neoplasia Syndromes", "401. Autoimmune Polyendocrine Syndromes", "402. Sex Development", "403. Disorders of the Testes and Male Reproductive System", "404. Disorders of the Female Reproductive System", "405. Menstrual Disorders and Pelvic Pain", "406. Hirsutism", "407. Menopause and Postmenopausal Hormone Therapy", "408. Infertility and Contraception", "409. Sexual Dysfunction", "410. Women's Health", "411. Men's Health", "412. LGBTQIA+ Health", "413. Pathobiology of Obesity", "414. Evaluation and Management of Obesity", "415. Diabetes Mellitus: Diagnosis, Classification, and Pathophysiology", "416. Diabetes Mellitus: Management and Therapies", "417. Diabetes Mellitus: Complications", "418. Hypoglycemia", "419. Disorders of Lipoprotein Metabolism", "420. The Metabolic Syndrome", "421. Bone and Mineral Metabolism in Health and Disease", "422. Disorders of the Parathyroid Gland and Calcium Homeostasis", "423. Osteoporosis", "424. Paget's Disease and Other Dysplasias of Bone", "425. Heritable Disorders of Connective Tissue", "426. Hemochromatosis", "427. Wilson's Disease", "428. The Porphyrias", "429. Lysosomal Storage Diseases", "430. Glycogen Storage Diseases", "431. Inherited Disorders of Amino Acid Metabolism", "432. Inherited Defects of Membrane Transport"]
-        },
-        {
-            unit: "Part 13: Neurologic Disorders",
-            chapters: ["433. Approach to the Patient with Neurologic Disease", "434. Neuroimaging in Neurologic Disorders", "435. Pathobiology of Neurologic Diseases", "436. Seizures and Epilepsy", "437. Introduction to Cerebrovascular Diseases", "438. Ischemic Stroke", "439. Intracerebral Hemorrhage", "440. Subarachnoid Hemorrhage", "441. Migraine and Other Primary Headache Disorders", "442. Alzheimer's Disease", "443. Frontotemporal Dementia", "444. Vascular Dementia", "445. Dementia with Lewy Bodies", "446. Parkinson's Disease", "447. Tremor, Chorea, and Other Movement Disorders", "448. Amyotrophic Lateral Sclerosis and Other Motor Neuron Diseases", "449. Prion Diseases", "450. Ataxic Disorders", "451. Disorders of the Autonomic Nervous System", "452. Trigeminal Neuralgia, Bell's Palsy, and Other Cranial Nerve Disorders", "453. Diseases of the Spinal Cord", "454. Concussion and Other Traumatic Brain Injuries", "455. Multiple Sclerosis", "456. Neuromyelitis Optica", "457. Peripheral Neuropathy", "458. Guillain-Barré Syndrome", "459. Myasthenia Gravis", "460. Muscular Dystrophies and Other Muscle Diseases", "461. Myalgic Encephalomyelitis/Chronic Fatigue Syndrome", "462. Biology of Psychiatric Disorders", "463. Psychiatric Disorders", "464. Alcohol and Alcohol Use Disorders", "465. Nicotine Addiction", "466. Cannabis and Cannabis Use Disorder", "467. Opioid-Related Disorders", "468. Cocaine, Other Psychostimulants, and Hallucinogens"]
-        },
-        {
-            unit: "Part 14: Poisoning & Envenomation",
-            chapters: ["469. Heavy Metal Poisoning", "470. Poisoning and Drug Overdose", "471. Disorders Caused by Venomous Snakebites and Marine Animal Exposures", "472. Ectoparasite Infestations and Arthropod Injuries"]
-        },
-        {
-            unit: "Part 15: Environmental Exposures",
-            chapters: ["473. Health Effects of Climate Change", "474. Climate Change and Infectious Disease", "475. Altitude Illness", "476. Hyperbaric and Diving Medicine", "477. Hypothermia and Peripheral Cold Injuries", "478. Heat-Related Illnesses"]
-        },
-        {
-            unit: "Part 16: Genes and Environment",
-            chapters: ["479. Principles of Human Genetics", "480. The Integration of Inherited Genetics into Clinical Practice", "481. Mitochondrial DNA and Heritable Traits and Diseases", "482. Telomere Disease", "483. Gene and Cell-Based Therapy in Clinical Medicine", "484. The Human Microbiome in Health and Disease"]
-        },
-        {
-            unit: "Part 17-20: Global, Aging & Emerging Topics",
-            chapters: ["485. Global Issues in Medicine", "486. Emerging and Re-Emerging Infectious Diseases", "487. Primary Care and Global Health", "488. Biology of Aging", "489. Caring for the Geriatric Patient", "490. Approach to Medical Consultation", "491. Medical Disorders During Pregnancy", "492. Medical Evaluation of the Patient Undergoing Noncardiac Surgery", "493. Point-of-Care Ultrasound", "494. Improving Health and Health Care Using Behavioral Economics", "495. Complementary and Integrative Therapies", "496. Placebo and Nocebo Effects", "497. The Role of Epigenetics", "498. The Role of Circadian Biology", "499. Network Medicine", "500. Emerging Neurotherapeutic Technologies", "501. Machine Learning and Augmented Intelligence", "502. Metabolomics", "503. Circulating Nucleic Acids as Liquid Biopsies", "504. Protein Folding Disorders", "505. Novel Approaches to Diseases of Unknown Etiology"]
-        }
-    ],
+                { unit: "Part 1: The Profession of Medicine", chapters: ["1. The Practice of Medicine", "2. Promoting Good Health", "3. Vaccine Opposition and Hesitancy", "4. Decision-Making in Clinical Medicine", "5. Precision Medicine and Clinical Care", "6. Screening and Prevention of Disease", "7. The Safety and Quality of Health Care", "8. The Value of the Physical Examination", "9. Physician Well-Being", "10. Diagnosis: Reducing Errors and Improving Quality", "11. Racial and Ethnic Disparities in Health Care", "12. Ethical Issues in Clinical Medicine", "13. Palliative and End-of-Life Care"] },
+                { unit: "Part 2: Cardinal Manifestations of Diseases", chapters: ["14. Pain: Pathophysiology and Management", "15. Chest Discomfort", "16. Abdominal Pain", "17. Headache", "18. Low Back Pain", "19. Neck Pain", "20. Fever", "21. Fever and Rash", "22. Fever of Unknown Origin", "23. Syncope", "24. Dizziness and Vertigo", "25. Fatigue", "26. Neurologic Causes of Weakness and Paralysis", "27. Numbness, Tingling, and Sensory Loss", "28. Gait Disorders, Imbalance, and Falls", "29. Confusion and Delirium", "30. Coma", "31. Dementia", "32. Aphasia, Memory Loss, and Other Cognitive Disorders", "33. Sleep Disorders", "34. Disorders of the Eye", "35. Disorders of Smell and Taste", "36. Disorders of Hearing", "37. Upper Respiratory Symptoms", "38. Oral Manifestations of Disease", "39. Dyspnea", "40. Cough", "41. Hemoptysis", "42. Hypoxia and Cyanosis", "43. Edema", "44. Approach to the Patient with a Heart Murmur", "45. Palpitations", "46. Exercise Intolerance", "47. Dysphagia", "48. Nausea, Vomiting, and Indigestion", "49. Diarrhea and Constipation", "50. Unintentional Weight Loss", "51. Gastrointestinal Bleeding", "52. Jaundice", "53. Abdominal Swelling and Ascites", "54. Interstitial Cystitis/Bladder Pain Syndrome", "55. Azotemia and Urinary Abnormalities", "56. Fluid and Electrolyte Disturbances", "57. Hypercalcemia and Hypocalcemia", "58. Acidosis and Alkalosis", "59. Approach to the Patient with a Skin Disorder", "60. Common Skin Disorders", "61. Skin Manifestations of Internal Disease", "62. Immunologically Mediated Skin Diseases", "63. Cutaneous Drug Reactions", "64. Photosensitivity", "65. Interpreting Peripheral Blood Smears", "66. Anemia and Polycythemia", "67. Disorders of Granulocytes and Monocytes", "68. Hemophagocytic Lymphohistiocytosis", "69. Bleeding and Thrombosis", "70. Enlargement of Lymph Nodes and Spleen"] },
+                { unit: "Part 3: Pharmacology", chapters: ["71. Principles of Clinical Pharmacology", "72. Pharmacogenomics"] },
+                { unit: "Part 4: Oncology and Hematology", chapters: ["73. Approach to the Patient with Cancer", "74. Symptom Control in Patients with Cancer", "75. Prevention and Early Detection of Cancer", "76. Cancer Genetics", "77. Cancer Cell Biology", "78. Principles of Cancer Treatment", "79. Infections in Patients with Cancer", "80. Oncologic Emergencies", "81. Cancer of the Skin", "82. Head and Neck Cancer", "83. Neoplasms of the Lung", "84. Breast Cancer", "85. Upper Gastrointestinal Tract Cancers", "86. Colorectal Cancer", "87. Tumors of the Liver and Biliary Tree", "88. Pancreatic Cancer", "89. Gastrointestinal Neuroendocrine Tumors", "90. Renal Cell Carcinoma", "91. Cancer of the Bladder and Urinary Tract", "92. Benign and Malignant Diseases of the Prostate", "93. Testicular Cancer", "94. Gynecologic Malignancies", "95. Primary and Metastatic Tumors of the Nervous System", "96. Soft Tissue and Bone Sarcomas and Bone Metastases", "97. Carcinoma of Unknown Primary", "98. Paraneoplastic Syndromes", "99. Paraneoplastic Neurologic Syndromes and Autoimmune Encephalitis", "100. Cancer Survivorship", "101. Hematopoietic Stem Cells", "102. Iron Deficiency and Other Acquired Anemias", "103. Disorders of Hemoglobin", "104. Megaloblastic Anemias", "105. Hemolytic Anemias", "106. Anemia Due to Acute Blood Loss", "107. Bone Marrow Failure Syndromes", "108. Polycythemia Vera and Other Myeloproliferative Neoplasms", "109. Acute Myeloid Leukemia", "110. Chronic Myeloid Leukemia", "111. Acute Lymphoid Leukemia", "112. Chronic Lymphocytic Leukemia", "113. Non-Hodgkin's Lymphoma", "114. Hodgkin's Lymphoma", "115. Less Common Lymphoid and Myeloid Malignancies", "116. Plasma Cell Disorders", "117. Amyloidosis", "118. Transfusion Therapy and Biology", "119. Hematopoietic Cell Transplantation", "120. Disorders of Platelets and Vessel Wall", "121. Coagulation Disorders", "122. Arterial and Venous Thrombosis", "123. Antiplatelet, Anticoagulant, and Fibrinolytic Drugs"] },
+                { unit: "Part 5: Infectious Diseases", chapters: ["124. Approach to the Patient with an Infectious Disease", "125. Molecular Mechanisms of Microbial Pathogenesis", "126. Microbial Genomics and Infectious Disease", "127. Approach to the Acutely Ill Infected Febrile Patient", "128. Principles of Immunization", "129. Immunization Principles and Vaccine Use", "130. Health Recommendations for International Travel", "131. Pneumonia", "132. Lung Abscess", "133. Infective Endocarditis", "134. Infections of the Skin, Muscles, and Soft Tissues", "135. Infectious Arthritis", "136. Osteomyelitis", "137. Intraabdominal Infections and Abscesses", "138. Acute Infectious Diarrheal Diseases and Bacterial Food Poisoning", "139. Clostridioides difficile Infection", "140. Urinary Tract Infections", "141. Sexually Transmitted Infections", "142. Encephalitis", "143. Acute Meningitis", "144. Chronic and Recurrent Meningitis", "145. Brain Abscess and Empyema", "146. Infectious Complications of Bites", "147. Infections Acquired in Health Care Facilities", "148. Infections in Transplant Recipients", "149. Treatment and Prophylaxis of Bacterial Infections", "150. Bacterial Resistance to Antimicrobial Agents", "151. Pneumococcal Infections", "152. Staphylococcal Infections", "153. Streptococcal Infections", "154. Enterococcal Infections", "155. Diphtheria and Other Corynebacterial Infections", "156. Listeria monocytogenes Infections", "157. Tetanus", "158. Botulism", "159. Gas Gangrene and Other Clostridial Infections", "160. Meningococcal Infections", "161. Gonococcal Infections", "162. Haemophilus and Moraxella Infections", "163. Infections Due to the HACEK Group", "164. Legionella Infections", "165. Pertussis and Other Bordetella Infections", "166. Diseases Caused by Gram-Negative Enteric Bacilli", "167. Acinetobacter Infections", "168. Helicobacter pylori Infections", "169. Infections Due to Campylobacter", "170. Pseudomonas and Related Infections", "171. Salmonellosis", "172. Shigellosis", "173. Cholera and Other Vibrioses", "174. Brucellosis", "175. Tularemia", "176. Plague and Other Yersinia Infections", "177. Bartonella Infections", "178. Donovanosis", "179. Nocardiosis", "180. Actinomycosis", "181. Whipple Disease", "182. Infections Due to Mixed Anaerobic Organisms", "183. Tuberculosis", "184. Leprosy", "185. Nontuberculous Mycobacterial Infections", "186. Antimycobacterial Agents", "187. Syphilis", "188. Endemic Treponematoses", "189. Leptospirosis", "190. Relapsing Fever", "191. Lyme Borreliosis", "192. Rickettsial Diseases", "193. Infections Due to Mycoplasmas", "194. Chlamydial Infections", "195. Principles of Medical Virology", "196. Antiviral Chemotherapy", "197. Herpes Simplex Virus Infections", "198. Varicella-Zoster Virus Infections", "199. Epstein-Barr Virus Infections", "200. Cytomegalovirus and Human Herpesvirus", "201. Monkeypox and Other Poxvirus Infections", "202. Parvovirus Infections", "203. Human Papillomavirus Infections", "204. Common Viral Respiratory Infections", "205. SARS-CoV-2 and COVID-19", "206. Influenza", "207. The Human Retroviruses", "208. HIV Disease: AIDS and Related Disorders", "209. Viral Gastroenteritis", "210. Enterovirus, Parechovirus, and Reovirus Infections", "211. Measles (Rubeola)", "212. Rubella (German Measles)", "213. Mumps", "214. Rabies and Other Rhabdovirus Infections", "215. Arthropod-Borne and Rodent-Borne Virus Infections", "216. The Filovirids", "217. Fungal Infections: Pathogenesis and Treatment", "218. Histoplasmosis", "219. Coccidioidomycosis", "220. Blastomycosis", "221. Cryptococcosis", "222. Candidiasis", "223. Aspergillosis", "224. Mucormycosis", "225. Superficial Fungal Infections", "226. Uncommon Disseminated Fungal Infections", "227. Pneumocystis Infections", "228. Introduction to Parasitic Infections", "229. Agents Used to Treat Parasitic Infections", "230. Amebiasis and Free-Living Amebae", "231. Malaria", "232. Babesiosis", "233. Leishmaniasis", "234. Chagas Disease and African Trypanosomiasis", "235. Toxoplasma Infections", "236. Protozoal Intestinal Infections and Trichomoniasis", "237. Introduction to Helminthic Infections", "238. Trichinellosis and Tissue Nematodes", "239. Intestinal Nematode Infections", "240. Filarial and Related Infections", "241. Schistosomiasis and Other Trematode Infections", "242. Cestode Infections"] },
+                { unit: "Part 6: Disorders of the Cardiovascular System", chapters: ["243. Approach to the Patient with Possible Cardiovascular Disease", "244. Basic Biology of the Cardiovascular System", "245. Epidemiology of Cardiovascular Disease", "246. Physical Examination of the Cardiovascular System", "247. Electrocardiography", "248. Noninvasive Cardiac Imaging", "249. Diagnostic Cardiac Catheterization and Coronary Angiography", "250. Principles of Clinical Cardiac Electrophysiology", "251. The Bradyarrhythmias: Sinoatrial Node", "252. The Bradyarrhythmias: Atrioventricular Node", "253. Approach to Supraventricular Arrhythmias", "254. Physiologic and Nonphysiologic Sinus Rhythm", "255. Focal Atrial Tachycardia", "256. Paroxysmal Supraventricular Tachycardias", "257. Common Atrial Flutter and Macroreentrant Tachycardias", "258. Atrial Fibrillation", "259. Approach to Ventricular Arrhythmias", "260. Premature Ventricular Contractions", "261. Sustained Ventricular Tachycardia", "262. Polymorphic Ventricular Tachycardia and Fibrillation", "263. Electrical Storm and Incessant Ventricular Tachycardia", "264. Heart Failure: Pathophysiology and Diagnosis", "265. Heart Failure: Management", "266. Classification of Cardiomyopathy", "267. Genetic Cardiomyopathies", "268. Acute and Chronic Myocarditis", "269. Dilated Cardiomyopathies", "270. Amyloidosis and Other Restrictive Cardiomyopathies", "271. Cardiac Transplantation", "272. Aortic Stenosis", "273. Aortic Regurgitation", "274. Mitral Stenosis", "275. Mitral Regurgitation", "276. Mitral Valve Prolapse", "277. Tricuspid Valve Disease", "278. Pulmonic Valve Disease", "279. Multiple and Mixed Valvular Heart Disease", "280. Congenital Heart Disease in the Adult", "281. Pericardial Disease", "282. Atrial Myxoma and Other Cardiac Tumors", "283. Cardiac Trauma", "284. Ischemic Heart Disease", "285. Non-ST-Segment Elevation Acute Coronary Syndrome", "286. ST-Segment Elevation Myocardial Infarction", "287. Percutaneous Coronary Interventions", "288. Hypertension", "289. Renovascular Disease", "290. Deep-Venous Thrombosis and Pulmonary Thromboembolism", "291. Diseases of the Aorta", "292. Arterial Diseases of the Extremities", "293. Chronic Venous Disease and Lymphedema", "294. Pulmonary Hypertension"] },
+                { unit: "Part 7: Disorders of the Respiratory System", chapters: ["295. Approach to the Patient with Disease of the Respiratory System", "296. Disturbances of Respiratory Function", "297. Diagnostic Procedures in Respiratory Disease", "298. Asthma", "299. Hypersensitivity Pneumonitis", "300. Occupational and Environmental Lung Disease", "301. Bronchiectasis", "302. Cystic Fibrosis", "303. Chronic Obstructive Pulmonary Disease", "304. Interstitial Lung Disease", "305. Disorders of the Pleura", "306. Disorders of the Mediastinum", "307. Disorders of Ventilation", "308. Sleep Apnea", "309. Lung Transplantation", "310. Interventional Pulmonary Medicine"] },
+                { unit: "Part 8: Critical Care Medicine", chapters: ["311. Approach to the Patient with Critical Illness", "312. Acute Respiratory Distress Syndrome", "313. Mechanical Ventilatory Support", "314. Approach to the Patient with Shock", "315. Sepsis and Septic Shock", "316. Cardiogenic Shock and Pulmonary Edema", "317. Cardiovascular Collapse, Cardiac Arrest, and Sudden Cardiac Death", "318. Nervous System Disorders in Critical Care"] },
+                { unit: "Part 9: Disorders of the Kidney and Urinary Tract", chapters: ["319. Approach to the Patient with Renal Disease", "320. Cell Biology and Physiology of the Kidney", "321. Acute Kidney Injury", "322. Chronic Kidney Disease", "323. Dialysis in the Treatment of Kidney Failure", "324. Interventional Nephrology", "325. Kidney Transplantation", "326. Glomerular Diseases", "327. Polycystic Kidney Disease", "328. Tubulointerstitial Diseases of the Kidney", "329. Thrombotic Renovascular Disorders", "330. Nephrolithiasis", "331. Urinary Tract Obstruction"] },
+                { unit: "Part 10: Disorders of the Gastrointestinal System", chapters: ["332. Approach to the Patient with Gastrointestinal Disease", "333. Gastrointestinal Endoscopy", "334. Diseases of the Esophagus", "335. Peptic Ulcer Disease and Related Disorders", "336. Disorders of Absorption", "337. Inflammatory Bowel Disease", "338. Irritable Bowel Syndrome", "339. Diverticular Disease and Common Anorectal Disorders", "340. Mesenteric Vascular Insufficiency", "341. Acute Intestinal Obstruction", "342. Acute Appendicitis and Peritonitis", "343. Nutrient Requirements and Dietary Assessment", "344. Vitamin and Trace Mineral Deficiency", "345. Malnutrition and Nutritional Assessment", "346. Enteral and Parenteral Nutrition", "347. Approach to the Patient with Liver Disease", "348. Evaluation of Liver Function", "349. The Hyperbilirubinemias", "350. Acute Viral Hepatitis", "351. Toxic and Drug-Induced Hepatitis", "352. Chronic Hepatitis", "353. Alcohol-Associated Liver Disease", "354. Metabolic Dysfunction-Associated Steatotic Liver Disease", "355. Cirrhosis and Its Complications", "356. Liver Transplantation", "357. Diseases of the Gallbladder and Bile Ducts", "358. Approach to the Patient with Pancreatic Disease", "359. Acute and Chronic Pancreatitis"] },
+                { unit: "Part 11: Immune-Mediated, Inflammatory, and Rheumatologic Disorders", chapters: ["360. Introduction to the Immune System", "361. Mechanisms of Regulation and Dysregulation of the Immune System", "362. Primary Immune Deficiency Diseases", "363. Urticaria, Angioedema, and Allergic Rhinitis", "364. Anaphylaxis", "365. Desensitization", "366. Mastocytosis", "367. Autoimmunity and Autoimmune Diseases", "368. Systemic Lupus Erythematosus", "369. Antiphospholipid Syndrome", "370. Rheumatoid Arthritis", "371. Acute Rheumatic Fever", "372. Systemic Sclerosis (Scleroderma)", "373. Sjögren's Disease", "374. Spondyloarthritis", "375. The Vasculitis Syndromes", "376. Behçet Syndrome", "377. Inflammatory Myopathies", "378. Relapsing Polychondritis", "379. Sarcoidosis", "380. IgG4-Related Disease", "381. Familial Mediterranean Fever", "382. Approach to Articular and Musculoskeletal Disorders", "383. Osteoarthritis", "384. Gout and Other Crystal-Associated Arthropathies", "385. Fibromyalgia", "386. Arthritis Associated with Systemic Disease", "387. Periarticular Disorders of the Extremities"] },
+                { unit: "Part 12: Endocrinology and Metabolism", chapters: ["388. Approach to the Patient with Endocrine Disorders", "389. Mechanisms of Hormone Action", "390. Physiology of Anterior Pituitary Hormones", "391. Hypopituitarism", "392. Pituitary Tumor Syndromes", "393. Disorders of the Neurohypophysis", "394. Thyroid Gland Physiology and Testing", "395. Hypothyroidism", "396. Hyperthyroidism", "397. Thyroid Nodular Disease and Thyroid Cancer", "398. Disorders of the Adrenal Cortex", "399. Pheochromocytoma", "400. Multiple Endocrine Neoplasia Syndromes", "401. Autoimmune Polyendocrine Syndromes", "402. Sex Development", "403. Disorders of the Testes and Male Reproductive System", "404. Disorders of the Female Reproductive System", "405. Menstrual Disorders and Pelvic Pain", "406. Hirsutism", "407. Menopause and Postmenopausal Hormone Therapy", "408. Infertility and Contraception", "409. Sexual Dysfunction", "410. Women's Health", "411. Men's Health", "412. LGBTQIA+ Health", "413. Pathobiology of Obesity", "414. Evaluation and Management of Obesity", "415. Diabetes Mellitus: Diagnosis, Classification, and Pathophysiology", "416. Diabetes Mellitus: Management and Therapies", "417. Diabetes Mellitus: Complications", "418. Hypoglycemia", "419. Disorders of Lipoprotein Metabolism", "420. The Metabolic Syndrome", "421. Bone and Mineral Metabolism in Health and Disease", "422. Disorders of the Parathyroid Gland and Calcium Homeostasis", "423. Osteoporosis", "424. Paget's Disease and Other Dysplasias of Bone", "425. Heritable Disorders of Connective Tissue", "426. Hemochromatosis", "427. Wilson's Disease", "428. The Porphyrias", "429. Lysosomal Storage Diseases", "430. Glycogen Storage Diseases", "431. Inherited Disorders of Amino Acid Metabolism", "432. Inherited Defects of Membrane Transport"] },
+                { unit: "Part 13: Neurologic Disorders", chapters: ["433. Approach to the Patient with Neurologic Disease", "434. Neuroimaging in Neurologic Disorders", "435. Pathobiology of Neurologic Diseases", "436. Seizures and Epilepsy", "437. Introduction to Cerebrovascular Diseases", "438. Ischemic Stroke", "439. Intracerebral Hemorrhage", "440. Subarachnoid Hemorrhage", "441. Migraine and Other Primary Headache Disorders", "442. Alzheimer's Disease", "443. Frontotemporal Dementia", "444. Vascular Dementia", "445. Dementia with Lewy Bodies", "446. Parkinson's Disease", "447. Tremor, Chorea, and Other Movement Disorders", "448. Amyotrophic Lateral Sclerosis and Other Motor Neuron Diseases", "449. Prion Diseases", "450. Ataxic Disorders", "451. Disorders of the Autonomic Nervous System", "452. Trigeminal Neuralgia, Bell's Palsy, and Other Cranial Nerve Disorders", "453. Diseases of the Spinal Cord", "454. Concussion and Other Traumatic Brain Injuries", "455. Multiple Sclerosis", "456. Neuromyelitis Optica", "457. Peripheral Neuropathy", "458. Guillain-Barré Syndrome", "459. Myasthenia Gravis", "460. Muscular Dystrophies and Other Muscle Diseases", "461. Myalgic Encephalomyelitis/Chronic Fatigue Syndrome", "462. Biology of Psychiatric Disorders", "463. Psychiatric Disorders", "464. Alcohol and Alcohol Use Disorders", "465. Nicotine Addiction", "466. Cannabis and Cannabis Use Disorder", "467. Opioid-Related Disorders", "468. Cocaine, Other Psychostimulants, and Hallucinogens"] },
+                { unit: "Part 14: Poisoning & Envenomation", chapters: ["469. Heavy Metal Poisoning", "470. Poisoning and Drug Overdose", "471. Disorders Caused by Venomous Snakebites and Marine Animal Exposures", "472. Ectoparasite Infestations and Arthropod Injuries"] },
+                { unit: "Part 15: Environmental Exposures", chapters: ["473. Health Effects of Climate Change", "474. Climate Change and Infectious Disease", "475. Altitude Illness", "476. Hyperbaric and Diving Medicine", "477. Hypothermia and Peripheral Cold Injuries", "478. Heat-Related Illnesses"] },
+                { unit: "Part 16: Genes and Environment", chapters: ["479. Principles of Human Genetics", "480. The Integration of Inherited Genetics into Clinical Practice", "481. Mitochondrial DNA and Heritable Traits and Diseases", "482. Telomere Disease", "483. Gene and Cell-Based Therapy in Clinical Medicine", "484. The Human Microbiome in Health and Disease"] },
+                { unit: "Part 17-20: Global, Aging & Emerging Topics", chapters: ["485. Global Issues in Medicine", "486. Emerging and Re-Emerging Infectious Diseases", "487. Primary Care and Global Health", "488. Biology of Aging", "489. Caring for the Geriatric Patient", "490. Approach to Medical Consultation", "491. Medical Disorders During Pregnancy", "492. Medical Evaluation of the Patient Undergoing Noncardiac Surgery", "493. Point-of-Care Ultrasound", "494. Improving Health and Health Care Using Behavioral Economics", "495. Complementary and Integrative Therapies", "496. Placebo and Nocebo Effects", "497. The Role of Epigenetics", "498. The Role of Circadian Biology", "499. Network Medicine", "500. Emerging Neurotherapeutic Technologies", "501. Machine Learning and Augmented Intelligence", "502. Metabolomics", "503. Circulating Nucleic Acids as Liquid Biopsies", "504. Protein Folding Disorders", "505. Novel Approaches to Diseases of Unknown Etiology"] }
+            ],
             "surgery": [
-                { 
-                    unit: "Unit A. General Surgery & Embryology", 
-                    chapters: [
-                        "1. Patient Safety, OT Zones and Surgery Positions", "2. Surgical Blades and Energy Sources", "3. Surgical Drains, Knots and Sutures",
-                        "4. Post Operative Fever and Wound Infection", "5. Day Care Surgery", "6. Surgical Nutrition", "7. Shock"
-                    ] 
-                },
+                { unit: "Unit A. General Surgery & Embryology", chapters: ["1. Patient Safety, OT Zones and Surgery Positions", "2. Surgical Blades and Energy Sources", "3. Surgical Drains, Knots and Sutures", "4. Post Operative Fever and Wound Infection", "5. Day Care Surgery", "6. Surgical Nutrition", "7. Shock"] },
                 { unit: "Unit B. Breast", chapters: ["8. Breast"] },
                 { unit: "Unit C. Endocrine Surgery", chapters: ["9. Thyroid", "10. Parathyroid", "11. Adrenal Glands and Neuroendocrine Tumors"] },
-                { 
-                    unit: "Unit D. GI Surgery", 
-                    chapters: [
-                        "12. Esophagus", "13. Stomach", "14. Upper GI Hemorrhage", "15. Bariatric Surgery", "16. Bowel Obstruction",
-                        "17. Benign Conditions of Small and Large Bowel", "18. Appendix", "19. Colorectal Polyps and Cancer", "20. Rectum and Anal Canal",
-                        "21. Liver", "22. Spleen", "23. Gallbladder and Bile Duct", "24. Benign Pancreatic Conditions", "25. Pancreatic Tumor"
-                    ] 
-                },
+                { unit: "Unit D. GI Surgery", chapters: ["12. Esophagus", "13. Stomach", "14. Upper GI Hemorrhage", "15. Bariatric Surgery", "16. Bowel Obstruction", "17. Benign Conditions of Small and Large Bowel", "18. Appendix", "19. Colorectal Polyps and Cancer", "20. Rectum and Anal Canal", "21. Liver", "22. Spleen", "23. Gallbladder and Bile Duct", "24. Benign Pancreatic Conditions", "25. Pancreatic Tumor"] },
                 { unit: "Unit E. Urology", chapters: ["26. Testicular Disorders", "27. Urethral and Penile Disorders", "28. Kidney", "29. Bladder", "30. Prostate"] },
                 { unit: "Unit F. Specialty Surgery", chapters: ["31. Minimally Invasive Surgery", "32. Transplant Surgery", "33. Plastic Surgery", "34. Neurosurgery"] },
                 { unit: "Unit G. Trauma", chapters: ["35. Basics of Trauma Management", "36. Abdominal Trauma", "37. Thoracic Trauma", "38. Head Trauma", "39. Thermal Injuries"] },
@@ -629,266 +573,118 @@
                 { unit: "Unit K. Miscellaneous", chapters: ["47. Skin and Soft Tissue Sarcomas", "48. Thorax and Mediastinum", "49. Common Surgical Swellings", "50. Common Ulcers", "51. Surgical Instruments"] }
             ],
             "obg":[
-                { 
-                    unit: "OBS Unit A. Fundamentals of Reproduction", 
-                    chapters: [
-                        "1. Gametogenesis", "2. Fertilization and Implantation", "3. Teratogenic Exposure of Fetus", "4. Placenta", 
-                        "5. Placental Hormones and Functions", "6. Placental Anomalies", "7. Amniotic Fluid"
-                    ] 
-                },
-                { 
-                    unit: "OBS Unit B. Normal Pregnancy", 
-                    chapters: [
-                        "8. Basics of Pregnancy", "9. Umbilical Cord and Doppler in Pregnancy", "10. Antenatal Care", "11. Ultrasound in Pregnancy", 
-                        "12. Aneuploidy Screening", "13. Antepartum Fetal Monitoring", "14. Intrapartum Fetal Monitoring"
-                    ] 
-                },   { 
-                    unit: "OBS Unit C. Complications in Pregnancy", 
-                    chapters: [
-                        "15. Maternal Adaptations in Pregnancy", "16. Anemia in Pregnancy", "17. Drugs in Pregnancy", "18. Heart Diseases in Pregnancy", 
-                        "19. Thyroid Disorders in Pregnancy", "20. Diabetes in Pregnancy", "21. Pregnancy Induced Hypertension", 
-                        "22. Liver disorders in Pregnancy", "23. Rh Negative Pregnancy"
-                    ] 
-                },
-                { 
-                    unit: "OBS Unit D. Obstetric Complications", 
-                    chapters: [
-                        "24. Abortion", "25. Medical Termination of Pregnancy", "26. Ectopic Pregnancy", "27. Gestational Trophoblastic Disease", 
-                        "28. Antepartum Hemorrhage", "29. Placenta Accreta Spectrum", "30. Twin Pregnancy", "31. Preterm Labor", 
-                        "32. Premature Rupture of Membranes", "33. Post Term Pregnancy & Macrosomia"
-                    ] 
-                },  { 
-                    unit: "OBS Unit E. Labor and Puerperium", 
-                    chapters: [
-                        "34. Maternal Pelvis", "35. Contracted Pelvis, CPD & Types of Pelvis", "36. Fetal Skull", "37. Terminologies Related to Labor", 
-                        "38. Stages of Labor : Normal & Abnormal", "39. Partogram", "40. Normal Labor", "41. Induction of Labor", 
-                        "42. Active Management of Third Stage of Labor", "43. Postpartum Hemorrhage", "44. Other Complications of Third Stage of Labor", 
-                        "45. Vulval Hematoma, Perineal Tear and Episiotomy", "46. Malpresentation", "47. Instrumental Delivery", 
-                        "48. Cesarean Section", "49. Puerperium"
-                    ] 
-                },  { 
-                    unit: "GYN Unit A. General Gynaecology", 
-                    chapters: [
-                        "1. Applied Anatomy : Introduction and Uterine Artery", "2. Applied Anatomy : Fallopian Tubes, Ovary and Uterus", 
-                        "3. Applied Anatomy : Cervix and Vagina", "4. Types of Hysterectomy", "5. Applied Anatomy : External Genitalia", 
-                        "6. Vulval Cancer", "7. Investigations in Gynaecology : Hysteroscopy and HSG", "8. Development of Female Internal Genitalia", 
-                        "9. Development of Vagina and Transverse Vaginal Septum", "10. Menstrual Cycle", "11. Hormones in Gynaecology", 
-                        "12. Characteristics of Normal Menstrual Cycle", "13. Atypical Uterine Bleeding", "14. Puberty and Precocious Puberty", 
-                        "15. Menopause", "16. Hormone Replacement Therapy", "17. Hirsutism", "18. PCOS", "19. Asherman Syndrome", 
-                        "20. Secondary Amenorrhoea", "21. Dysmenorrhoea and Pelvic Pain", "22. Endometriosis", 
-                        "23. Comparison of Fibroid, Polyp and Adenomyosis", "24. Fibroid", "25. Prolapse", "26. Normal Sexual Development", 
-                        "27. Disorders of Sexual Development (46XX)", "28. Disorders of Sexual Development (46XY)", "29. Primary Amenorrhoea"
-                    ] 
-                },   { 
-                    unit: "GYN Unit B. Gynaecologic Infections", 
-                    chapters: [
-                        "30. Vaginitis and Cervicitis", "31. Pelvic Inflammatory Disease (PID)", "32. Genital Tuberculosis"
-                    ] 
-                },
-                { 
-                    unit: "GYN Unit C. Infertility and Contraception", 
-                    chapters: [
-                        "33. Female Infertility", "34. Male Infertility", "35. Contraception"
-                    ] 
-                },
-                { 
-                    unit: "GYN Unit D. Gynaecologic Oncology", 
-                    chapters: [
-                        "36. Endometrial Hyperplasia", "37. Endometrial Cancer", "38. CIN", "39. Cancer Cervix", 
-                        "40. Ovarian Cancer", "41. Gynaecology : Miscellaneous Topics"
-                    ] 
-                }
+                { unit: "OBS Unit A. Fundamentals of Reproduction", chapters: ["1. Gametogenesis", "2. Fertilization and Implantation", "3. Teratogenic Exposure of Fetus", "4. Placenta", "5. Placental Hormones and Functions", "6. Placental Anomalies", "7. Amniotic Fluid"] },
+                { unit: "OBS Unit B. Normal Pregnancy", chapters: ["8. Basics of Pregnancy", "9. Umbilical Cord and Doppler in Pregnancy", "10. Antenatal Care", "11. Ultrasound in Pregnancy", "12. Aneuploidy Screening", "13. Antepartum Fetal Monitoring", "14. Intrapartum Fetal Monitoring"] },
+                { unit: "OBS Unit C. Complications in Pregnancy", chapters: ["15. Maternal Adaptations in Pregnancy", "16. Anemia in Pregnancy", "17. Drugs in Pregnancy", "18. Heart Diseases in Pregnancy", "19. Thyroid Disorders in Pregnancy", "20. Diabetes in Pregnancy", "21. Pregnancy Induced Hypertension", "22. Liver disorders in Pregnancy", "23. Rh Negative Pregnancy"] },
+                { unit: "OBS Unit D. Obstetric Complications", chapters: ["24. Abortion", "25. Medical Termination of Pregnancy", "26. Ectopic Pregnancy", "27. Gestational Trophoblastic Disease", "28. Antepartum Hemorrhage", "29. Placenta Accreta Spectrum", "30. Twin Pregnancy", "31. Preterm Labor", "32. Premature Rupture of Membranes", "33. Post Term Pregnancy & Macrosomia"] },
+                { unit: "OBS Unit E. Labor and Puerperium", chapters: ["34. Maternal Pelvis", "35. Contracted Pelvis, CPD & Types of Pelvis", "36. Fetal Skull", "37. Terminologies Related to Labor", "38. Stages of Labor : Normal & Abnormal", "39. Partogram", "40. Normal Labor", "41. Induction of Labor", "42. Active Management of Third Stage of Labor", "43. Postpartum Hemorrhage", "44. Other Complications of Third Stage of Labor", "45. Vulval Hematoma, Perineal Tear and Episiotomy", "46. Malpresentation", "47. Instrumental Delivery", "48. Cesarean Section", "49. Puerperium"] },
+                { unit: "GYN Unit A. General Gynaecology", chapters: ["1. Applied Anatomy : Introduction and Uterine Artery", "2. Applied Anatomy : Fallopian Tubes, Ovary and Uterus", "3. Applied Anatomy : Cervix and Vagina", "4. Types of Hysterectomy", "5. Applied Anatomy : External Genitalia", "6. Vulval Cancer", "7. Investigations in Gynaecology : Hysteroscopy and HSG", "8. Development of Female Internal Genitalia", "9. Development of Vagina and Transverse Vaginal Septum", "10. Menstrual Cycle", "11. Hormones in Gynaecology", "12. Characteristics of Normal Menstrual Cycle", "13. Atypical Uterine Bleeding", "14. Puberty and Precocious Puberty", "15. Menopause", "16. Hormone Replacement Therapy", "17. Hirsutism", "18. PCOS", "19. Asherman Syndrome", "20. Secondary Amenorrhoea", "21. Dysmenorrhoea and Pelvic Pain", "22. Endometriosis", "23. Comparison of Fibroid, Polyp and Adenomyosis", "24. Fibroid", "25. Prolapse", "26. Normal Sexual Development", "27. Disorders of Sexual Development (46XX)", "28. Disorders of Sexual Development (46XY)", "29. Primary Amenorrhoea"] },
+                { unit: "GYN Unit B. Gynaecologic Infections", chapters: ["30. Vaginitis and Cervicitis", "31. Pelvic Inflammatory Disease (PID)", "32. Genital Tuberculosis"] },
+                { unit: "GYN Unit C. Infertility and Contraception", chapters: ["33. Female Infertility", "34. Male Infertility", "35. Contraception"] },
+                { unit: "GYN Unit D. Gynaecologic Oncology", chapters: ["36. Endometrial Hyperplasia", "37. Endometrial Cancer", "38. CIN", "39. Cancer Cervix", "40. Ovarian Cancer", "41. Gynaecology : Miscellaneous Topics"] }
             ],
-            "paediatrics":[
-                { 
-                    unit: "Unit A. Neonatology", 
-                    chapters: [
-                        "1. How to approach pediatrics", "2. Normal Newborn", "3. Neonatal Resuscitation", "4. Necrotizing Enterocolitis and Neonatal Sepsis",
-                        "5. Respiratory Distress in Newborn", "6. Neonatal Jaundice", "7. Neonatal Hypothermia and Neonatal Hypoglycemia", "8. Neonatal Reflexes, HIE and Neonatal Seizures"
-                    ] 
-                },
-                { 
-                    unit: "Unit B. Growth and Development", 
-                    chapters: [
-                        "9. Normal Growth", "10. Abnormalities of Head Size and Shape", "11. Abnormalities of Stature", 
-                        "12. Normal development", "13. Disorders of development", "14. Behavioural Disorders in Children"
-                    ] 
-                },
-                { 
-                    unit: "Unit C. Nutrition", 
-                    chapters: [
-                        "15. Breastfeeding", "16. Malnutrition", "17. Obesity", "18. Rickets and Scurvy"
-                    ] 
-                },  
-                { 
-                    unit: "Unit D. Genetic Disorders", 
-                    chapters: ["19. Genetic Disorders"] 
-                },
-                { 
-                    unit: "Unit E. Childhood Infections", 
-                    chapters: ["20. Childhood Infections", "21. TORCH infections", "22. COVID-19 in children"] 
-                },   { 
-                    unit: "Unit F. GI System", 
-                    chapters: [
-                        "23. Disorders of Esophagus in Children", "24. Diarrheal Disorders in Children", "25. Disorders of Liver in Children", "26. Surgical GI Disorders in Children"
-                    ] 
-                },
-                { 
-                    unit: "Unit G. Respiratory System", 
-                    chapters: [
-                        "27. Airway Malformations and Foreign Bodies", "28. Asthma", "29. Respiratory Infections", "30. Cystic Fibrosis"
-                    ] 
-                },
-                { 
-                    unit: "Unit H. Cardiovascular System", 
-                    chapters: [
-                        "31. Fetal Circulation and Introduction to Congenital Heart Disease", "32. Acyanotic Congenital Heart Defects", "33. Cyanotic Congenital Heart Defects", "34. Acute Rheumatic Fever"
-                    ] 
-                },
-                { 
-                    unit: "Unit I. Genito-Urinary System", 
-                    chapters: [
-                        "35. Congenital Anomalies of Kidney and Urinary Tract", "36. Nephrotic and Nephritic Syndrome", "37. Inherited Tubular Disorders", 
-                        "38. Acute Kidney Injury and Chronic Kidney Disease", "39. VUR and UTI Management guidelines"
-                    ] 
-                },
-                { 
-                    unit: "Unit J. Nervous System", 
-                    chapters: [
-                        "40. Congenital Anomalies and Hydrocephalus", "41. Seizure Disorders", "42. Cerebral Palsy and CNS Infection", "43. Neuromuscular Disorders"
-                    ] 
-                },  { 
-                    unit: "Unit K. Endocrine System", 
-                    chapters: [
-                        "44. Growth Hormone Deficiency and Hypothyroidism", "45. Adrenal Disorders in Children", "46. Pubertal Disorders", "47. Diabetic Ketoacidosis"
-                    ] 
-                },
-                { 
-                    unit: "Unit L. Childhood Malignancies", 
-                    chapters: ["48. Hematological Malignancies", "49. Solid Tumors in Children"] 
-                },
-                { 
-                    unit: "Unit M. Paediatric Rheumatology", 
-                    chapters: ["50. Rheumatic Diseases of Childhood"] 
-                },
-                { 
-                    unit: "Unit N. Hematology", 
-                    chapters: [
-                        "51. Approach to Anemia in Children and Nutritional Anemia", "52. Congenital Hemolytic Anemia", "53. Bleeding Disorders"
-                    ] 
-                },
-                { 
-                    unit: "Unit O. Miscellaneous", 
-                    chapters: ["54. Pediatric Resuscitation", "55. Shock"] 
-                }
+            "pediatrics":[
+                { unit: "Unit A. Neonatology", chapters: ["1. How to approach pediatrics", "2. Normal Newborn", "3. Neonatal Resuscitation", "4. Necrotizing Enterocolitis and Neonatal Sepsis", "5. Respiratory Distress in Newborn", "6. Neonatal Jaundice", "7. Neonatal Hypothermia and Neonatal Hypoglycemia", "8. Neonatal Reflexes, HIE and Neonatal Seizures"] },
+                { unit: "Unit B. Growth and Development", chapters: ["9. Normal Growth", "10. Abnormalities of Head Size and Shape", "11. Abnormalities of Stature", "12. Normal development", "13. Disorders of development", "14. Behavioural Disorders in Children"] },
+                { unit: "Unit C. Nutrition", chapters: ["15. Breastfeeding", "16. Malnutrition", "17. Obesity", "18. Rickets and Scurvy"] },
+                { unit: "Unit D. Genetic Disorders", chapters: ["19. Genetic Disorders"] },
+                { unit: "Unit E. Childhood Infections", chapters: ["20. Childhood Infections", "21. TORCH infections", "22. COVID-19 in children"] },
+                { unit: "Unit F. GI System", chapters: ["23. Disorders of Esophagus in Children", "24. Diarrheal Disorders in Children", "25. Disorders of Liver in Children", "26. Surgical GI Disorders in Children"] },
+                { unit: "Unit G. Respiratory System", chapters: ["27. Airway Malformations and Foreign Bodies", "28. Asthma", "29. Respiratory Infections", "30. Cystic Fibrosis"] },
+                { unit: "Unit H. Cardiovascular System", chapters: ["31. Fetal Circulation and Introduction to Congenital Heart Disease", "32. Acyanotic Congenital Heart Defects", "33. Cyanotic Congenital Heart Defects", "34. Acute Rheumatic Fever"] },
+                { unit: "Unit I. Genito-Urinary System", chapters: ["35. Congenital Anomalies of Kidney and Urinary Tract", "36. Nephrotic and Nephritic Syndrome", "37. Inherited Tubular Disorders", "38. Acute Kidney Injury and Chronic Kidney Disease", "39. VUR and UTI Management guidelines"] },
+                { unit: "Unit J. Nervous System", chapters: ["40. Congenital Anomalies and Hydrocephalus", "41. Seizure Disorders", "42. Cerebral Palsy and CNS Infection", "43. Neuromuscular Disorders"] },
+                { unit: "Unit K. Endocrine System", chapters: ["44. Growth Hormone Deficiency and Hypothyroidism", "45. Adrenal Disorders in Children", "46. Pubertal Disorders", "47. Diabetic Ketoacidosis"] },
+                { unit: "Unit L. Childhood Malignancies", chapters: ["48. Hematological Malignancies", "49. Solid Tumors in Children"] },
+                { unit: "Unit M. Paediatric Rheumatology", chapters: ["50. Rheumatic Diseases of Childhood"] },
+                { unit: "Unit N. Hematology", chapters: ["51. Approach to Anemia in Children and Nutritional Anemia", "52. Congenital Hemolytic Anemia", "53. Bleeding Disorders"] },
+                { unit: "Unit O. Miscellaneous", chapters: ["54. Pediatric Resuscitation", "55. Shock"] }
             ], 
             "dermatology":[
-                "1. Basics in Dermatology",
-                "2. Papulosquamous Diseases",
-                "3. Appendages and Disorders",
-                "4. Bullous Disorders",
-                "5. Bacterial Infections of Skin",
-                "6. Mycobacterial Infections of Skin",
-                "7. Viral Infections of Skin",
-                "8. Fungal Infections of Skin",
-                "9. Parasitic Infections of Skin",
-                "10. Sexually Transmitted Infections",
-                "11. Hansen's Disease",
-                "12. Pigmentary Diseases",
-                "13. Eczema",
-                "14. Genodermatoses",
-                "15. Histamine Related Disorders",
-                "16. Cutaneous Drug Reactions",
-                "17. Skin In Rheumatology and Immunology",
-                "18. Skin and Systems",
-                "19. Short Topics in Dermatology"
+                "1. Basics in Dermatology", "2. Papulosquamous Diseases", "3. Appendages and Disorders", "4. Bullous Disorders", "5. Bacterial Infections of Skin",
+                "6. Mycobacterial Infections of Skin", "7. Viral Infections of Skin", "8. Fungal Infections of Skin", "9. Parasitic Infections of Skin", "10. Sexually Transmitted Infections",
+                "11. Hansen's Disease", "12. Pigmentary Diseases", "13. Eczema", "14. Genodermatoses", "15. Histamine Related Disorders", "16. Cutaneous Drug Reactions",
+                "17. Skin In Rheumatology and Immunology", "18. Skin and Systems", "19. Short Topics in Dermatology"
             ],
-            "anaesthesia":[
-                "1. Pre Anaesthetic Checkup",
-                "2. Pre-operative Preparation",
-                "3. Monitoring Under Anaesthesia",
-                "4. Anaesthesia Workstation",
-                "5. Breathing Systems",
-                "6. Regional Anaesthesia",
-                "7. Epidural Anaesthesia",
-                "8. Peripheral Nerve Blocks",
-                "9. Intravenous Anaesthetics",
-                "10. Inhalational Anaesthetics",
-                "11. Local Anaesthetics",
-                "12. Muscle Relaxants",
-                "13. Anaesthesia for Coexisting Diseases",
-                "14. Subspecialty Management",
-                "15. Malignant Hyperthermia",
-                "16. Day Care Anaesthesia",
-                "17. Airway Management",
-                "18. Anaesthesia Equipment",
-                "19. Basics of Critical care",
-                "20. Mechanical Ventilation",
-                "21. Cardiopulmonary Resuscitation"
+            "anesthesiology":[
+                "1. Pre Anaesthetic Checkup", "2. Pre-operative Preparation", "3. Monitoring Under Anaesthesia", "4. Anaesthesia Workstation", "5. Breathing Systems",
+                "6. Regional Anaesthesia", "7. Epidural Anaesthesia", "8. Peripheral Nerve Blocks", "9. Intravenous Anaesthetics", "10. Inhalational Anaesthetics",
+                "11. Local Anaesthetics", "12. Muscle Relaxants", "13. Anaesthesia for Coexisting Diseases", "14. Subspecialty Management", "15. Malignant Hyperthermia",
+                "16. Day Care Anaesthesia", "17. Airway Management", "18. Anaesthesia Equipment", "19. Basics of Critical care", "20. Mechanical Ventilation", "21. Cardiopulmonary Resuscitation"
             ]
         };
 
-        // --- SECURITY CHECK & AUTHENTICATION ---
+        // --- AUTHENTICATION & SECURE FETCH LOGIC ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const isAdmin = ADMIN_EMAILS.includes(user.email);
-                
-                if (isAdmin) {
-                    grantAccess();
+                const email = user.email.toLowerCase();
+                let hasAccess = false;
+
+                if (ADMIN_EMAILS.includes(email) || SUB_DB[email]) {
+                    hasAccess = true;
                 } else {
-                    // Check Firebase Database for Subscription Status
                     try {
-                        const snapshot = await get(ref(db, `users/${user.uid}`));
-                        const userData = snapshot.val();
-                        const now = Date.now();
-                        
-                        if (userData && userData.accessLevel === 'pro' && userData.planExpiry > now) {
-                            grantAccess();
-                        } else {
-                            denyAccess("Subscription Expired", "Your Pro subscription is not active. Please renew from the homepage.");
+                        const snap = await get(ref(db, `users/${user.uid}`));
+                        const data = snap.val();
+                        if (data && data.accessLevel === 'pro' && data.planExpiry > Date.now()) {
+                            hasAccess = true;
                         }
-                    } catch (error) {
-                        console.error("Error verifying subscription:", error);
-                        denyAccess("Verification Error", "Error verifying subscription. Please refresh the page.");
-                    }
+                    } catch (e) { console.error("Access check failed", e); }
+                }
+
+                if (hasAccess) {
+                    fetchDatabase();
+                } else {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.getElementById('paywall-overlay').style.display = 'flex';
                 }
             } else {
-                denyAccess("Pro Access Required", "Please log in from the homepage to access this Question Bank.");
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('paywall-overlay').style.display = 'flex';
+                document.getElementById('paywall-title').innerText = "Member Login Required";
+                document.getElementById('paywall-text').innerText = "Please log in to your MedPYQ account from the dashboard to access this content.";
             }
         });
 
-        function grantAccess() {
-            document.getElementById('paywall-overlay').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            document.getElementById('view-toggle-btn').style.display = 'flex';
-            fetchData();
-        }
-
-        function denyAccess(title, message) {
-            document.getElementById('paywall-overlay').style.display = 'flex';
-            document.getElementById('paywall-title').innerText = title;
-            document.getElementById('paywall-text').innerText = message;
-            document.getElementById('main-content').style.display = 'none';
-            document.getElementById('view-toggle-btn').style.display = 'none';
-        }
-
-        async function fetchData() {
+        async function fetchDatabase() {
             try {
                 const dbPath = `question_banks/${activeExam}/${activeSubject}`;
                 const snapshot = await get(ref(db, dbPath));
                 
                 if (snapshot.exists()) {
-                    processData(snapshot.val());
+                    const val = snapshot.val();
+                    let rawArr = Array.isArray(val) ? val : Object.values(val);
+                    
+                    window.appData = rawArr.filter(item => item !== null).map((item, index) => {
+                        let fullYear = item.exam || "Unknown Exam";
+                        if(item.year_paper) fullYear += " " + item.year_paper;
+                        
+                        return {
+                            ...item,
+                            uid: item.q || (`Q${index + 1}`),
+                            displayTopic: item.topic || "Uncategorized",
+                            displayYear: fullYear
+                        };
+                    });
+
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    document.getElementById('view-toggle-btn').style.display = 'flex';
+                    
+                    processCurriculum();
                 } else {
-                    document.getElementById('tableBody').innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px;'>No questions uploaded yet for this subject.</td></tr>";
-                    document.getElementById('ud-card-area').innerHTML = "<div style='text-align:center; padding:40px; color:#64748b; font-weight:bold;'>No questions available.</div>";
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    document.getElementById('table-body').innerHTML = `<tr><td colspan="2" style="text-align:center; padding:40px; color:#94a3b8;">No questions uploaded yet for this subject.</td></tr>`;
+                    document.getElementById('deck-card-area').innerHTML = `<div style="padding:40px; text-align:center; color:#94a3b8;">No questions available.</div>`;
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+                alert("Database connection error. Please refresh.");
             }
         }
 
-        function processData(rawData) {
+        function processCurriculum() {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             
             let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
@@ -901,7 +697,7 @@
                 flatChapters = curriculumForSubject;
             }
             
-            window.appData = rawData.filter(item => item !== null).map((item, i) => {
+            window.appData = window.appData.map((item) => {
                 let chapterMatch = "Uncategorized";
                 for(let c of flatChapters) {
                     let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
@@ -910,28 +706,21 @@
                         chapterMatch = c; break;
                     }
                 }
-                
-                let fullYear = item.exam || "Exam";
-                if(item.year_paper) fullYear += " " + item.year_paper;
-
-                return { 
-                    ...item, 
-                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.topic || item.subject ? (item.topic || item.subject).split(',')[0].trim() : "General"), 
-                    year: fullYear,
-                    uid: item.q || ("Q" + i)
-                };
+                item.displayTopic = chapterMatch !== "Uncategorized" ? chapterMatch : (item.displayTopic || "General");
+                return item;
             });
 
-            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
+            const uniqueYears = [...new Set(window.appData.map(i => i.displayYear))].filter(y => y && y !== "Unknown Exam").sort().reverse();
             buildSynchronizedFilters(flatChapters, uniqueYears, window.nestedCurriculum);
             
-            initUniversalDeck(window.appData);
-            window.SYNC_applyFilters();
+            window.deckState.activeDb = [...window.appData];
+            window.deckState.currentIndex = 0;
+            window.deckState.userStatus = {};
             
-            // AUTO-OPEN DECK VIEW BY DEFAULT
-            if (!window.deckState.isOpen) {
-                window.UD_toggleMode();
-            }
+            window.applyFilters();
+            
+            // Open Deck Mode by default on start
+            if (!window.isDeckMode) window.toggleViewMode();
         }
 
         // ==========================================
@@ -954,7 +743,13 @@
 
                     unitObj.chapters.forEach(c => {
                         const cleanVal = c.replace(/"/g, '&quot;');
-                        const row = `<label class="ms-label sync-chk-row" style="padding-left: 25px;"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                        const count = window.appData.filter(i => i.displayTopic === c).length;
+                        const row = `
+                        <label class="ms-label" style="padding-left: 25px;">
+                            <input type="checkbox" value="${cleanVal}" onchange="window.updateFilter('chapter', this.value, this.checked)"> 
+                            <span>${c}</span>
+                            <span class="q-count-badge">${count}</span>
+                        </label>`;
                         tableChapHtml += row;
                         deckHtml += row;
                     });
@@ -962,7 +757,13 @@
             } else {
                 chapters.forEach(c => {
                     const cleanVal = c.replace(/"/g, '&quot;');
-                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                    const count = window.appData.filter(i => i.displayTopic === c).length;
+                    const row = `
+                    <label class="ms-label">
+                        <input type="checkbox" value="${cleanVal}" onchange="window.updateFilter('chapter', this.value, this.checked)"> 
+                        <span>${c}</span>
+                        <span class="q-count-badge">${count}</span>
+                    </label>`;
                     tableChapHtml += row;
                     deckHtml += row;
                 });
@@ -971,16 +772,26 @@
             tableChapDiv.innerHTML = tableChapHtml;
 
             let tableYearHtml = '';
-            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
+            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #e2e8f0; margin-top:10px;">Exams</div>`;
             
             years.forEach(y => {
                 const cleanVal = y.replace(/"/g, '&quot;');
-                const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="window.SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
+                const count = window.appData.filter(i => i.displayYear === y).length;
+                const row = `
+                <label class="ms-label">
+                    <input type="checkbox" value="${cleanVal}" onchange="window.updateFilter('year', this.value, this.checked)"> 
+                    <span>${y}</span>
+                    <span class="q-count-badge">${count}</span>
+                </label>`;
                 tableYearHtml += row;
                 deckHtml += row;
             });
+            
             tableYearDiv.innerHTML = tableYearHtml;
             deckFilterDiv.innerHTML = deckHtml;
+            
+            // Link mobile filters perfectly
+            document.getElementById('filter-section').innerHTML = deckHtml;
         }
 
         window.toggleDropdown = function(id) {
@@ -994,87 +805,102 @@
             }
         };
 
-        window.SYNC_updateState = function(type, value, isChecked) {
+        window.updateFilter = function(type, value, isChecked) {
             if(type === 'chapter') {
-                if(isChecked) window.filterState.chapters.push(value);
-                else window.filterState.chapters = window.filterState.chapters.filter(c => c !== value);
+                if(isChecked) window.filterState.chapters.add(value);
+                else window.filterState.chapters.delete(value);
+            } else if (type === 'year') {
+                if(isChecked) window.filterState.years.add(value);
+                else window.filterState.years.delete(value);
             }
-            else if(type === 'year') {
-                if(isChecked) window.filterState.years.push(value);
-                else window.filterState.years = window.filterState.years.filter(y => y !== value);
-            }
-            else if(type === 'search') {
-                window.filterState.search = value.toLowerCase();
-            }
-
-            document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
-                cb.checked = window.filterState.chapters.includes(cb.value);
-            });
-            document.querySelectorAll(`input[data-filter-type="year"]`).forEach(cb => {
-                cb.checked = window.filterState.years.includes(cb.value);
-            });
-
-            const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
-            const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
-            document.getElementById('chap-btn-text').innerText = chapText;
-            document.getElementById('year-btn-text').innerText = yearText;
-
-            window.SYNC_applyFilters();
-        };
-
-        window.SYNC_resetFilters = function() {
-            window.filterState = { units: [], chapters: [], years: [], search: "" };
-            document.getElementById('postSearch').value = "";
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            document.getElementById('chap-btn-text').innerText = "All Chapters";
-            document.getElementById('year-btn-text').innerText = "All Exams";
-            window.SYNC_applyFilters();
-        };
-
-        window.SYNC_applyFilters = function() {
-            const filtered = window.appData.filter(item => {
-                const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
-                const matchesChapter = window.filterState.chapters.length === 0 || window.filterState.chapters.includes(item.topic);
-                const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
-                return matchesSearch && matchesChapter && matchesYear;
-            });
-
-            document.getElementById('q-count').innerText = `${filtered.length} Qs`;
             
-            window.renderTable(filtered);
-
-            window.deckState.activeDb = filtered;
-            window.deckState.currentIndex = 0;
-            if(window.deckState.isOpen) {
-                window.UD_renderCard();
-            }
+            // Sync Checkboxes
+            document.querySelectorAll(`input[value="${value}"]`).forEach(cb => cb.checked = isChecked);
+            
+            const chapText = window.filterState.chapters.size > 0 ? `${window.filterState.chapters.size} Selected` : "All Chapters";
+            const yearText = window.filterState.years.size > 0 ? `${window.filterState.years.size} Selected` : "All Exams";
+            
+            const chapBtn = document.getElementById('chap-btn-text');
+            if(chapBtn) chapBtn.innerText = chapText;
+            
+            const yearBtn = document.getElementById('year-btn-text');
+            if(yearBtn) yearBtn.innerText = yearText;
+            
+            window.applyFilters();
         };
 
-        window.renderTable = function(data) {
-            const tbody = document.getElementById('tableBody');
-            if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#94a3b8;'>No questions match your filters.</td></tr>"; return; }
+        window.updateSearch = function(val) {
+            window.filterState.search = val.toLowerCase();
+            document.querySelectorAll('.search-input').forEach(inp => { if(inp.value !== val) inp.value = val; });
+            window.applyFilters();
+        };
+
+        window.resetFilters = function() {
+            window.filterState = { chapters: new Set(), years: new Set(), search: "" };
+            document.querySelectorAll('.search-input').forEach(inp => inp.value = "");
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            const chapBtn = document.getElementById('chap-btn-text');
+            if(chapBtn) chapBtn.innerText = "All Chapters";
+            
+            const yearBtn = document.getElementById('year-btn-text');
+            if(yearBtn) yearBtn.innerText = "All Exams";
+            
+            window.applyFilters();
+        };
+
+        window.applyFilters = function() {
+            window.filteredData = window.appData.filter(item => {
+                const searchMatch = ((item.stem || "") + (item.uid || "")).toLowerCase().includes(window.filterState.search);
+                const chapterMatch = window.filterState.chapters.size === 0 || window.filterState.chapters.has(item.displayTopic);
+                const yearMatch = window.filterState.years.size === 0 || window.filterState.years.has(item.displayYear);
+                return searchMatch && chapterMatch && yearMatch;
+            });
+
+            document.getElementById('q-count').innerText = `${window.filteredData.length} Qs`;
+            document.getElementById('display-q-count').innerText = `${window.filteredData.length} Questions`;
+            
+            window.deckState.activeDb = [...window.filteredData];
+            window.deckState.currentIndex = 0;
+            
+            if (window.isDeckMode) window.renderDeckCard();
+            else window.renderTable();
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('table-body');
+            if(window.filteredData.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding:40px; color:#94a3b8;">No questions match your current filters.</td></tr>`; 
+                return; 
+            }
             
             let html = '';
-            data.forEach((item, index) => {
-                let opts = item.options.map((opt, i) => {
+            window.filteredData.forEach(q => {
+                const cleanItemStr = JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                let displayChapter = q.displayTopic.includes(":") ? q.displayTopic.split(":")[1].trim() : (q.displayTopic.includes(".") ? q.displayTopic.split(".")[1].trim() : q.displayTopic);
+                
+                let optsHtml = q.options.map((opt, i) => {
                     const char = String.fromCharCode(65 + i);
-                    return `<div class="opt-row ${char === item.ans_key ? 'is-correct' : ''}"><strong>${char}.</strong> ${opt}</div>`;
+                    return `<div class="opt-row ${char === q.ans_key ? 'is-correct' : ''}"><strong>${char}.</strong> ${opt}</div>`;
                 }).join('');
 
-                const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                let displayChapter = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
-
-                html += `<tr>
-                    <td><strong style="color:#64748b;">${item.uid}</strong></td>
+                html += `
+                <tr>
+                    <td><strong style="color:#64748b; font-size:0.9rem;">${q.uid}</strong></td>
                     <td>
-                        <div style="font-weight:600; margin-bottom:10px; font-size: 1rem; color:#1e293b;">${item.stem}</div>
-                        ${item.img ? `<img src="${item.img}" class="q-img" onclick="window.open(this.src)">` : ''}
-                        <div class="opt-grid">${opts}</div>
-                    </td>
-                    <td style="text-align:center;">
-                        <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
-                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
-                        <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
+                        <div style="margin-bottom:10px;">
+                            <span class="badge-unit">${displayChapter}</span>
+                            <span class="badge-chapter">${q.displayYear}</span>
+                        </div>
+                        <div class="q-stem">${q.stem}</div>
+                        ${q.img ? `<img src="${q.img}" class="q-img" onclick="window.open(this.src)">` : ''}
+                        <div class="opt-grid">${optsHtml}</div>
+                        <div class="expl-box-table"><strong>Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}</div>
+                        
+                        <div style="margin-top:15px; display:flex; gap:10px;">
+                            <button class="btn-ask-ai" onclick='window.triggerAI(${cleanItemStr})'><i class="fas fa-robot"></i> Ask AI</button>
+                            <button class="btn-ask-ai" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2;" onclick="window.openReportModal('${q.uid}')"><i class="fas fa-triangle-exclamation"></i> Error</button>
+                        </div>
                     </td>
                 </tr>`;
             });
@@ -1082,102 +908,129 @@
         };
 
         window.toggleTableAnswers = function() {
-            document.getElementById('cfmTable').classList.toggle('reveal-active');
-            document.getElementById('float-eye-btn').classList.toggle('active');
+            const tableCont = document.getElementById('view-table');
+            const fab = document.getElementById('fab-reveal');
+            tableCont.classList.toggle('reveal-active');
+            fab.classList.toggle('active');
+            if(fab.classList.contains('active')) fab.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            else fab.innerHTML = '<i class="fas fa-eye"></i>';
         };
 
-        // ==========================================
-        // DECK LOGIC
-        // ==========================================
+        window.toggleViewMode = function() {
+            window.isDeckMode = !window.isDeckMode;
+            const btn = document.getElementById('btn-toggle-view');
+            const viewTable = document.getElementById('view-table');
+            const viewDeck = document.getElementById('view-deck');
+            const fab = document.getElementById('fab-reveal');
 
-        function initUniversalDeck(data) {
-            window.deckState.activeDb = [...data];
-            window.deckState.currentIndex = 0;
-            window.deckState.userStatus = {};
-        }
-
-        window.UD_toggleMode = function() {
-            window.deckState.isOpen = !window.deckState.isOpen;
-            const deck = document.getElementById('universal-deck-layer');
-            const main = document.getElementById('main-content');
-            const btn = document.getElementById('view-toggle-btn');
-            const eyeBtn = document.getElementById('float-eye-btn');
-            
-            if(window.deckState.isOpen){ 
-                deck.style.display = 'flex'; 
-                main.style.display = 'none'; 
-                document.body.style.overflow = 'hidden'; 
-                if(eyeBtn) eyeBtn.style.display = 'none';
-                btn.className = 'btn-blue'; 
-                btn.innerHTML = '<i class="fas fa-list"></i>'; 
-                window.UD_renderCard(); 
-            } else { 
-                deck.style.display = 'none'; 
-                main.style.display = 'block'; 
-                document.body.style.overflow = ''; 
-                if(eyeBtn) eyeBtn.style.display = 'flex';
-                btn.className = 'btn-red'; 
-                btn.innerHTML = '<i class="fas fa-layer-group"></i>'; 
+            if (window.isDeckMode) {
+                viewTable.style.display = 'none';
+                viewDeck.classList.add('active');
+                fab.style.display = 'none';
+                btn.innerHTML = '<i class="fas fa-list"></i> <span>List Mode</span>';
+                window.renderDeckCard();
+            } else {
+                viewTable.style.display = 'block';
+                viewDeck.classList.remove('active');
+                fab.style.display = 'flex';
+                btn.innerHTML = '<i class="fas fa-layer-group"></i> <span>Deck Mode</span>';
+                window.renderTable();
             }
         };
 
-        window.UD_renderCard = function() {
-            const area = document.getElementById('ud-card-area');
-            if(!window.deckState.activeDb || window.deckState.activeDb.length === 0) { 
-                area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; 
-                document.getElementById('ud-counter').innerText = '0/0'; 
-                return; 
-            }
-            
-            const q = window.deckState.activeDb[window.deckState.currentIndex];
-            window.currentQIDForReport = q.uid;
+        window.renderDeckCard = function() {
+            const area = document.getElementById('deck-card-area');
+            const counter = document.getElementById('deck-counter');
+            const btnPrev = document.getElementById('btn-deck-prev');
+            const btnNext = document.getElementById('btn-deck-next');
 
-            let imgHtml = q.img ? `<img src="${q.img}" class="ud-img" onclick="window.open(this.src)">` : '';
-            let optsHtml = q.options.map((o,i) => {
-                let c = String.fromCharCode(65+i);
+            if(window.deckState.activeDb.length === 0) {
+                area.innerHTML = `<div style="padding:50px; text-align:center; color:#94a3b8; font-weight:bold;">No questions match filters.</div>`;
+                counter.innerText = "0 / 0";
+                btnPrev.disabled = true; btnNext.disabled = true;
+                return;
+            }
+
+            const idx = window.deckState.currentIndex;
+            const q = window.deckState.activeDb[idx];
+            window.currentReportQID = q.uid;
+            const cleanItemStr = JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            
+            counter.innerText = `${idx + 1} / ${window.deckState.activeDb.length}`;
+            btnPrev.disabled = idx === 0;
+            btnNext.disabled = idx === window.deckState.activeDb.length - 1;
+
+            let displayChapter = q.displayTopic.includes(":") ? q.displayTopic.split(":")[1].trim() : (q.displayTopic.includes(".") ? q.displayTopic.split(".")[1].trim() : q.displayTopic);
+
+            let optsHtml = q.options.map((opt, i) => {
+                let char = String.fromCharCode(65+i);
                 let statusClass = '';
                 
                 if (window.deckState.userStatus[q.uid]) {
-                    if (c === q.ans_key) statusClass = 'correct';
-                    else if (window.deckState.userStatus[q.uid] === c) statusClass = 'wrong';
+                    if (char === q.ans_key) statusClass = 'correct';
+                    else if (window.deckState.userStatus[q.uid] === char) statusClass = 'wrong';
                     else statusClass = 'disabled';
                 }
 
-                return `<div class="ud-option ${statusClass}" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
+                return `<div class="deck-option ${statusClass}" onclick="window.deckCheckAns('${char}', '${q.ans_key}', '${q.uid}')">
+                            <div class="opt-char">${char}</div>
+                            <div>${opt}</div>
+                        </div>`;
             }).join('');
-            
-            let displayChapter = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
 
             area.innerHTML = `
-            <div class="ud-card">
-                <div class="ud-card-top">
-                    <div class="ud-label" style="background:#0f2b52; color:white;">${q.uid}</div>
-                    <div style="display:flex; gap:8px;">
-                        <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> Ask AI</button>
-                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
+                <div class="deck-scroll-area">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                        <div>
+                            <span class="tag-pill">${displayChapter}</span>
+                            <span class="tag-pill gold">${q.displayYear}</span>
+                        </div>
+                        <strong style="color:#94a3b8;">${q.uid}</strong>
+                    </div>
+                    
+                    <div class="deck-stem">${q.stem}</div>
+                    ${q.img ? `<img src="${q.img}" class="q-img" onclick="window.open(this.src)">` : ''}
+                    
+                    <div>${optsHtml}</div>
+                    
+                    <div class="deck-expl ${window.deckState.userStatus[q.uid] ? 'show' : ''}">
+                        <strong>Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}
                     </div>
                 </div>
-                <div class="ud-stem">${q.stem}</div>${imgHtml}
-                <div id="ud-opts">${optsHtml}</div>
-                <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
-                    <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
+                <div class="deck-footer">
+                    <button class="btn-action ai" onclick='window.triggerAI(${cleanItemStr})'><i class="fas fa-robot"></i> Ask AI</button>
+                    <button class="btn-action report" onclick="window.openReportModal('${q.uid}')"><i class="fas fa-triangle-exclamation"></i> Error</button>
                 </div>
-                <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
-            </div>`;
+            `;
             
-            document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
-            area.scrollTop = 0; 
+            area.scrollTop = 0;
         };
 
-        window.UD_checkAns = function(el, selectedOption, correctOption, id) {
-            if (window.deckState.userStatus[id]) return; // Already answered
-            window.deckState.userStatus[id] = selectedOption;
-            window.UD_renderCard();
+        window.deckCheckAns = function(selectedChar, correctChar, qid) {
+            if (window.deckState.userStatus[qid]) return; 
+            window.deckState.userStatus[qid] = selectedChar;
+            window.renderDeckCard(); 
         };
 
-        window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); } };
-        window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); } };
+        window.deckNext = function() {
+            if (window.deckState.currentIndex < window.deckState.activeDb.length - 1) {
+                window.deckState.currentIndex++;
+                window.renderDeckCard();
+            }
+        };
+
+        window.deckPrev = function() {
+            if (window.deckState.currentIndex > 0) {
+                window.deckState.currentIndex--;
+                window.renderDeckCard();
+            }
+        };
+
+        // --- DRAWERS & SIDEBARS ---
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('mobile-sidebar-bg').classList.toggle('open');
+        };
 
         window.UD_toggleDrawer = function(id) { 
             if(id === 'nav') {
@@ -1192,22 +1045,18 @@
             document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
         };
         
-        window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); };
+        window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.renderDeckCard(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
-        // ==========================================
-        // UTILITIES (AI, Share, Report)
-        // ==========================================
-        window.UD_askAI_Global = function(item) {
+        // --- UTILITIES ---
+        window.triggerAI = function(item) {
             if(!item) return;
             const optionsText = item.options.map((opt, i) => `${String.fromCharCode(65+i)}. ${opt}`).join('\n');
-            let prompt = `Act as an expert Medical Professor. Analyze this question from ${item.year || window.medpyqExam}:\n\n**Question:** ${item.stem}\n\n`;
-            if(item.img) prompt += `**Image Reference:** ${item.img}\n\n`;
-            prompt += `**Options:**\n${optionsText}\n\n**Correct Answer:** Option ${item.ans_key}\n\n**Task:**\n1. Explain the correct answer clearly.\n2. Briefly explain why other options are incorrect.\n3. Provide a mnemonic if applicable.`;
+            let prompt = `Act as an expert Medical Professor. Analyze this question from ${item.displayYear}:\n\n**Question:** ${item.stem}\n\n**Options:**\n${optionsText}\n\n**Correct Answer:** Option ${item.ans_key}\n\n**Task:**\n1. Explain the correct answer clearly.\n2. Briefly explain why other options are incorrect.\n3. Provide a mnemonic to remember this concept.`;
 
             if(navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(prompt).then(() => {
-                    document.getElementById('ai-interaction-overlay').style.display = 'flex';
+                    document.getElementById('ai-modal').style.display = 'flex';
                 }).catch(() => fallbackCopy(prompt));
             } else { fallbackCopy(prompt); }
         };
@@ -1215,59 +1064,43 @@
         function fallbackCopy(text) {
             const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
             document.body.appendChild(ta); ta.focus(); ta.select();
-            try { document.execCommand('copy'); document.getElementById('ai-interaction-overlay').style.display = 'flex'; } 
+            try { document.execCommand('copy'); document.getElementById('ai-modal').style.display = 'flex'; } 
             catch (err) { alert("Clipboard access denied. Copy manually."); }
             document.body.removeChild(ta);
         }
 
-        window.UD_shareStats = function() { 
-            if (!window.deckState.activeDb || window.deckState.activeDb.length === 0) return;
-            let q = window.deckState.activeDb[window.deckState.currentIndex];
-            let cleanQuestion = q.stem.replace(/<[^>]*>?/gm, '').trim(); 
-            let optionsText = q.options ? "\n\nOptions:\n" + q.options.map((opt, i) => `${String.fromCharCode(65+i)}) ${opt.replace(/<[^>]*>?/gm, '').trim()}`).join('\n') : "";
-            
-            let shareText = `Do you know this answer? 🤔\n\n"${cleanQuestion}"${optionsText}\n\nThis has come in ${window.medpyqExam} ${q.year}.\n\nI'm studying it on MedPYQ, you too join.`;
-            
-            if (navigator.share) { navigator.share({ title: 'MedPYQ Challenge', text: shareText, url: "https://www.medpyq.com" }); } 
-            else if (navigator.clipboard) { navigator.clipboard.writeText(shareText + "\n\nLink: https://www.medpyq.com").then(() => alert("Question copied to clipboard to share with friends!")); }
-        };
-
-        let selectedReportType = "Other";
-        window.UD_openReportModal = function() {
-            document.getElementById('ud-report-id').innerText = `${window.medpyqSubject} | ${window.currentQIDForReport}`;
+        window.openReportModal = function(qid) {
+            window.currentReportQID = qid;
+            document.getElementById('report-q-id').innerText = qid;
             document.getElementById('report-desc').value = "";
             document.getElementById('btn-submit-report').innerText = "Submit Report";
             document.getElementById('btn-submit-report').disabled = false;
-            document.getElementById('ud-report-modal').style.display = 'flex';
+            document.getElementById('report-modal').style.display = 'flex';
         };
 
-        window.UD_selectReportType = function(btn) {
-            document.querySelectorAll('.rep-type-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedReportType = btn.getAttribute('data-val');
-        };
-
-        window.UD_submitReport = function() {
+        window.submitReport = function() {
+            const type = document.getElementById('report-type').value;
             const desc = document.getElementById('report-desc').value;
             const btn = document.getElementById('btn-submit-report');
             btn.innerText = "Sending..."; btn.disabled = true;
 
-            const combinedID = `${window.medpyqExam} | ${window.medpyqSubject} | ${window.currentQIDForReport}`;
+            const combinedID = `[${window.medpyqExam}] ${window.medpyqSubject} - ${window.currentReportQID}`;
+            
             const iframeName = 'hidden_iframe_' + Date.now();
             const iframe = document.createElement('iframe'); iframe.name = iframeName; iframe.style.display = 'none'; document.body.appendChild(iframe);
             const form = document.createElement('form'); form.method = 'POST'; form.action = `https://docs.google.com/forms/d/e/1FAIpQLSdlD9R2lA9sxESYE8dGeKTud5fo8Loqmj-FJpURQaRu9Dj5hA/formResponse`; form.target = iframeName; form.style.display = 'none';
 
             const i1 = document.createElement('input'); i1.name = "entry.275533029"; i1.value = combinedID; form.appendChild(i1);
-            const i2 = document.createElement('input'); i2.name = "entry.420323704"; i2.value = selectedReportType; form.appendChild(i2);
+            const i2 = document.createElement('input'); i2.name = "entry.420323704"; i2.value = type; form.appendChild(i2);
             const i3 = document.createElement('input'); i3.name = "entry.1344965902"; i3.value = desc; form.appendChild(i3);
 
             document.body.appendChild(form); form.submit();
 
             setTimeout(() => {
-                document.getElementById('ud-report-modal').style.display='none';
-                alert("Report sent successfully. Thank you!");
+                document.getElementById('report-modal').style.display = 'none';
+                alert("Thank you! Our medical team will review this question shortly.");
                 setTimeout(() => { iframe.remove(); form.remove(); }, 1000);
-            }, 1000);
+            }, 1200);
         };
     </script>
 </body>
