@@ -935,9 +935,14 @@
             
             window.appData = rawData.filter(item => item !== null).map((item, i) => {
                 let chapterMatch = "Uncategorized";
+                
+                // SAFELY HANDLE ARRAYS: Convert arrays to strings if necessary
+                let topicStr = Array.isArray(item.topic) ? item.topic.join(', ') : (item.topic || "");
+                let subjectStr = Array.isArray(item.subject) ? item.subject.join(', ') : (item.subject || "");
+                
                 for(let c of flatChapters) {
                     let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
-                    let targetText = ((item.topic || "") + " " + (item.subject || "")).toLowerCase();
+                    let targetText = (topicStr + " " + subjectStr).toLowerCase();
                     if(targetText.includes(coreName)) {
                         chapterMatch = c; break;
                     }
@@ -948,7 +953,7 @@
 
                 return { 
                     ...item, 
-                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (item.topic || item.subject ? (item.topic || item.subject).split(',')[0].trim() : "General"), 
+                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (topicStr || subjectStr ? (topicStr || subjectStr).split(',')[0].trim() : "General"), 
                     year: fullYear,
                     uid: item.q || ("Q" + i)
                 };
