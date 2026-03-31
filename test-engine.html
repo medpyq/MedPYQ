@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no,viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MedPYQ | Pro Mock Test</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -11,6 +11,7 @@
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         * { box-sizing: border-box; }
         
+        /* Fixed Notch Padding for the Main Header */
         .cbt-header { background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; padding: max(15px, env(safe-area-inset-top, 15px)) 20px 10px 20px; height: auto; min-height: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 110;}
         .cbt-title { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;}
         .cbt-timer { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 8px; }
@@ -54,7 +55,8 @@
         .cbt-sidebar { width: 320px; background: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: right 0.3s ease; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
 
-        .palette-header { padding: 15px; font-weight: 800; border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: var(--blue); text-align: center; }
+        /* Fixed Notch Padding for Sidebar Header */
+        .palette-header { padding: max(15px, env(safe-area-inset-top, 15px)) 15px 15px 15px; font-weight: 800; border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: var(--blue); text-align: center; }
         .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; color: #64748b; }
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .legend-box { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem; font-weight: bold; flex-shrink: 0;}
@@ -88,7 +90,8 @@
         .inst-card ul { padding-left: 20px; color: #475569; line-height: 1.6; font-size: 0.95rem; }
         
         /* REPORT SCREEN */
-        .report-header { background: var(--blue); color: white; padding: 40px 20px; text-align: center; }
+        /* Fixed Notch Padding for Report Header */
+        .report-header { background: var(--blue); color: white; padding: max(40px, calc(env(safe-area-inset-top, 0px) + 20px)) 20px 40px 20px; text-align: center; }
         .report-header h1 { margin: 0 0 10px 0; font-size: 2.5rem; }
         .stat-grid { max-width: 900px; margin: -30px auto 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 0 20px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
@@ -99,7 +102,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 900px) {
-            .cbt-header { padding: 10px 15px; }
+            .cbt-header { padding: max(10px, env(safe-area-inset-top, 10px)) 15px 10px 15px; }
             .cbt-title { font-size: 0.9rem; }
             .cbt-timer { font-size: 0.9rem; padding: 4px 10px; }
             .btn-submit-test { padding: 6px 12px; font-size: 0.8rem; }
@@ -110,7 +113,7 @@
 
             .cbt-sidebar { position: fixed; top: 0; right: -100%; height: 100vh; width: 85%; max-width: 320px; box-shadow: -5px 0 20px rgba(0,0,0,0.2); }
             .cbt-sidebar.open { right: 0; }
-            .palette-header { display: flex; justify-content: space-between; align-items: center; text-align: left; }
+            .palette-header { display: flex; justify-content: space-between; align-items: center; text-align: left; padding-top: max(15px, env(safe-area-inset-top, 15px)); }
 
             .cbt-main { border-right: none; }
             .question-header { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 15px; }
@@ -127,6 +130,15 @@
     </style>
 </head>
 <body>
+
+    <div id="session-conflict-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="color:#ef4444; background:#fee2e2; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <h3 style="color:#0f172a; font-size:1.4rem; margin:0 0 8px 0; font-weight:800;">Device Conflict</h3>
+            <p style="color:#64748b; font-size:0.9rem; margin:0 0 25px 0;">You have logged in on another device. For security, this session has been paused.</p>
+            <button class="btn btn-primary" style="width: 100%;" onclick="window.forceLogout()">Use Here Instead</button>
+        </div>
+    </div>
 
     <div id="view-loading" class="overlay-screen" style="justify-content: center; align-items: center;">
         <div class="spinner"></div>
@@ -231,15 +243,15 @@
             <div class="stat-card"><div class="stat-val" style="color:#94a3b8;" id="rep-skip">0</div><div class="stat-lbl">Skipped</div></div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px;">
+        <div style="text-align: center; margin-top: 20px; margin-bottom: 50px;">
             <button onclick="window.startReviewMode()" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px; border-radius: 30px; width: 100%; max-width: 300px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">Review Questions</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
         const app = initializeApp(firebaseConfig);
@@ -261,6 +273,7 @@
         const testFileName = urlParams.get('testFile'); 
         const reviewId = urlParams.get('reviewId');     
         
+        // Extract Exam Type from filename to set proper marking scheme
         let examType = 'neet-pg';
         if(testFileName && testFileName.includes('inicet')) examType = 'inicet';
         else if(testFileName && testFileName.includes('fmge')) examType = 'fmge';
@@ -282,6 +295,31 @@
         // --- AUTH & DATA FETCH ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                // --- CONCURRENT SESSION CONTROL ---
+                let localSessionId = localStorage.getItem('medpyq_session_id');
+                if (!localSessionId) {
+                    localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('medpyq_session_id', localSessionId);
+                }
+                
+                const sessionRef = ref(db, `users/${user.uid}/activeSession`);
+                set(sessionRef, localSessionId);
+
+                onValue(sessionRef, (snapshot) => {
+                    const activeDbSession = snapshot.val();
+                    if (activeDbSession && activeDbSession !== localSessionId) {
+                        document.getElementById('session-conflict-overlay').style.display = 'flex';
+                        signOut(auth);
+                    } else {
+                        document.getElementById('session-conflict-overlay').style.display = 'none';
+                    }
+                });
+
+                window.forceLogout = function() {
+                    set(sessionRef, localSessionId); 
+                };
+                // ----------------------------------
+
                 if (ADMIN_EMAILS.includes(user.email)) {
                     loadTest(user.uid);
                 } else {
@@ -328,6 +366,8 @@
                     document.getElementById('inst-exam-title').innerText = config.title;
                     document.getElementById('inst-time').innerText = config.durationMins + " Mins";
                     document.getElementById('inst-qs').innerText = questions.length;
+                    
+                    // Display correct marking scheme accurately everywhere
                     document.getElementById('inst-marks').innerText = `+${config.marksCorrect} / -${config.marksWrong}`;
                     document.getElementById('test-header-title').innerText = config.title;
                     document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
@@ -346,6 +386,10 @@
         window.startTest = function() {
             document.getElementById('view-instructions').classList.add('hidden');
             document.getElementById('view-test').classList.remove('hidden');
+            
+            // Re-apply Marks Display dynamically (safety check)
+            document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
+            
             renderPalette();
             renderQuestion(0);
             
@@ -372,11 +416,16 @@
             document.getElementById('view-report').classList.add('hidden');
             document.getElementById('view-test').classList.remove('hidden');
 
+            // Apply Correct Marks Display for Review Mode
+            document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
+
             // Adjust CBT Header for Review
             document.getElementById('test-timer').style.display = 'none';
             const submitBtn = document.getElementById('btn-top-submit');
-            submitBtn.innerText = 'Exit Review';
-            submitBtn.onclick = () => { window.location.href = 'index.html'; };
+            if(submitBtn) {
+                submitBtn.innerText = 'Exit Review';
+                submitBtn.onclick = () => { window.location.href = 'index.html'; };
+            }
             document.getElementById('test-header-title').innerHTML = `${config.title} <span style="background:var(--gold); color:var(--blue); padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-left:10px;">REVIEW MODE</span>`;
 
             // Clean up Footer for Review
@@ -582,6 +631,17 @@
                 set(historyRef, testRecord).catch(err => console.error("Database Sync Error:", err));
             }
         }
+
+        // --- KEYBOARD NAVIGATION (DESKTOP) ---
+        document.addEventListener('keydown', function(event) {
+            if (window.isReviewMode) {
+                if (event.key === 'ArrowRight') {
+                    moveToNext();
+                } else if (event.key === 'ArrowLeft') {
+                    window.prevQuestion();
+                }
+            }
+        });
     </script>
 </body>
 </html>
