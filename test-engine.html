@@ -10,7 +10,7 @@
         :root { --blue: #0f2b52; --gold: #eebb4d; --bg: #f1f5f9; --text: #334155; --green: #22c55e; --red: #ef4444; --purple: #8b5cf6; }
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         * { box-sizing: border-box; }
-   .cbt-header { background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; padding: max(15px, env(safe-area-inset-top, 15px)) 20px 10px 20px; height: auto; min-height: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 110;}
+        .cbt-header { background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; padding: max(15px, env(safe-area-inset-top, 15px)) 20px 10px 20px; height: auto; min-height: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 110;}
         .cbt-title { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;}
         .cbt-timer { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 8px; }
         .cbt-timer.warning { color: #fca5a5; animation: pulse 1s infinite; }
@@ -83,8 +83,7 @@
         .stat-val { font-size: 2rem; font-weight: 800; color: var(--blue); }
         .stat-lbl { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
         
-        .review-container { max-width: 900px; margin: 0 auto 50px; padding: 0 20px; }
-        .review-q-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .review-container { max-width: 900px; margin: 0 auto 50px; padding: 0 20px; width: 100%; }
         .review-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-bottom: 15px; }
         .bg-correct { background: #dcfce7; color: #166534; }
         .bg-wrong { background: #fee2e2; color: #991b1b; }
@@ -93,6 +92,15 @@
 
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- DECK REVIEW STYLES --- */
+        .rev-filter-bar { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .rev-filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #cbd5e1; background: white; color: #475569; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .rev-filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+        .rev-filter-btn.correct.active { background: #16a34a; border-color: #16a34a; }
+        .rev-filter-btn.wrong.active { background: #dc2626; border-color: #dc2626; }
+        .rev-deck-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 400px; }
+        .rev-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
 
         @media (max-width: 900px) {
             .cbt-header { padding: 10px 15px; }
@@ -119,10 +127,20 @@
 
             .stat-grid { grid-template-columns: repeat(2, 1fr); margin-top: -20px; }
             .report-header h1 { font-size: 2rem; }
+            .rev-deck-card { padding: 15px; }
         }
     </style>
 </head>
 <body>
+
+    <div id="session-conflict-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="color:#ef4444; background:#fee2e2; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <h3 style="color:#0f172a; font-size:1.4rem; margin:0 0 8px 0; font-weight:800;">Device Conflict</h3>
+            <p style="color:#64748b; font-size:0.9rem; margin:0 0 25px 0;">You have logged in on another device. For security, this session has been paused.</p>
+            <button class="btn btn-primary" style="width: 100%;" onclick="window.forceLogout()">Use Here Instead</button>
+        </div>
+    </div>
 
     <div id="view-loading" class="overlay-screen" style="justify-content: center; align-items: center;">
         <div class="spinner"></div>
@@ -229,13 +247,27 @@
 
         <div class="review-container">
             <h2 style="color:var(--blue); border-bottom: 2px solid #e2e8f0; padding-bottom:10px; margin-bottom:20px;">Detailed Review & Explanations</h2>
-            <div id="review-list"></div>
+            
+            <div class="rev-filter-bar">
+                <button class="rev-filter-btn active" onclick="window.filterReview('all')">All (<span id="flt-all">0</span>)</button>
+                <button class="rev-filter-btn correct" onclick="window.filterReview('correct')">Correct (<span id="flt-corr">0</span>)</button>
+                <button class="rev-filter-btn wrong" onclick="window.filterReview('wrong')">Incorrect (<span id="flt-wrg">0</span>)</button>
+                <button class="rev-filter-btn skipped" onclick="window.filterReview('skipped')">Skipped (<span id="flt-skp">0</span>)</button>
+            </div>
+
+            <div class="rev-deck-card" id="rev-deck-area"></div>
+            
+            <div class="rev-controls">
+                <button class="btn btn-outline" onclick="window.prevReviewQ()"><i class="fas fa-chevron-left"></i> Previous</button>
+                <span id="rev-counter" style="font-weight:bold; color:var(--blue); font-size:1.1rem;">0 / 0</span>
+                <button class="btn btn-primary" onclick="window.nextReviewQ()">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
@@ -253,8 +285,8 @@
         
         // URL Parsing
         const urlParams = new URLSearchParams(window.location.search);
-        const testFileName = urlParams.get('testFile'); // e.g., neet-pg-mock-1.json
-        const reviewId = urlParams.get('reviewId');     // For Review Mode
+        const testFileName = urlParams.get('testFile'); 
+        const reviewId = urlParams.get('reviewId');     
         
         // Extract Exam Type from filename to set proper marking scheme
         let examType = 'neet-pg';
@@ -278,7 +310,7 @@
         // --- AUTH & DATA FETCH ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-              // --- CONCURRENT SESSION CONTROL ---
+                // --- CONCURRENT SESSION CONTROL ---
                 let localSessionId = localStorage.getItem('medpyq_session_id');
                 if (!localSessionId) {
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -286,27 +318,23 @@
                 }
                 
                 const sessionRef = ref(db, `users/${user.uid}/activeSession`);
-                
-                // 1. Claim the session for this device
                 set(sessionRef, localSessionId);
 
-               // 2. Listen in real-time. If DB session changes, lock the screen.
                 onValue(sessionRef, (snapshot) => {
                     const activeDbSession = snapshot.val();
                     if (activeDbSession && activeDbSession !== localSessionId) {
-                        // Show the overlay AND force a complete Firebase Sign Out
                         document.getElementById('session-conflict-overlay').style.display = 'flex';
-                        signOut(auth); // Kicks them completely out of the app
+                        signOut(auth);
                     } else {
                         document.getElementById('session-conflict-overlay').style.display = 'none';
                     }
                 });
 
-                // 3. The "Use Here Instead" button logic
                 window.forceLogout = function() {
-                    set(sessionRef, localSessionId); // Steals the session back
+                    set(sessionRef, localSessionId); 
                 };
                 // ----------------------------------
+
                 if (ADMIN_EMAILS.includes(user.email)) {
                     loadTest(user.uid);
                 } else {
@@ -327,7 +355,7 @@
             if(!testFileName) { alert("Test file missing."); window.location.href = "index.html"; return; }
 
             try {
-                // 1. Fetch the JSON file from your server/GitHub
+                // 1. Fetch the JSON file
                 const response = await fetch(testFileName);
                 if(!response.ok) throw new Error("Test file not found.");
                 questions = await response.json();
@@ -340,13 +368,12 @@
                     document.getElementById('loading-title').innerText = "Loading Analysis...";
                     document.getElementById('loading-desc').innerText = "Fetching your saved answer sheet.";
                     
-                    // Fetch User's answers from Firebase
                     const historySnap = await get(ref(db, `users/${uid}/testHistory/${reviewId}`));
                     const historyData = historySnap.val();
                     
                     if(historyData && historyData.answers) {
-                        state = historyData.answers; // Overwrite empty state with saved answers
-                        generateReport(false); // Skip test, go straight to report
+                        state = historyData.answers; 
+                        generateReport(false); 
                     } else {
                         alert("Review data corrupted."); window.location.href = "index.html";
                     }
@@ -467,37 +494,20 @@
             if(!saveToDatabase) { document.getElementById('rep-status').innerText = "Historical Review Mode"; }
 
             let correct = 0; let wrong = 0; let skipped = 0; let score = 0;
-            let reviewHtml = '';
+            window.reviewData = []; // Store array for deck view
 
             questions.forEach((q, i) => {
                 const userAns = state[i].ans;
-                
-                // BUG FIX: Accurate evaluation of skipped questions
                 const isAttempted = (userAns !== null && userAns !== undefined && userAns !== "");
                 const isCorrect = isAttempted && (userAns === q.ans_key);
 
+                let status = 'skipped';
                 if(!isAttempted) { skipped++; }
-                else if(isCorrect) { correct++; score += config.marksCorrect; }
-                else { wrong++; score -= config.marksWrong; }
+                else if(isCorrect) { correct++; score += config.marksCorrect; status = 'correct'; }
+                else { wrong++; score -= config.marksWrong; status = 'wrong'; }
 
-                let badge = isAttempted ? (isCorrect ? '<span class="review-badge bg-correct">Correct</span>' : '<span class="review-badge bg-wrong">Incorrect</span>') : '<span class="review-badge bg-skipped">Skipped</span>';
-                
-                let optsHtml = q.options.map((opt, j) => {
-                    const char = String.fromCharCode(65+j);
-                    let stl = "color:#64748b;";
-                    if(char === q.ans_key) stl = "color:#166534; font-weight:bold; background:#dcfce7; padding:5px; border-radius:4px;";
-                    else if(char === userAns && !isCorrect) stl = "color:#991b1b; font-weight:bold; background:#fee2e2; padding:5px; border-radius:4px;";
-                    return `<div style="${stl}; margin-bottom:5px;">${char}. ${opt}</div>`;
-                }).join('');
-
-                reviewHtml += `
-                <div class="review-q-card">
-                    ${badge}
-                    <div style="font-weight:700; margin-bottom:10px; font-size:1.05rem;">Q${i+1}. ${q.stem}</div>
-                    ${q.img ? `<img src="${q.img}" style="max-width:200px; border-radius:8px; margin-bottom:10px;">` : ''}
-                    <div style="margin-bottom:15px; padding-left:10px; border-left:2px solid #e2e8f0;">${optsHtml}</div>
-                    <div class="expl-box"><strong>Explanation:</strong><br>${q.explanation || 'No explanation provided.'}</div>
-                </div>`;
+                // Save data for the Review Deck
+                window.reviewData.push({ ...q, originalIndex: i + 1, userAns: userAns, status: status });
             });
 
             const maxScore = questions.length * config.marksCorrect;
@@ -508,8 +518,14 @@
             document.getElementById('rep-corr').innerText = correct;
             document.getElementById('rep-wrong').innerText = wrong;
             document.getElementById('rep-skip').innerText = skipped;
-            document.getElementById('review-list').innerHTML = reviewHtml;
+
+            // Populate Filter Bar Numbers
+            document.getElementById('flt-all').innerText = questions.length;
+            document.getElementById('flt-corr').innerText = correct;
+            document.getElementById('flt-wrg').innerText = wrong;
+            document.getElementById('flt-skp').innerText = skipped;
             
+            window.filterReview('all'); // Initialize Deck
             window.scrollTo(0,0);
 
             // SAVE TO FIREBASE IF TAKING THE TEST
@@ -536,6 +552,81 @@
                 set(historyRef, testRecord).catch(err => console.error("Database Sync Error:", err));
             }
         }
+
+        // --- DECK REVIEW LOGIC ---
+        window.reviewState = { currentIdx: 0, filteredQs: [] };
+
+        window.filterReview = function(status) {
+            document.querySelectorAll('.rev-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.rev-filter-btn' + (status === 'all' ? '' : '.' + status)).classList.add('active');
+
+            if (status === 'all') window.reviewState.filteredQs = window.reviewData;
+            else window.reviewState.filteredQs = window.reviewData.filter(q => q.status === status);
+
+            window.reviewState.currentIdx = 0;
+            window.renderReviewCard();
+        };
+
+        window.renderReviewCard = function() {
+            const area = document.getElementById('rev-deck-area');
+            const counter = document.getElementById('rev-counter');
+            
+            if (window.reviewState.filteredQs.length === 0) {
+                area.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8; font-weight:bold;">No questions match this filter.</div>`;
+                counter.innerText = "0 / 0";
+                return;
+            }
+
+            const q = window.reviewState.filteredQs[window.reviewState.currentIdx];
+            counter.innerText = `${window.reviewState.currentIdx + 1} / ${window.reviewState.filteredQs.length}`;
+
+            let badge = q.status === 'correct' ? '<span class="review-badge bg-correct">Correct</span>' 
+                      : q.status === 'wrong' ? '<span class="review-badge bg-wrong">Incorrect</span>' 
+                      : '<span class="review-badge bg-skipped">Skipped</span>';
+
+            let optsHtml = q.options.map((opt, j) => {
+                const char = String.fromCharCode(65+j);
+                let stl = "padding:12px 15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:10px; color:#475569;";
+                let icon = `<div style="width:26px; height:26px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">${char}</div>`;
+                
+                if (char === q.ans_key) {
+                    stl = "padding:12px 15px; border:2px solid #86efac; border-radius:12px; margin-bottom:10px; background:#dcfce7; color:#166534; font-weight:bold;";
+                    icon = `<div style="width:26px; height:26px; background:#22c55e; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">${char}</div>`;
+                } else if (char === q.userAns && q.status === 'wrong') {
+                    stl = "padding:12px 15px; border:2px solid #fca5a5; border-radius:12px; margin-bottom:10px; background:#fee2e2; color:#991b1b; font-weight:bold;";
+                    icon = `<div style="width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">${char}</div>`;
+                }
+
+                return `<div style="${stl} display:flex; align-items:center;">${icon} <div>${opt}</div></div>`;
+            }).join('');
+
+            area.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    ${badge}
+                    <strong style="color:#94a3b8;">Q${q.originalIndex}</strong>
+                </div>
+                <div style="font-weight:600; font-size:1.15rem; margin-bottom:20px; color:#0f172a; line-height:1.6;">${q.stem}</div>
+                ${q.img ? `<img src="${q.img}" style="max-width:100%; border-radius:8px; margin-bottom:20px; border:1px solid #e2e8f0; cursor:zoom-in;" onclick="window.open(this.src)">` : ''}
+                <div>${optsHtml}</div>
+                <div class="expl-box" style="margin-top:25px; border-left:4px solid var(--gold); border-radius:0 8px 8px 0; background:#f8fafc; border-top:none; border-right:none; border-bottom:none;">
+                    <strong style="color:var(--blue);">Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}
+                </div>
+            `;
+        };
+
+        window.nextReviewQ = function() {
+            if (window.reviewState.currentIdx < window.reviewState.filteredQs.length - 1) {
+                window.reviewState.currentIdx++;
+                window.renderReviewCard();
+            }
+        };
+
+        window.prevReviewQ = function() {
+            if (window.reviewState.currentIdx > 0) {
+                window.reviewState.currentIdx--;
+                window.renderReviewCard();
+            }
+        };
     </script>
 </body>
 </html>
