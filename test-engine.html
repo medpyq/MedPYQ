@@ -30,7 +30,7 @@
         .cbt-main { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #e2e8f0; position: relative; }
         .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue); }
         .question-content { padding: 30px; overflow-y: auto; flex: 1; font-size: 1.1rem; line-height: 1.6; }
-        .q-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0; }
+        .q-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0; cursor: zoom-in; }
         
         .options-list { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
         .option-lbl { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: 500; }
@@ -94,12 +94,33 @@
         .report-header { background: var(--blue); color: white; padding: max(40px, calc(env(safe-area-inset-top, 0px) + 20px)) 20px 40px 20px; text-align: center; }
         .report-header h1 { margin: 0 0 10px 0; font-size: 2.5rem; }
         .stat-grid { max-width: 900px; margin: -30px auto 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 0 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        
+        /* Clickable Stat Cards */
+        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-color: #cbd5e1; }
+        
         .stat-val { font-size: 2rem; font-weight: 800; color: var(--blue); }
         .stat-lbl { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
 
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- VIEWER DECK STYLES FOR REVIEW MODE --- */
+        .review-container { max-width: 900px; margin: 0 auto 50px; padding: 0 20px; width: 100%; }
+        .rev-filter-bar { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .rev-filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #cbd5e1; background: white; color: #475569; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .rev-filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+        .rev-filter-btn.correct.active { background: #16a34a; border-color: #16a34a; }
+        .rev-filter-btn.wrong.active { background: #dc2626; border-color: #dc2626; }
+        .rev-filter-btn.skipped.active { background: #64748b; border-color: #64748b; }
+
+        .deck-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .deck-counter { font-weight: 800; font-size: 1.2rem; color: var(--blue); background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+        .deck-nav-btn { background: white; border: 1px solid #e2e8f0; width: 40px; height: 40px; border-radius: 8px; color: var(--blue); font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s; }
+        .deck-nav-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #cbd5e1; }
+        .deck-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .deck-card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; min-height: 400px;}
+        .deck-scroll-area { padding: 30px; }
 
         @media (max-width: 900px) {
             .cbt-header { padding: max(10px, env(safe-area-inset-top, 10px)) 15px 10px 15px; }
@@ -126,6 +147,7 @@
 
             .stat-grid { grid-template-columns: repeat(2, 1fr); margin-top: -20px; }
             .report-header h1 { font-size: 2rem; }
+            .deck-scroll-area { padding: 20px; }
         }
     </style>
 </head>
@@ -237,13 +259,40 @@
         </div>
 
         <div class="stat-grid">
-            <div class="stat-card"><div class="stat-val" id="rep-acc">0%</div><div class="stat-lbl">Accuracy</div></div>
-            <div class="stat-card"><div class="stat-val" style="color:var(--green);" id="rep-corr">0</div><div class="stat-lbl">Correct</div></div>
-            <div class="stat-card"><div class="stat-val" style="color:var(--red);" id="rep-wrong">0</div><div class="stat-lbl">Incorrect</div></div>
-            <div class="stat-card"><div class="stat-val" style="color:#94a3b8;" id="rep-skip">0</div><div class="stat-lbl">Skipped</div></div>
+            <div class="stat-card" onclick="window.filterReview('all'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
+                <div class="stat-val" id="rep-acc">0%</div><div class="stat-lbl">Accuracy (All)</div>
+            </div>
+            <div class="stat-card" onclick="window.filterReview('correct'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
+                <div class="stat-val" style="color:var(--green);" id="rep-corr">0</div><div class="stat-lbl">Correct</div>
+            </div>
+            <div class="stat-card" onclick="window.filterReview('wrong'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
+                <div class="stat-val" style="color:var(--red);" id="rep-wrong">0</div><div class="stat-lbl">Incorrect</div>
+            </div>
+            <div class="stat-card" onclick="window.filterReview('skipped'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
+                <div class="stat-val" style="color:#94a3b8;" id="rep-skip">0</div><div class="stat-lbl">Skipped</div>
+            </div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px; margin-bottom: 50px;">
+        <div class="review-container" id="rev-deck-container" style="display: none;">
+            <h2 style="color:var(--blue); border-bottom: 2px solid #e2e8f0; padding-bottom:10px; margin-bottom:20px;">Detailed Review & Explanations</h2>
+            
+            <div class="rev-filter-bar">
+                <button class="rev-filter-btn active" onclick="window.filterReview('all')">All (<span id="flt-all">0</span>)</button>
+                <button class="rev-filter-btn correct" onclick="window.filterReview('correct')">Correct (<span id="flt-corr">0</span>)</button>
+                <button class="rev-filter-btn wrong" onclick="window.filterReview('wrong')">Incorrect (<span id="flt-wrg">0</span>)</button>
+                <button class="rev-filter-btn skipped" onclick="window.filterReview('skipped')">Skipped (<span id="flt-skp">0</span>)</button>
+            </div>
+
+            <div class="deck-header">
+                <button class="deck-nav-btn" id="btn-rev-prev" onclick="window.prevReviewQ()"><i class="fas fa-chevron-left"></i></button>
+                <div class="deck-counter" id="rev-counter">0 / 0</div>
+                <button class="deck-nav-btn" id="btn-rev-next" onclick="window.nextReviewQ()"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="deck-card" id="rev-deck-area"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; margin-bottom: 50px;" id="start-review-box">
             <button onclick="window.startReviewMode()" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px; border-radius: 30px; width: 100%; max-width: 300px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">Review Questions</button>
         </div>
     </div>
@@ -266,7 +315,8 @@
         let timeRemaining = 0;
         let timerInterval = null;
         
-        window.isReviewMode = false; // Flag to manage the UI Toggle
+        window.isReviewMode = false; 
+        window.reviewData = [];
         
         // URL Parsing
         const urlParams = new URLSearchParams(window.location.search);
@@ -366,8 +416,6 @@
                     document.getElementById('inst-exam-title').innerText = config.title;
                     document.getElementById('inst-time').innerText = config.durationMins + " Mins";
                     document.getElementById('inst-qs').innerText = questions.length;
-                    
-                    // Display correct marking scheme accurately everywhere
                     document.getElementById('inst-marks').innerText = `+${config.marksCorrect} / -${config.marksWrong}`;
                     document.getElementById('test-header-title').innerText = config.title;
                     document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
@@ -386,10 +434,6 @@
         window.startTest = function() {
             document.getElementById('view-instructions').classList.add('hidden');
             document.getElementById('view-test').classList.remove('hidden');
-            
-            // Re-apply Marks Display dynamically (safety check)
-            document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
-            
             renderPalette();
             renderQuestion(0);
             
@@ -416,10 +460,6 @@
             document.getElementById('view-report').classList.add('hidden');
             document.getElementById('view-test').classList.remove('hidden');
 
-            // Apply Correct Marks Display for Review Mode
-            document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
-
-            // Adjust CBT Header for Review
             document.getElementById('test-timer').style.display = 'none';
             const submitBtn = document.getElementById('btn-top-submit');
             if(submitBtn) {
@@ -428,7 +468,6 @@
             }
             document.getElementById('test-header-title').innerHTML = `${config.title} <span style="background:var(--gold); color:var(--blue); padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-left:10px;">REVIEW MODE</span>`;
 
-            // Clean up Footer for Review
             const leftFooter = document.getElementById('cbt-left-footer');
             if(leftFooter) leftFooter.style.display = 'none';
             const rightFooterNextBtn = document.getElementById('btn-save-next');
@@ -437,7 +476,6 @@
                 rightFooterNextBtn.onclick = () => { moveToNext(); };
             }
 
-            // Transform Legend into Correct/Incorrect
             document.getElementById('palette-legend').innerHTML = `
                 <div class="legend-item"><div class="legend-box status-correct" id="cnt-rev-corr">0</div> Correct</div>
                 <div class="legend-item"><div class="legend-box status-wrong" id="cnt-rev-wrg">0</div> Incorrect</div>
@@ -494,6 +532,28 @@
             const q = questions[idx];
             document.getElementById('q-no-display').innerText = `Question ${idx+1}`;
             document.getElementById('q-stem').innerHTML = q.stem;
+            
+            // --- DYNAMIC MARKS DISPLAY ---
+            const markDisplay = document.getElementById('q-mark-display');
+            if (window.isReviewMode) {
+                const userAns = state[idx].ans;
+                const isAttempted = (userAns !== null && userAns !== undefined && userAns !== "");
+                
+                if (!isAttempted) {
+                    markDisplay.innerHTML = `Marks: <strong>0</strong>`;
+                    markDisplay.style.color = "#475569"; markDisplay.style.background = "#e2e8f0";
+                } else if (userAns === q.ans_key) {
+                    markDisplay.innerHTML = `Marks: <strong>+${config.marksCorrect}</strong>`;
+                    markDisplay.style.color = "#166534"; markDisplay.style.background = "#dcfce7";
+                } else {
+                    markDisplay.innerHTML = `Marks: <strong>-${config.marksWrong}</strong>`;
+                    markDisplay.style.color = "#991b1b"; markDisplay.style.background = "#fee2e2";
+                }
+            } else {
+                markDisplay.innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
+                markDisplay.style.color = "#334155"; markDisplay.style.background = "#e2e8f0";
+            }
+            // -----------------------------
             
             const imgCont = document.getElementById('q-img-container');
             imgCont.innerHTML = q.img ? `<img src="${q.img}" class="q-img">` : '';
@@ -586,15 +646,19 @@
             if(!saveToDatabase) { document.getElementById('rep-status').innerText = "Historical Review Mode"; }
 
             let correct = 0; let wrong = 0; let skipped = 0; let score = 0;
+            window.reviewData = [];
 
             questions.forEach((q, i) => {
                 const userAns = state[i].ans;
                 const isAttempted = (userAns !== null && userAns !== undefined && userAns !== "");
                 const isCorrect = isAttempted && (userAns === q.ans_key);
 
+                let status = 'skipped';
                 if(!isAttempted) { skipped++; }
-                else if(isCorrect) { correct++; score += config.marksCorrect; }
-                else { wrong++; score -= config.marksWrong; }
+                else if(isCorrect) { correct++; score += config.marksCorrect; status = 'correct'; }
+                else { wrong++; score -= config.marksWrong; status = 'wrong'; }
+
+                window.reviewData.push({ ...q, originalIndex: i + 1, userAns: userAns, status: status });
             });
 
             const maxScore = questions.length * config.marksCorrect;
@@ -605,6 +669,12 @@
             document.getElementById('rep-corr').innerText = correct;
             document.getElementById('rep-wrong').innerText = wrong;
             document.getElementById('rep-skip').innerText = skipped;
+
+            // Populate Filter Bar Numbers
+            document.getElementById('flt-all').innerText = questions.length;
+            document.getElementById('flt-corr').innerText = correct;
+            document.getElementById('flt-wrg').innerText = wrong;
+            document.getElementById('flt-skp').innerText = skipped;
             
             window.scrollTo(0,0);
 
@@ -632,6 +702,93 @@
             }
         }
 
+        // --- DECK REVIEW LOGIC (TRIGGERED BY STAT CARDS) ---
+        window.reviewState = { currentIdx: 0, filteredQs: [] };
+
+        window.filterReview = function(status) {
+            document.getElementById('start-review-box').style.display = 'none';
+            document.getElementById('rev-deck-container').style.display = 'block';
+
+            document.querySelectorAll('.rev-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.rev-filter-btn' + (status === 'all' ? '' : '.' + status)).classList.add('active');
+
+            if (status === 'all') window.reviewState.filteredQs = window.reviewData;
+            else window.reviewState.filteredQs = window.reviewData.filter(q => q.status === status);
+
+            window.reviewState.currentIdx = 0;
+            window.renderReviewCard();
+        };
+
+        window.renderReviewCard = function() {
+            const area = document.getElementById('rev-deck-area');
+            const counter = document.getElementById('rev-counter');
+            const btnPrev = document.getElementById('btn-rev-prev');
+            const btnNext = document.getElementById('btn-rev-next');
+            
+            if (window.reviewState.filteredQs.length === 0) {
+                area.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8; font-weight:bold;">No questions match this filter.</div>`;
+                counter.innerText = "0 / 0";
+                btnPrev.disabled = true; btnNext.disabled = true;
+                return;
+            }
+
+            const idx = window.reviewState.currentIdx;
+            const q = window.reviewState.filteredQs[idx];
+            
+            counter.innerText = `${idx + 1} / ${window.reviewState.filteredQs.length}`;
+            btnPrev.disabled = idx === 0;
+            btnNext.disabled = idx === window.reviewState.filteredQs.length - 1;
+
+            let badge = q.status === 'correct' ? '<span class="review-badge bg-correct">Correct</span>' 
+                      : q.status === 'wrong' ? '<span class="review-badge bg-wrong">Incorrect</span>' 
+                      : '<span class="review-badge bg-skipped">Skipped</span>';
+
+            let optsHtml = q.options.map((opt, j) => {
+                const char = String.fromCharCode(65+j);
+                let stl = "padding:12px 15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:10px; color:#475569;";
+                let icon = `<div style="width:26px; height:26px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px; flex-shrink:0;">${char}</div>`;
+                
+                if (char === q.ans_key) {
+                    stl = "padding:12px 15px; border:2px solid #86efac; border-radius:12px; margin-bottom:10px; background:#dcfce7; color:#166534; font-weight:bold;";
+                    icon = `<div style="width:26px; height:26px; background:#22c55e; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px; flex-shrink:0;">${char}</div>`;
+                } else if (char === q.userAns && q.status === 'wrong') {
+                    stl = "padding:12px 15px; border:2px solid #fca5a5; border-radius:12px; margin-bottom:10px; background:#fee2e2; color:#991b1b; font-weight:bold;";
+                    icon = `<div style="width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px; flex-shrink:0;">${char}</div>`;
+                }
+
+                return `<div style="${stl} display:flex; align-items:center;">${icon} <div>${opt}</div></div>`;
+            }).join('');
+
+            area.innerHTML = `
+                <div class="deck-scroll-area">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        ${badge}
+                        <strong style="color:#94a3b8;">Q${q.originalIndex}</strong>
+                    </div>
+                    <div style="font-weight:600; font-size:1.15rem; margin-bottom:20px; color:#0f172a; line-height:1.6;">${q.stem}</div>
+                    ${q.img ? `<img src="${q.img}" style="max-width:100%; border-radius:8px; margin-bottom:20px; border:1px solid #e2e8f0; cursor:zoom-in;" onclick="window.open(this.src)">` : ''}
+                    <div>${optsHtml}</div>
+                    <div class="expl-box" style="margin-top:25px; border-left:4px solid var(--gold); border-radius:0 8px 8px 0; background:#f8fafc; border-top:none; border-right:none; border-bottom:none;">
+                        <strong style="color:var(--blue);">Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}
+                    </div>
+                </div>
+            `;
+        };
+
+        window.nextReviewQ = function() {
+            if (window.reviewState.currentIdx < window.reviewState.filteredQs.length - 1) {
+                window.reviewState.currentIdx++;
+                window.renderReviewCard();
+            }
+        };
+
+        window.prevReviewQ = function() {
+            if (window.reviewState.currentIdx > 0) {
+                window.reviewState.currentIdx--;
+                window.renderReviewCard();
+            }
+        };
+
         // --- KEYBOARD NAVIGATION (DESKTOP) ---
         document.addEventListener('keydown', function(event) {
             if (window.isReviewMode) {
@@ -639,6 +796,13 @@
                     moveToNext();
                 } else if (event.key === 'ArrowLeft') {
                     window.prevQuestion();
+                }
+            } else if (document.getElementById('rev-deck-container').style.display === 'block') {
+                // Control the Deck if they are in the Stat Card Deck View
+                if (event.key === 'ArrowRight') {
+                    window.nextReviewQ();
+                } else if (event.key === 'ArrowLeft') {
+                    window.prevReviewQ();
                 }
             }
         });
