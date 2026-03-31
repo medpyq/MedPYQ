@@ -10,6 +10,7 @@
         :root { --blue: #0f2b52; --gold: #eebb4d; --bg: #f1f5f9; --text: #334155; --green: #22c55e; --red: #ef4444; --purple: #8b5cf6; }
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         * { box-sizing: border-box; }
+        
         .cbt-header { background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; padding: max(15px, env(safe-area-inset-top, 15px)) 20px 10px 20px; height: auto; min-height: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 110;}
         .cbt-title { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;}
         .cbt-timer { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 8px; }
@@ -36,6 +37,11 @@
         .option-lbl input[type="radio"] { width: 20px; height: 20px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
         .option-lbl.selected { border-color: var(--blue); background: #f0f6fc; }
 
+        /* --- REVIEW MODE OPTION STYLES --- */
+        .opt-row-correct { border-color: var(--green) !important; background: #dcfce7 !important; color: #166534; font-weight: 600; cursor: default; }
+        .opt-row-wrong { border-color: var(--red) !important; background: #fee2e2 !important; color: #991b1b; font-weight: 600; cursor: default; }
+        .expl-container { margin-top: 25px; padding: 20px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; line-height: 1.6; font-size: 1rem; color: #92400e; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+
         .cbt-footer { padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .footer-group { display: flex; gap: 10px; flex: 1; }
         .footer-group.right { justify-content: flex-end; }
@@ -53,12 +59,18 @@
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .legend-box { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem; font-weight: bold; flex-shrink: 0;}
         
+        /* Test Mode Legend */
         .status-ans { background: var(--green); }
         .status-unans { background: var(--red); }
         .status-review { background: var(--purple); }
         .status-ans-review { background: var(--purple); position: relative; }
         .status-ans-review::after { content:''; position:absolute; bottom:-3px; right:-3px; width:10px; height:10px; background:var(--green); border-radius:50%; border:2px solid white; }
         .status-notvis { background: #e2e8f0; color: #64748b; }
+
+        /* Review Mode Legend */
+        .status-correct { background: var(--green); color: white; }
+        .status-wrong { background: var(--red); color: white; }
+        .status-skipped { background: #94a3b8; color: white; }
 
         .palette-grid-container { padding: 15px; overflow-y: auto; flex: 1; }
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
@@ -75,39 +87,16 @@
         .inst-flex-box > div { background: #f1f5f9; padding: 10px 15px; border-radius: 8px; flex: 1; min-width: 120px; font-size: 0.9rem; }
         .inst-card ul { padding-left: 20px; color: #475569; line-height: 1.6; font-size: 0.95rem; }
         
-        /* --- REPORT SCREEN & CLICKABLE STAT CARDS --- */
+        /* REPORT SCREEN */
         .report-header { background: var(--blue); color: white; padding: 40px 20px; text-align: center; }
         .report-header h1 { margin: 0 0 10px 0; font-size: 2.5rem; }
         .stat-grid { max-width: 900px; margin: -30px auto 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 0 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-color: #cbd5e1; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .stat-val { font-size: 2rem; font-weight: 800; color: var(--blue); }
         .stat-lbl { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        
-        .review-container { max-width: 900px; margin: 0 auto 50px; padding: 0 20px; width: 100%; }
-        .review-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-bottom: 15px; }
-        .bg-correct { background: #dcfce7; color: #166534; }
-        .bg-wrong { background: #fee2e2; color: #991b1b; }
-        .bg-skipped { background: #f1f5f9; color: #475569; }
-        .expl-box { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.95rem; line-height: 1.6; }
 
         .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* --- VIEWER DECK STYLES FOR REVIEW MODE --- */
-        .rev-filter-bar { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
-        .rev-filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #cbd5e1; background: white; color: #475569; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
-        .rev-filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
-        .rev-filter-btn.correct.active { background: #16a34a; border-color: #16a34a; }
-        .rev-filter-btn.wrong.active { background: #dc2626; border-color: #dc2626; }
-
-        .deck-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .deck-counter { font-weight: 800; font-size: 1.2rem; color: var(--blue); background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
-        .deck-nav-btn { background: white; border: 1px solid #e2e8f0; width: 40px; height: 40px; border-radius: 8px; color: var(--blue); font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s; }
-        .deck-nav-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #cbd5e1; }
-        .deck-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .deck-card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; min-height: 400px;}
-        .deck-scroll-area { padding: 30px; }
 
         @media (max-width: 900px) {
             .cbt-header { padding: 10px 15px; }
@@ -134,20 +123,10 @@
 
             .stat-grid { grid-template-columns: repeat(2, 1fr); margin-top: -20px; }
             .report-header h1 { font-size: 2rem; }
-            .deck-scroll-area { padding: 20px; }
         }
     </style>
 </head>
 <body>
-
-    <div id="session-conflict-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-        <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-            <div style="color:#ef4444; background:#fee2e2; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-mobile-screen-button"></i></div>
-            <h3 style="color:#0f172a; font-size:1.4rem; margin:0 0 8px 0; font-weight:800;">Device Conflict</h3>
-            <p style="color:#64748b; font-size:0.9rem; margin:0 0 25px 0;">You have logged in on another device. For security, this session has been paused.</p>
-            <button class="btn btn-primary" style="width: 100%;" onclick="window.forceLogout()">Use Here Instead</button>
-        </div>
-    </div>
 
     <div id="view-loading" class="overlay-screen" style="justify-content: center; align-items: center;">
         <div class="spinner"></div>
@@ -186,7 +165,7 @@
             <div class="cbt-title" id="test-header-title">Mock Test</div>
             <div class="cbt-timer" id="test-timer"><i class="fa-regular fa-clock"></i> 00:00:00</div>
             <div class="header-controls">
-                <button class="btn-submit-test" onclick="submitTest()">Submit</button>
+                <button class="btn-submit-test" id="btn-top-submit" onclick="submitTest()">Submit</button>
                 <button class="mobile-palette-btn" onclick="togglePalette()"><i class="fas fa-th-large"></i></button>
             </div>
         </header>
@@ -205,13 +184,13 @@
                 </div>
 
                 <div class="cbt-footer">
-                    <div class="footer-group">
+                    <div class="footer-group" id="cbt-left-footer">
                         <button class="btn btn-outline" onclick="markForReview()">Review & Next</button>
                         <button class="btn btn-outline" onclick="clearResponse()">Clear</button>
                     </div>
-                    <div class="footer-group right">
+                    <div class="footer-group right" id="cbt-right-footer">
                         <button class="btn btn-outline" onclick="prevQuestion()"><i class="fas fa-chevron-left"></i> Prev</button>
-                        <button class="btn btn-primary" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right"></i></button>
+                        <button class="btn btn-primary" id="btn-save-next" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
             </div>
@@ -223,7 +202,7 @@
                     <span>Question Palette</span>
                     <button class="close-palette-btn" onclick="togglePalette()"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="legend-grid">
+                <div class="legend-grid" id="palette-legend">
                     <div class="legend-item"><div class="legend-box status-ans" id="cnt-ans">0</div> Answered</div>
                     <div class="legend-item"><div class="legend-box status-unans" id="cnt-unans">0</div> Not Answered</div>
                     <div class="legend-item"><div class="legend-box status-notvis" id="cnt-notvis">0</div> Not Visited</div>
@@ -246,44 +225,21 @@
         </div>
 
         <div class="stat-grid">
-            <div class="stat-card" onclick="window.filterReview('all'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
-                <div class="stat-val" id="rep-acc">0%</div><div class="stat-lbl">Accuracy (All)</div>
-            </div>
-            <div class="stat-card" onclick="window.filterReview('correct'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
-                <div class="stat-val" style="color:var(--green);" id="rep-corr">0</div><div class="stat-lbl">Correct</div>
-            </div>
-            <div class="stat-card" onclick="window.filterReview('wrong'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
-                <div class="stat-val" style="color:var(--red);" id="rep-wrong">0</div><div class="stat-lbl">Incorrect</div>
-            </div>
-            <div class="stat-card" onclick="window.filterReview('skipped'); document.getElementById('rev-deck-container').scrollIntoView({behavior:'smooth', block:'start'});">
-                <div class="stat-val" style="color:#94a3b8;" id="rep-skip">0</div><div class="stat-lbl">Skipped</div>
-            </div>
+            <div class="stat-card"><div class="stat-val" id="rep-acc">0%</div><div class="stat-lbl">Accuracy</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--green);" id="rep-corr">0</div><div class="stat-lbl">Correct</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--red);" id="rep-wrong">0</div><div class="stat-lbl">Incorrect</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#94a3b8;" id="rep-skip">0</div><div class="stat-lbl">Skipped</div></div>
         </div>
 
-        <div class="review-container" id="rev-deck-container">
-            <h2 style="color:var(--blue); border-bottom: 2px solid #e2e8f0; padding-bottom:10px; margin-bottom:20px;">Detailed Review & Explanations</h2>
-            
-            <div class="rev-filter-bar">
-                <button class="rev-filter-btn active" onclick="window.filterReview('all')">All (<span id="flt-all">0</span>)</button>
-                <button class="rev-filter-btn correct" onclick="window.filterReview('correct')">Correct (<span id="flt-corr">0</span>)</button>
-                <button class="rev-filter-btn wrong" onclick="window.filterReview('wrong')">Incorrect (<span id="flt-wrg">0</span>)</button>
-                <button class="rev-filter-btn skipped" onclick="window.filterReview('skipped')">Skipped (<span id="flt-skp">0</span>)</button>
-            </div>
-
-            <div class="deck-header">
-                <button class="deck-nav-btn" id="btn-rev-prev" onclick="window.prevReviewQ()"><i class="fas fa-chevron-left"></i></button>
-                <div class="deck-counter" id="rev-counter">0 / 0</div>
-                <button class="deck-nav-btn" id="btn-rev-next" onclick="window.nextReviewQ()"><i class="fas fa-chevron-right"></i></button>
-            </div>
-
-            <div class="deck-card" id="rev-deck-area"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="window.startReviewMode()" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px; border-radius: 30px; width: 100%; max-width: 300px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">Review Questions</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
         const app = initializeApp(firebaseConfig);
@@ -298,12 +254,13 @@
         let timeRemaining = 0;
         let timerInterval = null;
         
+        window.isReviewMode = false; // Flag to manage the UI Toggle
+        
         // URL Parsing
         const urlParams = new URLSearchParams(window.location.search);
         const testFileName = urlParams.get('testFile'); 
         const reviewId = urlParams.get('reviewId');     
         
-        // Extract Exam Type from filename to set proper marking scheme
         let examType = 'neet-pg';
         if(testFileName && testFileName.includes('inicet')) examType = 'inicet';
         else if(testFileName && testFileName.includes('fmge')) examType = 'fmge';
@@ -325,31 +282,6 @@
         // --- AUTH & DATA FETCH ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // --- CONCURRENT SESSION CONTROL ---
-                let localSessionId = localStorage.getItem('medpyq_session_id');
-                if (!localSessionId) {
-                    localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('medpyq_session_id', localSessionId);
-                }
-                
-                const sessionRef = ref(db, `users/${user.uid}/activeSession`);
-                set(sessionRef, localSessionId);
-
-                onValue(sessionRef, (snapshot) => {
-                    const activeDbSession = snapshot.val();
-                    if (activeDbSession && activeDbSession !== localSessionId) {
-                        document.getElementById('session-conflict-overlay').style.display = 'flex';
-                        signOut(auth);
-                    } else {
-                        document.getElementById('session-conflict-overlay').style.display = 'none';
-                    }
-                });
-
-                window.forceLogout = function() {
-                    set(sessionRef, localSessionId); 
-                };
-                // ----------------------------------
-
                 if (ADMIN_EMAILS.includes(user.email)) {
                     loadTest(user.uid);
                 } else {
@@ -370,15 +302,12 @@
             if(!testFileName) { alert("Test file missing."); window.location.href = "index.html"; return; }
 
             try {
-                // 1. Fetch the JSON file
                 const response = await fetch(testFileName);
                 if(!response.ok) throw new Error("Test file not found.");
                 questions = await response.json();
                 
-                // 2. Initialize State
                 questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
 
-                // 3. CHECK IF REVIEW MODE OR TEST MODE
                 if (reviewId) {
                     document.getElementById('loading-title').innerText = "Loading Analysis...";
                     document.getElementById('loading-desc').innerText = "Fetching your saved answer sheet.";
@@ -393,7 +322,6 @@
                         alert("Review data corrupted."); window.location.href = "index.html";
                     }
                 } else {
-                    // Start Normal Test
                     state[0].status = 'unans'; 
                     timeRemaining = config.durationMins * 60;
 
@@ -414,7 +342,7 @@
             }
         }
 
-        // --- ENGINE LOGIC ---
+        // --- ENGINE LOGIC (TEST MODE) ---
         window.startTest = function() {
             document.getElementById('view-instructions').classList.add('hidden');
             document.getElementById('view-test').classList.remove('hidden');
@@ -436,27 +364,82 @@
             }, 1000);
         };
 
+        // --- REVIEW MODE INJECTION ---
+        window.startReviewMode = function() {
+            window.isReviewMode = true;
+            currentQIndex = 0;
+            
+            document.getElementById('view-report').classList.add('hidden');
+            document.getElementById('view-test').classList.remove('hidden');
+
+            // Adjust CBT Header for Review
+            document.getElementById('test-timer').style.display = 'none';
+            const submitBtn = document.getElementById('btn-top-submit');
+            submitBtn.innerText = 'Exit Review';
+            submitBtn.onclick = () => { window.location.href = 'index.html'; };
+            document.getElementById('test-header-title').innerHTML = `${config.title} <span style="background:var(--gold); color:var(--blue); padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-left:10px;">REVIEW MODE</span>`;
+
+            // Clean up Footer for Review
+            const leftFooter = document.getElementById('cbt-left-footer');
+            if(leftFooter) leftFooter.style.display = 'none';
+            const rightFooterNextBtn = document.getElementById('btn-save-next');
+            if(rightFooterNextBtn) {
+                rightFooterNextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+                rightFooterNextBtn.onclick = () => { moveToNext(); };
+            }
+
+            // Transform Legend into Correct/Incorrect
+            document.getElementById('palette-legend').innerHTML = `
+                <div class="legend-item"><div class="legend-box status-correct" id="cnt-rev-corr">0</div> Correct</div>
+                <div class="legend-item"><div class="legend-box status-wrong" id="cnt-rev-wrg">0</div> Incorrect</div>
+                <div class="legend-item"><div class="legend-box status-skipped" id="cnt-rev-skp">0</div> Skipped</div>
+            `;
+
+            renderPalette();
+            renderQuestion(0);
+        };
+
+        // Dynamic Palette Renderer (Handles Both Modes)
         function renderPalette() {
             const grid = document.getElementById('palette-grid');
             let html = '';
-            let counts = { ans:0, unans:0, notvis:0, review:0, ansrev:0 };
+            
+            if (window.isReviewMode) {
+                let c=0, w=0, s=0;
+                for(let i=0; i<questions.length; i++) {
+                    const userAns = state[i].ans;
+                    const isCorrect = userAns === questions[i].ans_key;
+                    let stClass = '';
+                    
+                    if(!userAns) { stClass = 'status-skipped'; s++; }
+                    else if(isCorrect) { stClass = 'status-correct'; c++; }
+                    else { stClass = 'status-wrong'; w++; }
 
-            for(let i=0; i<questions.length; i++) {
-                let st = state[i].status;
-                let cClass = 'status-' + st;
-                if(st==='ans') counts.ans++; else if(st==='unans') counts.unans++; else if(st==='notvis') counts.notvis++; else if(st==='review') counts.review++; else if(st==='ans-review') counts.ansrev++;
-                
-                html += `<button class="palette-btn ${cClass} ${i===currentQIndex?'active-q':''}" onclick="window.jumpTo(${i})">${i+1}</button>`;
+                    html += `<button class="palette-btn ${stClass} ${i===currentQIndex?'active-q':''}" onclick="window.jumpTo(${i})">${i+1}</button>`;
+                }
+                grid.innerHTML = html;
+                document.getElementById('cnt-rev-corr').innerText = c;
+                document.getElementById('cnt-rev-wrg').innerText = w;
+                document.getElementById('cnt-rev-skp').innerText = s;
+            } else {
+                let counts = { ans:0, unans:0, notvis:0, review:0, ansrev:0 };
+                for(let i=0; i<questions.length; i++) {
+                    let st = state[i].status;
+                    let cClass = 'status-' + st;
+                    if(st==='ans') counts.ans++; else if(st==='unans') counts.unans++; else if(st==='notvis') counts.notvis++; else if(st==='review') counts.review++; else if(st==='ans-review') counts.ansrev++;
+                    
+                    html += `<button class="palette-btn ${cClass} ${i===currentQIndex?'active-q':''}" onclick="window.jumpTo(${i})">${i+1}</button>`;
+                }
+                grid.innerHTML = html;
+                document.getElementById('cnt-ans').innerText = counts.ans;
+                document.getElementById('cnt-unans').innerText = counts.unans;
+                document.getElementById('cnt-notvis').innerText = counts.notvis;
+                document.getElementById('cnt-review').innerText = counts.review;
+                document.getElementById('cnt-ans-rev').innerText = counts.ansrev;
             }
-            grid.innerHTML = html;
-
-            document.getElementById('cnt-ans').innerText = counts.ans;
-            document.getElementById('cnt-unans').innerText = counts.unans;
-            document.getElementById('cnt-notvis').innerText = counts.notvis;
-            document.getElementById('cnt-review').innerText = counts.review;
-            document.getElementById('cnt-ans-rev').innerText = counts.ansrev;
         }
 
+        // Dynamic Question Renderer (Handles Both Modes)
         function renderQuestion(idx) {
             currentQIndex = idx;
             const q = questions[idx];
@@ -470,34 +453,79 @@
             q.options.forEach((opt, i) => {
                 const char = String.fromCharCode(65+i);
                 const isSel = state[idx].ans === char;
-                optsHtml += `<label class="option-lbl ${isSel?'selected':''}">
-                    <input type="radio" name="opt" value="${char}" ${isSel?'checked':''} onchange="window.selectOption('${char}')">
-                    <span><strong>${char}.</strong> ${opt}</span>
-                </label>`;
+                
+                if (window.isReviewMode) {
+                    const isCorrectOpt = char === q.ans_key;
+                    const isWrongSel = isSel && !isCorrectOpt;
+                    
+                    let extraClass = '';
+                    let iconColor = '';
+                    if(isCorrectOpt) {
+                        extraClass = 'opt-row-correct';
+                        iconColor = 'color: #166534;';
+                    } else if(isWrongSel) {
+                        extraClass = 'opt-row-wrong';
+                        iconColor = 'color: #991b1b;';
+                    }
+
+                    optsHtml += `<label class="option-lbl ${extraClass}" style="cursor:default;">
+                        <span style="font-weight:800; font-size:1.1rem; margin-right:10px; ${iconColor}">${char}.</span>
+                        <span style="flex:1;">${opt}</span>
+                        ${isSel && !isCorrectOpt ? '<i class="fas fa-times" style="color:var(--red); font-size:1.2rem;"></i>' : ''}
+                        ${isCorrectOpt ? '<i class="fas fa-check" style="color:var(--green); font-size:1.2rem;"></i>' : ''}
+                    </label>`;
+                } else {
+                    optsHtml += `<label class="option-lbl ${isSel?'selected':''}">
+                        <input type="radio" name="opt" value="${char}" ${isSel?'checked':''} onchange="window.selectOption('${char}')">
+                        <span><strong>${char}.</strong> ${opt}</span>
+                    </label>`;
+                }
             });
-            document.getElementById('q-options').innerHTML = optsHtml;
+            
+            let explHtml = '';
+            if (window.isReviewMode) {
+                explHtml = `<div class="expl-container"><strong>Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}</div>`;
+            }
+
+            document.getElementById('q-options').innerHTML = optsHtml + explHtml;
             renderPalette();
         }
 
-        window.selectOption = function(char) { state[currentQIndex].ans = char; renderQuestion(currentQIndex); };
-        window.saveAndNext = function() { if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; else state[currentQIndex].status = 'unans'; moveToNext(); };
-        window.markForReview = function() { if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; else state[currentQIndex].status = 'review'; moveToNext(); };
-        window.clearResponse = function() { state[currentQIndex].ans = null; state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex); };
-        window.prevQuestion = function() { if(currentQIndex > 0) { if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex - 1); } };
-        window.jumpTo = function(idx) { if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; if(state[idx].status === 'notvis') state[idx].status = 'unans'; renderQuestion(idx); if(window.innerWidth <= 900) { window.togglePalette(); } };
+        window.selectOption = function(char) { if(window.isReviewMode) return; state[currentQIndex].ans = char; renderQuestion(currentQIndex); };
+        window.saveAndNext = function() { if(window.isReviewMode) return; if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; else state[currentQIndex].status = 'unans'; moveToNext(); };
+        window.markForReview = function() { if(window.isReviewMode) return; if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; else state[currentQIndex].status = 'review'; moveToNext(); };
+        window.clearResponse = function() { if(window.isReviewMode) return; state[currentQIndex].ans = null; state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex); };
+        
+        window.prevQuestion = function() { 
+            if(currentQIndex > 0) { 
+                if(!window.isReviewMode && state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; 
+                renderQuestion(currentQIndex - 1); 
+            } 
+        };
+        
+        window.jumpTo = function(idx) { 
+            if(!window.isReviewMode) {
+                if(state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; 
+                if(state[idx].status === 'notvis') state[idx].status = 'unans'; 
+            }
+            renderQuestion(idx); 
+            if(window.innerWidth <= 900) { window.togglePalette(); } 
+        };
 
         function moveToNext() {
             if(currentQIndex < questions.length - 1) {
-                if(state[currentQIndex+1].status === 'notvis') state[currentQIndex+1].status = 'unans';
+                if(!window.isReviewMode && state[currentQIndex+1].status === 'notvis') state[currentQIndex+1].status = 'unans';
                 renderQuestion(currentQIndex + 1);
-            } else { renderPalette(); }
+            } else { 
+                if(!window.isReviewMode) renderPalette(); 
+            }
         }
 
         // --- SUBMISSION & REPORT ---
         window.submitTest = function(autoSubmit = false) {
             if(autoSubmit || confirm("Are you sure you want to submit the test?")) {
                 clearInterval(timerInterval);
-                generateReport(true); // true = save to database
+                generateReport(true); 
             }
         };
 
@@ -509,20 +537,15 @@
             if(!saveToDatabase) { document.getElementById('rep-status').innerText = "Historical Review Mode"; }
 
             let correct = 0; let wrong = 0; let skipped = 0; let score = 0;
-            window.reviewData = []; // Store array for deck view
 
             questions.forEach((q, i) => {
                 const userAns = state[i].ans;
                 const isAttempted = (userAns !== null && userAns !== undefined && userAns !== "");
                 const isCorrect = isAttempted && (userAns === q.ans_key);
 
-                let status = 'skipped';
                 if(!isAttempted) { skipped++; }
-                else if(isCorrect) { correct++; score += config.marksCorrect; status = 'correct'; }
-                else { wrong++; score -= config.marksWrong; status = 'wrong'; }
-
-                // Save data for the Review Deck
-                window.reviewData.push({ ...q, originalIndex: i + 1, userAns: userAns, status: status });
+                else if(isCorrect) { correct++; score += config.marksCorrect; }
+                else { wrong++; score -= config.marksWrong; }
             });
 
             const maxScore = questions.length * config.marksCorrect;
@@ -533,17 +556,9 @@
             document.getElementById('rep-corr').innerText = correct;
             document.getElementById('rep-wrong').innerText = wrong;
             document.getElementById('rep-skip').innerText = skipped;
-
-            // Populate Filter Bar Numbers
-            document.getElementById('flt-all').innerText = questions.length;
-            document.getElementById('flt-corr').innerText = correct;
-            document.getElementById('flt-wrg').innerText = wrong;
-            document.getElementById('flt-skp').innerText = skipped;
             
-            window.filterReview('all'); // Initialize Deck
             window.scrollTo(0,0);
 
-            // SAVE TO FIREBASE IF TAKING THE TEST
             if(saveToDatabase && auth.currentUser) {
                 const now = new Date();
                 const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
@@ -560,110 +575,13 @@
                     skipped: skipped,
                     date: formattedDate,
                     timestamp: Date.now(),
-                    answers: state // Saves "A, B, C" to fetch later for Review Mode
+                    answers: state 
                 };
 
                 const historyRef = ref(db, `users/${auth.currentUser.uid}/testHistory/${historyId}`);
                 set(historyRef, testRecord).catch(err => console.error("Database Sync Error:", err));
             }
         }
-
-        // --- DECK REVIEW LOGIC ---
-        window.reviewState = { currentIdx: 0, filteredQs: [] };
-
-        window.filterReview = function(status) {
-            document.querySelectorAll('.rev-filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector('.rev-filter-btn' + (status === 'all' ? '' : '.' + status)).classList.add('active');
-
-            if (status === 'all') window.reviewState.filteredQs = window.reviewData;
-            else window.reviewState.filteredQs = window.reviewData.filter(q => q.status === status);
-
-            window.reviewState.currentIdx = 0;
-            window.renderReviewCard();
-        };
-
-        window.renderReviewCard = function() {
-            const area = document.getElementById('rev-deck-area');
-            const counter = document.getElementById('rev-counter');
-            const btnPrev = document.getElementById('btn-rev-prev');
-            const btnNext = document.getElementById('btn-rev-next');
-            
-            if (window.reviewState.filteredQs.length === 0) {
-                area.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8; font-weight:bold;">No questions match this filter.</div>`;
-                counter.innerText = "0 / 0";
-                btnPrev.disabled = true; btnNext.disabled = true;
-                return;
-            }
-
-            const idx = window.reviewState.currentIdx;
-            const q = window.reviewState.filteredQs[idx];
-            
-            counter.innerText = `${idx + 1} / ${window.reviewState.filteredQs.length}`;
-            btnPrev.disabled = idx === 0;
-            btnNext.disabled = idx === window.reviewState.filteredQs.length - 1;
-
-            let badge = q.status === 'correct' ? '<span class="review-badge bg-correct">Correct</span>' 
-                      : q.status === 'wrong' ? '<span class="review-badge bg-wrong">Incorrect</span>' 
-                      : '<span class="review-badge bg-skipped">Skipped</span>';
-
-            let optsHtml = q.options.map((opt, j) => {
-                const char = String.fromCharCode(65+j);
-                let stl = "padding:12px 15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:10px; color:#475569;";
-                let icon = `<div style="width:26px; height:26px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px; flex-shrink:0;">${char}</div>`;
-                
-                if (char === q.ans_key) {
-                    stl = "padding:12px 15px; border:2px solid #86efac; border-radius:12px; margin-bottom:10px; background:#dcfce7; color:#166534; font-weight:bold;";
-                    icon = `<div style="width:26px; height:26px; background:#22c55e; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px; flex-shrink:0;">${char}</div>`;
-                } else if (char === q.userAns && q.status === 'wrong') {
-                    stl = "padding:12px 15px; border:2px solid #fca5a5; border-radius:12px; margin-bottom:10px; background:#fee2e2; color:#991b1b; font-weight:bold;";
-                    icon = `<div style="width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px; flex-shrink:0;">${char}</div>`;
-                }
-
-                return `<div style="${stl} display:flex; align-items:center;">${icon} <div>${opt}</div></div>`;
-            }).join('');
-
-            area.innerHTML = `
-                <div class="deck-scroll-area">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        ${badge}
-                        <strong style="color:#94a3b8;">Q${q.originalIndex}</strong>
-                    </div>
-                    <div style="font-weight:600; font-size:1.15rem; margin-bottom:20px; color:#0f172a; line-height:1.6;">${q.stem}</div>
-                    ${q.img ? `<img src="${q.img}" style="max-width:100%; border-radius:8px; margin-bottom:20px; border:1px solid #e2e8f0; cursor:zoom-in;" onclick="window.open(this.src)">` : ''}
-                    <div>${optsHtml}</div>
-                    <div class="expl-box" style="margin-top:25px; border-left:4px solid var(--gold); border-radius:0 8px 8px 0; background:#f8fafc; border-top:none; border-right:none; border-bottom:none;">
-                        <strong style="color:var(--blue);">Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}
-                    </div>
-                </div>
-            `;
-        };
-
-        window.nextReviewQ = function() {
-            if (window.reviewState.currentIdx < window.reviewState.filteredQs.length - 1) {
-                window.reviewState.currentIdx++;
-                window.renderReviewCard();
-            }
-        };
-
-        window.prevReviewQ = function() {
-            if (window.reviewState.currentIdx > 0) {
-                window.reviewState.currentIdx--;
-                window.renderReviewCard();
-            }
-        };
-
-        // --- KEYBOARD NAVIGATION (DESKTOP) ---
-        document.addEventListener('keydown', function(event) {
-            const reportScreen = document.getElementById('view-report');
-            // Only trigger if the user is currently on the Review/Report screen
-            if (reportScreen && !reportScreen.classList.contains('hidden')) {
-                if (event.key === 'ArrowRight') {
-                    window.nextReviewQ();
-                } else if (event.key === 'ArrowLeft') {
-                    window.prevReviewQ();
-                }
-            }
-        });
     </script>
 </body>
 </html>
