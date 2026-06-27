@@ -920,7 +920,7 @@
             }
         }
 
-        function processData(rawData) {
+       function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             
             let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
@@ -959,7 +959,12 @@
                 };
             });
 
-            const uniqueYears = [...new Set(window.appData.map(i => i.year))].filter(y => y && y !== "Unknown").sort().reverse();
+            // --- UPDATED ALPHABETICAL SORTING LOGIC ---
+            const uniqueYears = [...new Set(window.appData.map(i => i.year))]
+                .filter(y => y && y !== "Unknown")
+                .sort((a, b) => a.localeCompare(b));
+            // ------------------------------------------
+
             buildSynchronizedFilters(flatChapters, uniqueYears, window.nestedCurriculum);
             
             initUniversalDeck(window.appData);
@@ -970,7 +975,6 @@
                 window.UD_toggleMode();
             }
         }
-
         // ==========================================
         // UI & ADVANCED FILTER LOGIC
         // ==========================================
