@@ -223,7 +223,15 @@
         <div class="top-row">
             <i class="fas fa-bars" onclick="openSidebar()"></i>
             <h1><a href="index.html">MedPYQ</a></h1>
-            <div class="btn-pro-header" id="header-exam-display">NEET-PG</div>
+            
+            <!-- EXAM TOGGLE SELECTOR (Dynamically Styled) -->
+            <select class="btn-pro-header" id="header-exam-display" onchange="filterExam(this.value)" style="background:var(--app-blue); appearance:none; cursor:pointer; outline:none; padding-right: 25px; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23eebb4d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 7px top 50%; background-size: 8px auto;">
+                <option value="NEET-PG" style="color:black;">NEET-PG</option>
+                <option value="INICET" style="color:black;">INICET</option>
+                <option value="UPSC-CMS" style="color:black;">UPSC-CMS</option>
+                <option value="FMGE" style="color:black;">FMGE</option>
+            </select>
+
             <div class="head-icons">
                 <i class="fas fa-circle-user" onclick="if(window.authApp) window.authApp.open();"></i>
             </div>
@@ -654,7 +662,8 @@
     <div id="reset-success-overlay">
         <div class="modal-card">
             <div class="modal-icon" style="color:#166534; background:#dcfce7;"><i class="fa-solid fa-envelope-circle-check"></i></div>
-            <h3>Link Sent!</h3><p>A password reset link has been sent to your email address. Check your spam folder.</p>
+            <h3>Link Sent!</h3>
+            <p>Sometimes reset link appear in spam folder, please check your spam folder in your email.</p>
             <button class="btn-primary" onclick="document.getElementById('reset-success-overlay').style.display='none';">Got it, thanks!</button>
         </div>
     </div>
@@ -738,7 +747,11 @@
 
         function updateExamUI() {
             document.querySelectorAll('.exam-option').forEach(opt => opt.classList.toggle('active', opt.innerText === selectedExam));
-            document.getElementById('header-exam-display').textContent = selectedExam;
+            
+            // Update Header Select
+            const headerSelect = document.getElementById('header-exam-display');
+            if (headerSelect) headerSelect.value = selectedExam;
+            
             updateSubjectGridVisibility(selectedExam);
         }
 
@@ -828,7 +841,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
@@ -840,9 +853,9 @@
         const SUB_DB = { 'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31' };
 
         window.authApp = {
-            mode: 'login',
+            mode: 'signup', // Changed default mode to signup
             open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
-            close: function() { document.getElementById('auth-overlay').style.display = 'none'; this.mode = 'login'; },
+            close: function() { document.getElementById('auth-overlay').style.display = 'none'; this.mode = 'signup'; },
             toggleMode: function(newMode) { this.mode = newMode; this.renderUI(); },
             showError: function(msg) { const el = document.getElementById('auth-error-msg'); if(el) { el.innerText = msg; el.style.display = 'block'; } else { alert(msg); } },
             cleanError: function(code) { return code.replace('auth/', '').replace(/-/g, ' '); },
@@ -853,11 +866,22 @@
                 signInWithEmailAndPassword(auth, e, p).then(() => { this.close(); }).catch((error) => { this.showError(this.cleanError(error.code)); document.getElementById('btn-action-primary').innerText = "Sign In"; });
             },
             signup: function() {
-                const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
-                if(!e || !p) { this.showError("Please fill all fields"); return; }
+                const n = document.getElementById('auth-name').value;
+                const e = document.getElementById('auth-email').value;
+                const p = document.getElementById('auth-pass').value;
+                
+                if(!n || !e || !p) { this.showError("Please fill all fields"); return; }
                 if(p.length < 6) { this.showError("Password min 6 chars"); return; }
+                
                 document.getElementById('btn-action-primary').innerText = "Creating...";
-                createUserWithEmailAndPassword(auth, e, p).then(() => { this.close(); alert("Account Created! Welcome to MedPYQ."); }).catch((error) => { this.showError(this.cleanError(error.code)); document.getElementById('btn-action-primary').innerText = "Sign Up"; });
+                createUserWithEmailAndPassword(auth, e, p).then((userCredential) => { 
+                    // Update Firebase User Profile with their entered Name
+                    updateProfile(userCredential.user, { displayName: n }).then(() => {
+                        this.close(); 
+                        alert("Account Created! Welcome to MedPYQ.");
+                        location.reload(); 
+                    });
+                }).catch((error) => { this.showError(this.cleanError(error.code)); document.getElementById('btn-action-primary').innerText = "Sign Up"; });
             },
             resetPass: function() {
                 const e = document.getElementById('auth-email').value;
@@ -870,15 +894,37 @@
                 const container = document.getElementById('auth-box-content');
                 if(!container) return;
                 const user = auth.currentUser;
+                
                 if (user) {
-                    container.innerHTML = `<div class="modal-icon" style="background:#dcfce7; color:#166534;"><i class="fas fa-user-check"></i></div><h2>${user.email.split('@')[0]}</h2><p>${user.email}</p><button class="btn-primary" onclick="window.authApp.logout()">Sign Out</button><button class="btn-secondary" onclick="window.authApp.close()">Close</button>`;
+                    const displayName = user.displayName || user.email.split('@')[0];
+                    container.innerHTML = `<div class="modal-icon" style="background:#dcfce7; color:#166534;"><i class="fas fa-user-check"></i></div><h2>${displayName}</h2><p>${user.email}</p><button class="btn-primary" onclick="window.authApp.logout()">Sign Out</button><button class="btn-secondary" onclick="window.authApp.close()">Close</button>`;
                 } else {
                     let html = '<div class="modal-icon"><i class="fas fa-lock"></i></div>';
-                    if(this.mode === 'login') {
-                        html += `<h2>Welcome Back</h2><p>Sign in to your account</p><div id="auth-error-msg" class="auth-error"></div><div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div><div class="auth-input-group"><label class="auth-label">Password</label><input type="password" id="auth-pass" class="auth-input" placeholder="Enter password"/></div><button id="btn-action-primary" class="btn-primary" onclick="window.authApp.login()">Sign In</button><div style="margin-top:15px; font-size:0.85rem; color:#64748b;">New user? <span class="auth-toggle-link" onclick="window.authApp.toggleMode('signup')">Create Account</span><br/><span style="font-size:0.8rem; cursor:pointer; margin-top:5px; display:inline-block;" onclick="window.authApp.toggleMode('reset')">Forgot Password?</span></div>`;
-                    } else if (this.mode === 'signup') {
-                        html += `<h2>Create Account</h2><p>Join MedPYQ today</p><div id="auth-error-msg" class="auth-error"></div><div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div><div class="auth-input-group"><label class="auth-label">Password</label><input type="password" id="auth-pass" class="auth-input" placeholder="Create password"/></div><button id="btn-action-primary" class="btn-primary" onclick="window.authApp.signup()">Sign Up</button><div style="margin-top:15px; font-size:0.85rem; color:#64748b;">Already have an account? <span class="auth-toggle-link" onclick="window.authApp.toggleMode('login')">Sign In</span></div>`;
-                    } else if (this.mode === 'reset') {
+                    
+                    if (this.mode === 'signup') {
+                        html += `<h2>Create Account</h2><p>Join MedPYQ today</p><div id="auth-error-msg" class="auth-error"></div>
+                        <div class="auth-input-group"><label class="auth-label">Full Name</label><input type="text" id="auth-name" class="auth-input" placeholder="Enter full name"/></div>
+                        <div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div>
+                        <div class="auth-input-group" style="position:relative;">
+                            <label class="auth-label">Password</label>
+                            <input type="password" id="auth-pass" class="auth-input" placeholder="Create password" style="padding-right: 40px;"/>
+                            <i class="fas fa-eye" style="position:absolute; right:15px; top:36px; cursor:pointer; color:#64748b;" onclick="const p = this.previousElementSibling; if(p.type === 'password') { p.type = 'text'; this.classList.replace('fa-eye', 'fa-eye-slash'); } else { p.type = 'password'; this.classList.replace('fa-eye-slash', 'fa-eye'); }"></i>
+                        </div>
+                        <button id="btn-action-primary" class="btn-primary" onclick="window.authApp.signup()">Sign Up</button>
+                        <div style="margin-top:15px; font-size:0.85rem; color:#64748b;">Already have an account? <span class="auth-toggle-link" onclick="window.authApp.toggleMode('login')">Sign In</span></div>`;
+                    } 
+                    else if (this.mode === 'login') {
+                        html += `<h2>Welcome Back</h2><p>Sign in to your account</p><div id="auth-error-msg" class="auth-error"></div>
+                        <div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div>
+                        <div class="auth-input-group" style="position:relative;">
+                            <label class="auth-label">Password</label>
+                            <input type="password" id="auth-pass" class="auth-input" placeholder="Enter password" style="padding-right: 40px;"/>
+                            <i class="fas fa-eye" style="position:absolute; right:15px; top:36px; cursor:pointer; color:#64748b;" onclick="const p = this.previousElementSibling; if(p.type === 'password') { p.type = 'text'; this.classList.replace('fa-eye', 'fa-eye-slash'); } else { p.type = 'password'; this.classList.replace('fa-eye-slash', 'fa-eye'); }"></i>
+                        </div>
+                        <button id="btn-action-primary" class="btn-primary" onclick="window.authApp.login()">Sign In</button>
+                        <div style="margin-top:15px; font-size:0.85rem; color:#64748b;">New user? <span class="auth-toggle-link" onclick="window.authApp.toggleMode('signup')">Create Account</span><br/><span style="font-size:0.8rem; cursor:pointer; margin-top:5px; display:inline-block;" onclick="window.authApp.toggleMode('reset')">Forgot Password?</span></div>`;
+                    } 
+                    else if (this.mode === 'reset') {
                         html += `<h2>Reset Password</h2><p>Receive reset link via email</p><div id="auth-error-msg" class="auth-error"></div><div class="auth-input-group"><label class="auth-label">Email</label><input type="email" id="auth-email" class="auth-input" placeholder="Enter email"/></div><button id="btn-action-primary" class="btn-primary" onclick="window.authApp.resetPass()">Send Link</button><div style="margin-top:15px; font-size:0.85rem; color:#64748b;"><span class="auth-toggle-link" onclick="window.authApp.toggleMode('login')">Back to Login</span></div>`;
                     }
                     html += '<button class="btn-secondary" onclick="window.authApp.close()">Cancel</button>';
@@ -1055,7 +1101,7 @@
             const adminFab = document.getElementById('admin-fab');
 
             if (user) {
-                window.currentUserUid = user.uid; // Set global UID for tab switching
+                window.currentUserUid = user.uid; 
                 
             // --- CONCURRENT SESSION CONTROL ---
                 let localSessionId = localStorage.getItem('medpyq_session_id');
@@ -1066,27 +1112,26 @@
                 
                 const sessionRef = ref(db, `users/${user.uid}/activeSession`);
                 
-                // 1. Claim the session for this device
                 set(sessionRef, localSessionId);
 
-              // 2. Listen in real-time. If DB session changes, lock the screen.
                 onValue(sessionRef, (snapshot) => {
                     const activeDbSession = snapshot.val();
                     if (activeDbSession && activeDbSession !== localSessionId) {
-                        // Show the overlay AND force a complete Firebase Sign Out
                         document.getElementById('session-conflict-overlay').style.display = 'flex';
-                        signOut(auth); // Kicks them completely out of the app
+                        signOut(auth);
                     } else {
                         document.getElementById('session-conflict-overlay').style.display = 'none';
                     }
                 });
 
-                // 3. The "Use Here Instead" button logic
                 window.forceLogout = function() {
-                    set(sessionRef, localSessionId); // Steals the session back
+                    set(sessionRef, localSessionId);
                 };
                 // ----------------------------------
                 const email = user.email.toLowerCase();
+                // Pull display name from Firebase profile, fallback to email prefix
+                const displayName = user.displayName || email.split('@')[0];
+                
                 let isPro = false; let validityText = null;
                 
                 window.renderPerformance(user.uid);
@@ -1117,10 +1162,10 @@
                 window.isUserPro = isPro;
                 
                 if (isPro) {
-                    updateSidebarDisplay(email, null, false, validityText); updateExamUI();
+                    updateSidebarDisplay(displayName, null, false, validityText); updateExamUI();
                     if(loginBtn) loginBtn.style.display = 'none'; if(payBtn) payBtn.style.display = 'none';
                 } else {
-                    updateSidebarDisplay(email, 'Expired/Free Plan', true, null); updateExamUI();
+                    updateSidebarDisplay(displayName, 'Expired/Free Plan', true, null); updateExamUI();
                     if(loginBtn) loginBtn.style.display = 'none'; if(payBtn) payBtn.style.display = 'block'; 
                 }
             } else {
