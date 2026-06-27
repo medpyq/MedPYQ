@@ -35,14 +35,17 @@
         .back-btn:hover { background: #e2e8f0; color: #0f172a; }
 
         /* --- FORMS & INPUTS --- */
+        .row { display: flex; gap: 15px; margin-bottom: 25px; }
+        .col { flex: 1; }
+        
         .input-group { margin-bottom: 16px; text-align: left;}
         .floating-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; display: block; letter-spacing: 0.05em; }
         
         .premium-input { width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; font-family: inherit; color: #0f172a; box-sizing: border-box; }
         .premium-input:focus { outline: none; border-color: var(--app-blue); box-shadow: 0 0 0 3px rgba(15, 43, 82, 0.1); }
-        .premium-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+        
+        select.premium-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1rem top 50%; background-size: 0.65rem auto; }
 
-        /* Hide number input arrows */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
@@ -69,15 +72,29 @@
             <div class="brand-icon"><i class="fa-solid fa-heart"></i></div> Support MedPYQ
         </div>
 
+        <!-- DONATION FORM VIEW -->
         <div id="view-donation" class="fade-in">
             <h1>Buy us a coffee ☕</h1>
             <p class="subtext">MedPYQ is built by medical students, for medical students. Your contribution helps us keep the servers running and the content updated.</p>
 
-            <div class="input-group" style="margin-bottom: 25px;">
-                <label class="floating-label">Donation Amount (INR)</label>
-                <div style="position: relative;">
-                    <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; font-weight: 700; color: #0f172a;">₹</span>
-                    <input type="number" id="inp-amount" class="premium-input" placeholder="0" min="1" style="padding-left: 35px; font-size: 1.2rem; font-weight: 700;">
+            <div class="row">
+                <div class="col" style="flex: 0.8;">
+                    <label class="floating-label">Currency</label>
+                    <select id="inp-currency" class="premium-input">
+                        <option value="INR" data-symbol="₹">🇮🇳 INR</option>
+                        <option value="USD" data-symbol="$">🇺🇸 USD</option>
+                        <option value="EUR" data-symbol="€">🇪🇺 EUR</option>
+                        <option value="GBP" data-symbol="£">🇬🇧 GBP</option>
+                        <option value="AUD" data-symbol="A$">🇦🇺 AUD</option>
+                        <option value="CAD" data-symbol="C$">🇨🇦 CAD</option>
+                    </select>
+                </div>
+                <div class="col" style="flex: 1.2;">
+                    <label class="floating-label">Donation Amount</label>
+                    <div style="position: relative;">
+                        <span id="currency-symbol" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; font-weight: 700; color: #0f172a;">₹</span>
+                        <input type="number" id="inp-amount" class="premium-input" placeholder="0" min="1" style="padding-left: 45px; font-size: 1.2rem; font-weight: 700;">
+                    </div>
                 </div>
             </div>
 
@@ -101,12 +118,14 @@
             </div>
         </div>
 
+        <!-- LOADING VIEW -->
         <div id="view-loading" class="hidden fade-in" style="text-align: center; padding: 40px 0;">
             <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--app-blue); margin-bottom: 20px;"></i>
             <h2>Processing Transaction</h2>
             <p class="subtext">Please do not close or refresh this window.</p>
         </div>
         
+        <!-- SUCCESS VIEW -->
         <div id="view-success" class="hidden fade-in" style="text-align: center; padding: 20px 0;">
             <div style="width: 80px; height: 80px; background: #fef2f2; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 20px auto;">
                 <i class="fa-solid fa-heart" style="font-size: 40px; color: #ef4444;"></i>
@@ -137,24 +156,32 @@
         // Replace with your actual Live/Test Razorpay Key ID
         const RZP_KEY_ID = "rzp_live_SDVpg3TnFNQeS5"; 
 
-        // Auto-fill email if user is logged in
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('inp-email').value = user.email;
-            }
+            if (user) document.getElementById('inp-email').value = user.email;
         });
 
-        // --- 2. UI LOGIC FOR DYNAMIC BUTTON ---
+        // --- 2. UI LOGIC FOR CURRENCY & DYNAMIC BUTTON ---
         const amountInput = document.getElementById('inp-amount');
+        const currencySelect = document.getElementById('inp-currency');
+        const currencySymbol = document.getElementById('currency-symbol');
         const payBtnText = document.getElementById('btn-pay-text');
 
-        amountInput.addEventListener('input', (e) => {
-            const val = parseInt(e.target.value) || 0;
+        function updateButtonText() {
+            const val = parseInt(amountInput.value) || 0;
+            const sym = currencySelect.options[currencySelect.selectedIndex].getAttribute('data-symbol');
             if (val > 0) {
-                payBtnText.innerHTML = `Donate ₹${val} <i class="fa-solid fa-arrow-right"></i>`;
+                payBtnText.innerHTML = `Donate ${sym}${val} <i class="fa-solid fa-arrow-right"></i>`;
             } else {
                 payBtnText.innerHTML = `Donate <i class="fa-solid fa-arrow-right"></i>`;
             }
+        }
+
+        amountInput.addEventListener('input', updateButtonText);
+        
+        currencySelect.addEventListener('change', (e) => {
+            const sym = e.target.options[e.target.selectedIndex].getAttribute('data-symbol');
+            currencySymbol.innerText = sym;
+            updateButtonText();
         });
 
         // --- 3. RAZORPAY PAYMENT INTEGRATION ---
@@ -162,15 +189,15 @@
             const name = document.getElementById('inp-name').value.trim();
             const email = document.getElementById('inp-email').value.trim();
             const finalAmount = parseInt(amountInput.value) || 0;
+            const selectedCurrency = currencySelect.value;
+            const sym = currencySelect.options[currencySelect.selectedIndex].getAttribute('data-symbol');
 
             if(finalAmount < 1) { 
                 alert("Please enter a valid donation amount."); 
-                amountInput.focus();
-                return; 
+                amountInput.focus(); return; 
             }
             if(!email || !name) { 
-                alert("Please enter your name and email address."); 
-                return; 
+                alert("Please enter your name and email address."); return; 
             }
 
             const btn = document.getElementById('btn-pay-text');
@@ -179,17 +206,15 @@
 
             var options = {
                 "key": RZP_KEY_ID,
-                "amount": finalAmount * 100, // Razorpay works in paise (multiply by 100)
-                "currency": "INR",
+                "amount": finalAmount * 100, // Razorpay works in subunits (cents/paise) for these major currencies
+                "currency": selectedCurrency, 
                 "name": "MedPYQ Support",
                 "description": "Voluntary Contribution",
                 "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmZCvBG0AQGL_GETLyEhJk2AFjghV6myUYLndf7t7Ev0s7n2v3TGtrhnLo8pGCpW2AdN6FYNEzXLRSr1wGUfqwJOxmP4GMX_5O-Mm0TYjGbiXLYzB-E_2JnZwUzaNiWLsxN4zNO8wSDRe9_BgYm-D5ufatVrKQqu5BnWz57KPiOXq6iTuQTCUqSNMCxJ0/s1024/1763696369451.jpg",
                 "handler": function (response){ 
-                    // Move to success screen
                     document.getElementById('view-loading').classList.add('hidden');
                     document.getElementById('view-success').classList.remove('hidden');
                     
-                    // Personalize the thank you note
                     const prefix = name.toLowerCase().includes('dr') ? '' : 'Dr. ';
                     document.getElementById('success-title').innerText = `Thank you, ${prefix}${name}!`;
                 },
@@ -197,9 +222,8 @@
                 "theme": { "color": "#0f2b52" },
                 "modal": { 
                     "ondismiss": function() { 
-                        // Reset button if user closes the modal
                         btn.disabled = false; 
-                        payBtnText.innerHTML = `Donate ₹${finalAmount} <i class="fa-solid fa-arrow-right"></i>`;
+                        payBtnText.innerHTML = `Donate ${sym}${finalAmount} <i class="fa-solid fa-arrow-right"></i>`;
                         document.getElementById('view-loading').classList.add('hidden');
                         document.getElementById('view-donation').classList.remove('hidden');
                     } 
@@ -211,12 +235,11 @@
             rzp.on('payment.failed', function (response){ 
                 alert("Transaction Failed: " + response.error.description); 
                 btn.disabled = false; 
-                payBtnText.innerHTML = `Donate ₹${finalAmount} <i class="fa-solid fa-arrow-right"></i>`;
+                payBtnText.innerHTML = `Donate ${sym}${finalAmount} <i class="fa-solid fa-arrow-right"></i>`;
                 document.getElementById('view-loading').classList.add('hidden');
                 document.getElementById('view-donation').classList.remove('hidden');
             });
             
-            // Swap views
             document.getElementById('view-donation').classList.add('hidden');
             document.getElementById('view-loading').classList.remove('hidden');
             
