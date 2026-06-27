@@ -149,6 +149,46 @@
             .report-header h1 { font-size: 2rem; }
             .deck-scroll-area { padding: 20px; }
         }
+        /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
+.question-content table,
+.ud-stem table,
+#ud-expl-box table,
+.expl-box table,
+.expl-container table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    /* Forces the table to act as a scrollable block on mobile */
+    display: block; 
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 15px;
+}
+
+.question-content th, .question-content td,
+.ud-stem th, .ud-stem td,
+#ud-expl-box th, #ud-expl-box td,
+.expl-box th, .expl-box td,
+.expl-container th, .expl-container td {
+    /* Fluid typography: scales between 0.75rem (mobile) and 1rem (desktop) */
+    font-size: clamp(0.75rem, 2.5vw, 1rem); 
+    /* Fluid padding: scales between 4px and 10px */
+    padding: clamp(4px, 1.5vw, 10px);
+    border: 1px solid #cbd5e1;
+    word-break: normal; 
+    min-width: 80px; 
+}
+
+/* Subtle background for headers */
+.question-content th, 
+.ud-stem th, 
+#ud-expl-box th, 
+.expl-box th, 
+.expl-container th {
+    background: #f8fafc;
+    color: #0f2b52;
+    font-weight: 700;
+}
     </style>
 </head>
 <body>
