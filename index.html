@@ -233,7 +233,7 @@
     #admin-fab:hover { transform: scale(1.1); }
 
     /* --- MODALS & OVERLAYS --- */
-    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #admin-modal-overlay {
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #admin-modal-overlay, #payment-browser-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
     }
     
@@ -292,10 +292,10 @@
             </div>
         </div>
        <div class="sidebar-footer">
-            <a href="donate.html" class="sidebar-donate-btn">
+            <div onclick="triggerExternalPayment('donate.html')" class="sidebar-donate-btn">
                 <i class="fas fa-heart" style="color: #ef4444;"></i>
                 <span style="font-weight: 700; font-size: 0.95rem; text-transform: uppercase;">Support Us</span>
-            </a>
+            </div>
             <div style="font-weight:800; opacity:0.3; font-size:1.5rem;">MedPYQ</div>
         </div>
     </aside>
@@ -759,7 +759,7 @@
             <div style="font-size: 40px; margin-bottom:10px;">👑</div>
             <h2 id="paywall-title">Unlock MedPYQ Pro</h2>
             <p id="paywall-text">Premium Question Banks are reserved for members. Please sign in to continue.</p>
-            <button class="btn-gold" id="paywall-btn-pay" onclick="window.location.href='premium.html'" style="display:none;">Get Pro Access</button>
+            <button class="btn-gold" id="paywall-btn-pay" onclick="triggerExternalPayment('premium.html')" style="display:none;">Get Pro Access</button>
             <button class="btn-primary" id="paywall-btn-login" onclick="document.getElementById('pro-paywall-overlay').style.display='none'; window.authApp.open();" style="background:#f1f5f9; color:#475569;">Member Login</button>
             <div onclick="document.getElementById('pro-paywall-overlay').style.display='none'" style="margin-top:20px; color:#94a3b8; cursor:pointer; font-size:0.8rem;">Maybe Later</div>
         </div>
@@ -788,16 +788,64 @@
         </div>
     </div>
 
+    <div id="payment-browser-overlay">
+        <div class="modal-card">
+            <div class="modal-icon" style="background:#fefce8; color:#eab308;">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <h2 style="color:#0f2b52;">Secure Checkout</h2>
+            <p style="margin-bottom: 20px;">To ensure UPI apps (GPay, PhonePe, etc.) work flawlessly, please open the payment page in your phone's external browser.</p>
+            
+            <a id="btn-open-default" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; margin-bottom:10px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; text-decoration:none; border:none; background: var(--app-blue); color: white;">
+                <i class="fas fa-external-link-alt"></i> Open in Browser
+            </a>
+            
+            <button id="btn-copy-link" onclick="copyPaymentLink()" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; margin-bottom:10px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; border:none; background: #f1f5f9; color: #475569;">
+                <i class="fas fa-link"></i> Copy Link
+            </button>
+            
+            <div onclick="document.getElementById('payment-browser-overlay').style.display='none'" style="margin-top:15px; color:#94a3b8; cursor:pointer; font-size:0.85rem; font-weight:600;">Cancel</div>
+        </div>
+    </div>
+
     <script>
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
         window.isUserPro = null; 
 
-        // Central List of Available Tests (with explicit exam tags)
+        // Central List of Available Tests
         const AVAILABLE_TESTS = [
-            { id: 'neet-pg', title: 'NEET PG Grand Mock 1', file: 'neet-pg-mock-1.json', time: 210, qs: 200, exam: 'NEET-PG' }, 
-            { id: 'neet-pg', title: 'NEET PG 2025', file: 'neet-pg-2025-test.json', time: 210, qs: 200, exam: 'NEET-PG' },
+            { id: 'neet-pg', title: 'NEET PG Grand Mock 1', file: 'neet-pg-mock-1.json', time: 210, qs: 200, exam: 'NEET-PG' },
             { id: 'inicet-may-2025', title: 'INI-CET May 2025', file: 'inicet-may-2025.json', time: 180, qs: 200, exam: 'INICET' }
         ];
+
+        // --- EXTERNAL PAYMENT INTERCEPTION LOGIC ---
+        let currentPaymentUrl = "";
+
+        function triggerExternalPayment(targetPage) {
+            const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            currentPaymentUrl = basePath + targetPage;
+            document.getElementById('btn-open-default').href = currentPaymentUrl;
+            document.getElementById('payment-browser-overlay').style.display = 'flex';
+        }
+
+        function copyPaymentLink() {
+            navigator.clipboard.writeText(currentPaymentUrl).then(() => {
+                const btn = document.getElementById('btn-copy-link');
+                const originalText = btn.innerHTML;
+                
+                btn.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
+                btn.style.color = '#16a34a';
+                btn.style.background = '#dcfce7';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.color = '#475569';
+                    btn.style.background = '#f1f5f9';
+                }, 2000);
+            }).catch(err => {
+                alert("Failed to copy link. Please open in browser directly.");
+            });
+        }
 
         // --- CUSTOM DROPDOWN LOGIC ---
         function toggleHeaderDropdown() {
@@ -843,7 +891,6 @@
             
             closeSidebar();
 
-            // Dynamically refresh tests & performance based on selected exam
             if (window.renderPerformance && window.currentUserUid) {
                 window.renderPerformance(window.currentUserUid);
             } else if (window.renderTestsTab) {
@@ -852,14 +899,11 @@
         }
 
         function updateExamUI() {
-            // Update Sidebar Highlights
             document.querySelectorAll('.exam-option').forEach(opt => opt.classList.toggle('active', opt.innerText === selectedExam));
             
-            // Update Custom Header Dropdown Text
             const headerDropdownText = document.getElementById('header-dropdown-text');
             if (headerDropdownText) headerDropdownText.innerText = selectedExam;
             
-            // Update the available subject cards
             updateSubjectGridVisibility(selectedExam);
         }
 
