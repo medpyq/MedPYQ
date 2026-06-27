@@ -1162,7 +1162,7 @@
             }
         };
 
-        window.UD_renderCard = function() {
+       window.UD_renderCard = function() {
             const area = document.getElementById('ud-card-area');
             if(!window.deckState.activeDb || window.deckState.activeDb.length === 0) { 
                 area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; 
@@ -1192,18 +1192,25 @@
             area.innerHTML = `
             <div class="ud-card">
                 <div class="ud-card-top">
-                    <div class="ud-label" style="background:#0f2b52; color:white;">${q.uid}</div>
+                    <!-- CHANGED: Top left now shows the dynamic Question Number -->
+                    <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
+                    
                     <div style="display:flex; gap:8px;">
                         <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> Ask AI</button>
                         <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
                     </div>
                 </div>
+                
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
-                <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                
+                <!-- CHANGED: Question ID (q.uid) moved here, before the Chapter and Year badges -->
+                <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <span class="ud-label" style="background:white; border: 1px solid #0f2b52; color:#0f2b52;">${q.uid}</span>
                     <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
                     <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
                 </div>
+                
                 <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
             </div>`;
             
