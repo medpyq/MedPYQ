@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-   <meta content='width=device-width, initial-scale=1.0, viewport-fit=cover' name='viewport'/>
+    <meta content='width=device-width, initial-scale=1.0, viewport-fit=cover' name='viewport'/>
     <meta content='yes' name='mobile-web-app-capable'/>
     <meta content='yes' name='apple-mobile-web-app-capable'/>
     <meta content='black-translucent' name='apple-mobile-web-app-status-bar-style'/>
@@ -45,7 +45,6 @@
    /* --- HEADER --- */
     .app-header {
         background: var(--app-blue); color: var(--white);
-        /* Adds dynamic padding to push UI safely below the phone's status bar */
         padding: max(25px, env(safe-area-inset-top, 25px)) 20px 0 20px; 
         position: sticky; top: 0; z-index: 50;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -53,31 +52,66 @@
     .top-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
     .app-header h1 { font-size: 1.2rem; font-weight: 700; margin: 0; margin-left: 15px; flex:1; color: white; }
     
-    /* --- PREMIUM MOBILE EXAM SELECTOR --- */
-    .header-exam-selector {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
+    /* --- CUSTOM HEADER DROPDOWN --- */
+    .custom-header-dropdown {
+        position: relative;
+        margin-right: 15px;
+    }
+    
+    .dropdown-selected {
         background-color: var(--app-blue);
         color: var(--app-gold);
         border: 1px solid var(--app-gold);
         border-radius: 6px;
-        padding: 6px 28px 6px 12px;
+        padding: 6px 12px;
         font-size: 0.8rem;
         font-weight: 700;
         cursor: pointer;
-        outline: none;
-        /* Custom Gold Arrow SVG */
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eebb4d' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 8px center;
-        background-size: 12px;
-        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         text-transform: uppercase;
-        transition: all 0.2s ease;
+        user-select: none;
     }
-    .header-exam-selector:focus {
-        box-shadow: 0 0 0 3px rgba(238, 187, 77, 0.2);
+    
+    .dropdown-options {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 8px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        width: 150px;
+        overflow: hidden;
+        z-index: 1000;
+        flex-direction: column;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .dropdown-options.show {
+        display: flex;
+        animation: dropFade 0.2s ease-out forwards;
+    }
+    
+    .dropdown-option {
+        padding: 12px 15px;
+        font-size: 0.85rem;
+        color: var(--app-blue);
+        font-weight: 700;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+    }
+    
+    .dropdown-option:last-child { border-bottom: none; }
+    .dropdown-option:hover, .dropdown-option.active { background: #f8fafc; color: var(--app-gold); }
+    
+    @keyframes dropFade {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .head-icons i { font-size: 1.3rem; margin-left: 10px; color: var(--white); cursor:pointer; }
@@ -111,7 +145,27 @@
     .sidebar .widget li { margin-bottom: 12px; }
     .sidebar .widget li a { font-size: 1rem; color: white; font-weight: 500; display: block; }
     .sidebar .widget li a:hover { color: var(--app-gold); }
-    .sidebar-footer { padding: 20px; opacity: 0.6; font-size: 0.8rem; margin-top: auto; }
+    .sidebar-footer { padding: 20px; opacity: 0.8; font-size: 0.8rem; margin-top: auto; }
+
+    .sidebar-donate-btn {
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 10px; 
+        background: rgba(238, 187, 77, 0.15); 
+        border: 1px solid #eebb4d; 
+        padding: 12px 15px; 
+        border-radius: 8px; 
+        color: #eebb4d; 
+        text-decoration: none; 
+        margin-bottom: 25px; 
+        transition: all 0.2s ease-in-out; 
+        cursor: pointer;
+    }
+    .sidebar-donate-btn:hover {
+        background: rgba(238, 187, 77, 0.3);
+        transform: translateY(-2px);
+    }
 
     /* --- HOME: HERO & CARDS --- */
     .medpyq-hero {
@@ -238,11 +292,10 @@
             </div>
         </div>
        <div class="sidebar-footer">
-            <a href="donate.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(238, 187, 77, 0.15); border: 1px solid #eebb4d; padding: 12px 15px; border-radius: 8px; color: #eebb4d; text-decoration: none; margin-bottom: 25px; transition: 0.2s; cursor: pointer;">
+            <a href="donate.html" class="sidebar-donate-btn">
                 <i class="fas fa-heart" style="color: #ef4444;"></i>
-                <span style="font-weight: 700; font-size: 0.65rem; text-transform: uppercase;">Support Us</span>
+                <span style="font-weight: 700; font-size: 0.95rem; text-transform: uppercase;">Support Us</span>
             </a>
-
             <div style="font-weight:800; opacity:0.3; font-size:1.5rem;">MedPYQ</div>
         </div>
     </aside>
@@ -252,12 +305,18 @@
             <i class="fas fa-bars" onclick="openSidebar()"></i>
             <h1><a href="index.html">MedPYQ</a></h1>
             
-            <select class="header-exam-selector" id="header-exam-display" onchange="filterExam(this.value)">
-                <option value="NEET-PG" style="color:black;">NEET-PG</option>
-                <option value="INICET" style="color:black;">INICET</option>
-                <option value="UPSC-CMS" style="color:black;">UPSC-CMS</option>
-                <option value="FMGE" style="color:black;">FMGE</option>
-            </select>
+            <div class="custom-header-dropdown">
+                <div class="dropdown-selected" onclick="toggleHeaderDropdown()">
+                    <span id="header-dropdown-text">NEET-PG</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <div class="dropdown-options" id="header-dropdown-options">
+                    <div class="dropdown-option" onclick="selectFromDropdown('NEET-PG')">NEET-PG</div>
+                    <div class="dropdown-option" onclick="selectFromDropdown('INICET')">INICET</div>
+                    <div class="dropdown-option" onclick="selectFromDropdown('UPSC-CMS')">UPSC-CMS</div>
+                    <div class="dropdown-option" onclick="selectFromDropdown('FMGE')">FMGE</div>
+                </div>
+            </div>
 
             <div class="head-icons">
                 <i class="fas fa-circle-user" onclick="if(window.authApp) window.authApp.open();"></i>
@@ -739,6 +798,25 @@
             { id: 'inicet-may-2025', title: 'INI-CET May 2025', file: 'inicet-may-2025.json', time: 180, qs: 200, exam: 'INICET' }
         ];
 
+        // --- CUSTOM DROPDOWN LOGIC ---
+        function toggleHeaderDropdown() {
+            document.getElementById('header-dropdown-options').classList.toggle('show');
+        }
+
+        function selectFromDropdown(examName) {
+            document.getElementById('header-dropdown-options').classList.remove('show');
+            filterExam(examName);
+        }
+
+        // Close dropdown if user clicks outside of it
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('header-dropdown-options');
+            const trigger = document.querySelector('.dropdown-selected');
+            if (dropdown && dropdown.classList.contains('show') && !trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
         function openSidebar() { document.getElementById('app-sidebar').classList.add('active'); document.getElementById('sidebar-overlay').classList.add('active'); updateExamUI(); }
         function closeSidebar() { document.getElementById('app-sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active'); }
 
@@ -773,12 +851,14 @@
         }
 
         function updateExamUI() {
+            // Update Sidebar Highlights
             document.querySelectorAll('.exam-option').forEach(opt => opt.classList.toggle('active', opt.innerText === selectedExam));
             
-            // Update Header Select
-            const headerSelect = document.getElementById('header-exam-display');
-            if (headerSelect) headerSelect.value = selectedExam;
+            // Update Custom Header Dropdown Text
+            const headerDropdownText = document.getElementById('header-dropdown-text');
+            if (headerDropdownText) headerDropdownText.innerText = selectedExam;
             
+            // Update the available subject cards
             updateSubjectGridVisibility(selectedExam);
         }
 
@@ -880,7 +960,7 @@
         const SUB_DB = { 'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31' };
 
         window.authApp = {
-            mode: 'signup', // Changed default mode to signup
+            mode: 'signup',
             open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
             close: function() { document.getElementById('auth-overlay').style.display = 'none'; this.mode = 'signup'; },
             toggleMode: function(newMode) { this.mode = newMode; this.renderUI(); },
@@ -902,7 +982,6 @@
                 
                 document.getElementById('btn-action-primary').innerText = "Creating...";
                 createUserWithEmailAndPassword(auth, e, p).then((userCredential) => { 
-                    // Update Firebase User Profile with their entered Name
                     updateProfile(userCredential.user, { displayName: n }).then(() => {
                         this.close(); 
                         alert("Account Created! Welcome to MedPYQ.");
@@ -965,7 +1044,6 @@
             const container = document.getElementById('dynamic-test-list');
             let html = '';
             
-            // Only show tests belonging to the selected exam
             const filteredTests = AVAILABLE_TESTS.filter(t => t.exam === selectedExam);
             
             if (filteredTests.length === 0) {
@@ -1014,20 +1092,18 @@
                 const historyObj = historySnap.val();
                 
                 if(!historyObj) {
-                    window.renderTestsTab([]); // Render default tests
+                    window.renderTestsTab([]); 
                     container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-chart-pie" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>No test history found. Take a mock test to unlock elite analytics.</div>';
                     return;
                 }
                 
                 const allHistoryArr = Object.keys(historyObj).map(key => ({...historyObj[key], id: key})).reverse();
                 
-                // ISOLATE HISTORY FOR CURRENT EXAM ONLY
                 const historyArr = allHistoryArr.filter(record => {
                     const testDef = AVAILABLE_TESTS.find(t => t.file === record.testFile);
                     return testDef && testDef.exam === selectedExam;
                 });
                 
-                // 1. Render Smart Tests Tab (Using Filtered History)
                 window.renderTestsTab(historyArr);
 
                 if(historyArr.length === 0) {
@@ -1035,7 +1111,6 @@
                     return;
                 }
 
-                // 2. Aggregate Data for Charts
                 let totalCorrect = 0; let totalWrong = 0; let totalSkipped = 0;
                 let scoreLabels = []; let scoreData = [];
 
@@ -1051,7 +1126,6 @@
                     scoreData.push(t.accuracy);
                 });
 
-                // 3. Build Analytics UI
                 let html = `
                 <div class="chart-dashboard">
                     <div class="chart-box">
@@ -1091,7 +1165,6 @@
                 
                 container.innerHTML = html;
 
-                // 4. Render Chart.js
                 if(window.accChartInstance) window.accChartInstance.destroy();
                 if(window.scoreChartInstance) window.scoreChartInstance.destroy();
 
@@ -1130,7 +1203,6 @@
             if (user) {
                 window.currentUserUid = user.uid; 
                 
-            // --- CONCURRENT SESSION CONTROL ---
                 let localSessionId = localStorage.getItem('medpyq_session_id');
                 if (!localSessionId) {
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -1138,7 +1210,6 @@
                 }
                 
                 const sessionRef = ref(db, `users/${user.uid}/activeSession`);
-                
                 set(sessionRef, localSessionId);
 
                 onValue(sessionRef, (snapshot) => {
@@ -1154,9 +1225,8 @@
                 window.forceLogout = function() {
                     set(sessionRef, localSessionId);
                 };
-                // ----------------------------------
+                
                 const email = user.email.toLowerCase();
-                // Pull display name from Firebase profile, fallback to email prefix
                 const displayName = user.displayName || email.split('@')[0];
                 
                 let isPro = false; let validityText = null;
@@ -1201,7 +1271,6 @@
                 if(adminFab) adminFab.style.display = "none";
                 updateSidebarDisplay('Guest', 'Free Plan', false, null); updateExamUI();
                 
-                // Reset UI for Guest
                 window.renderTestsTab([]);
                 document.getElementById('performance-list').innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);"><i class="fas fa-lock" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>Please log in to view your performance analytics.</div>';
                 
