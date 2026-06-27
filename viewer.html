@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>MedPYQ Viewer</title>
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;600;700;800&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
@@ -1323,38 +1323,47 @@
     <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:white; font-size:30px; cursor:pointer;">&times;</button>
     <img id="lightbox-img" style="max-width:90%; max-height:80%; object-fit:contain; cursor:grab;">
 </div>
-    <script>
-    // Simple Lightbox Logic
+    <!-- Replace your existing Lightbox script with this -->
+<script>
+    const lb = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    let scale = 1;
+    let startDist = 0;
+
     function openLightbox(imgSrc) {
-        const lb = document.getElementById('lightbox');
-        const img = document.getElementById('lightbox-img');
         img.src = imgSrc;
+        scale = 1;
+        img.style.transform = `scale(1) translate(0px, 0px)`;
         lb.style.display = 'flex';
     }
 
-    // Two-finger zoom/Pan implementation
-    const img = document.getElementById('lightbox-img');
-    let scale = 1, panning = false, pointX = 0, pointY = 0, start = { x: 0, y: 0 };
+    // Handle Pinch Zoom on Mobile
+    lb.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            startDist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+        }
+    });
 
-    function setTransform() {
-        img.style.transform = `scale(${scale}) translate(${pointX}px, ${pointY}px)`;
-    }
+    lb.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            let newDist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+            scale = Math.min(Math.max(1, scale * (newDist / startDist)), 4);
+            img.style.transform = `scale(${scale})`;
+            startDist = newDist;
+        }
+    }, { passive: false });
 
-    img.onmousedown = (e) => { e.preventDefault(); start = { x: e.clientX - pointX, y: e.clientY - pointY }; panning = true; };
-    document.onmouseup = () => { panning = false; };
-    document.onmousemove = (e) => {
-        if (!panning) return;
-        pointX = (e.clientX - start.x);
-        pointY = (e.clientY - start.y);
-        setTransform();
-    };
-
-    img.onwheel = (e) => {
-        e.preventDefault();
-        const delta = (e.deltaY < 0) ? 0.1 : -0.1;
-        scale = Math.min(Math.max(1, scale + delta), 4);
-        setTransform();
-    };
+    // Close on background click
+    lb.addEventListener('click', (e) => {
+        if(e.target === lb) lb.style.display = 'none';
+    });
 </script>
 </body>
 </html>
