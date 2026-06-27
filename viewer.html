@@ -126,9 +126,10 @@
         #report-desc { width: 100%; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-family: inherit; outline: none; box-sizing: border-box; resize: none; margin-bottom: 15px; }
         .ai-icon-box { width: 70px; height: 70px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
    
-    /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
+   /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
 .question-content table,
 .ud-stem table,
+#ud-expl-box table,
 .expl-box table,
 .expl-container table {
     width: 100%;
@@ -143,23 +144,29 @@
 
 .question-content th, .question-content td,
 .ud-stem th, .ud-stem td,
+#ud-expl-box th, #ud-expl-box td,
 .expl-box th, .expl-box td,
 .expl-container th, .expl-container td {
     /* Fluid typography: scales between 0.75rem (mobile) and 1rem (desktop) */
     font-size: clamp(0.75rem, 2.5vw, 1rem); 
     /* Fluid padding: scales between 4px and 10px */
     padding: clamp(4px, 1.5vw, 10px);
-    border: 1px solid #cbd5e1; /* Matches the existing MedPYQ UI */
-    word-break: normal; /* Prevents text from breaking mid-word */
-    min-width: 80px; /* Prevents columns from crushing too tightly */
+    border: 1px solid #cbd5e1;
+    word-break: normal; 
+    min-width: 80px; 
 }
 
-/* Optional: Subtle background for headers to mimic professional test engines */
-.question-content th, .ud-stem th, .expl-box th, .expl-container th {
+/* Subtle background for headers */
+.question-content th, 
+.ud-stem th, 
+#ud-expl-box th, 
+.expl-box th, 
+.expl-container th {
     background: #f8fafc;
     color: #0f2b52;
     font-weight: 700;
-}</style>
+}
+    </style>
 </head>
 <body>
 
