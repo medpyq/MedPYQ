@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support MedPYQ | Donate</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        :root { --app-blue: #0f2b52; --app-gold: #eebb4d; }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; color: #0f172a;}
+        * { box-sizing: border-box; transition: all 0.2s ease-in-out; }
+
+        /* BACKGROUND ORBS */
+        .orb { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.5; pointer-events: none; }
+        .orb-1 { width: 300px; height: 300px; background: #c7d2fe; top: -10%; left: -10%; }
+        .orb-2 { width: 400px; height: 400px; background: #fef08a; bottom: -10%; right: -10%; }
+
+        /* --- MAIN CARD --- */
+        #premium-wrapper {
+            width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px);
+            border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+            padding: 40px; position: relative; margin: 20px;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.02em; }
+        p.subtext { margin: 0 0 25px 0; color: #64748b; font-size: 0.95rem; line-height: 1.5; }
+        
+        .brand-logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem; margin-bottom: 24px; color: var(--app-blue); }
+        .brand-icon { width: 32px; height: 32px; background: #ef4444; color: white; border-radius: 8px; display: grid; place-items: center; font-size: 0.9rem; }
+        .back-btn { position: absolute; top: 40px; right: 40px; background: #f1f5f9; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; color: #64748b; text-decoration: none; font-size: 0.85rem;}
+        .back-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* --- FORMS & INPUTS --- */
+        .input-group { margin-bottom: 16px; text-align: left;}
+        .floating-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; display: block; letter-spacing: 0.05em; }
+        
+        .premium-input { width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; font-family: inherit; color: #0f172a; box-sizing: border-box; }
+        .premium-input:focus { outline: none; border-color: var(--app-blue); box-shadow: 0 0 0 3px rgba(15, 43, 82, 0.1); }
+        .premium-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* --- BUTTONS --- */
+        .pay-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; background: var(--app-blue); color: white; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 20px -5px rgba(15, 43, 82, 0.3); margin-top: 10px;}
+        .pay-btn:hover { background: #1e3a8a; transform: translateY(-2px); }
+        .pay-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .divider { height: 1px; background: #e2e8f0; margin: 24px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div id="premium-wrapper">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+        
+        <div class="brand-logo">
+            <div class="brand-icon"><i class="fa-solid fa-heart"></i></div> Support MedPYQ
+        </div>
+
+        <div id="view-donation" class="fade-in">
+            <h1>Buy us a coffee ☕</h1>
+            <p class="subtext">MedPYQ is built by medical students, for medical students. Your contribution helps us keep the servers running and the content updated.</p>
+
+            <div class="input-group" style="margin-bottom: 25px;">
+                <label class="floating-label">Donation Amount (INR)</label>
+                <div style="position: relative;">
+                    <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; font-weight: 700; color: #0f172a;">₹</span>
+                    <input type="number" id="inp-amount" class="premium-input" placeholder="0" min="1" style="padding-left: 35px; font-size: 1.2rem; font-weight: 700;">
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="input-group">
+                <label class="floating-label">Email Address</label>
+                <input type="email" id="inp-email" class="premium-input" placeholder="you@example.com">
+            </div>
+            <div class="input-group">
+                <label class="floating-label">Full Name</label>
+                <input type="text" id="inp-name" class="premium-input" placeholder="Dr. John Doe">
+            </div>
+
+            <button onclick="initiateDonation()" class="pay-btn" id="btn-pay-text">
+                Donate <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <div style="text-align: center; margin-top: 15px; font-size: 0.75rem; color: #94a3b8; font-weight: 600;">
+                <i class="fa-solid fa-lock"></i> Secured by Razorpay
+            </div>
+        </div>
+
+        <div id="view-loading" class="hidden fade-in" style="text-align: center; padding: 40px 0;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--app-blue); margin-bottom: 20px;"></i>
+            <h2>Processing Transaction</h2>
+            <p class="subtext">Please do not close or refresh this window.</p>
+        </div>
+        
+        <div id="view-success" class="hidden fade-in" style="text-align: center; padding: 20px 0;">
+            <div style="width: 80px; height: 80px; background: #fef2f2; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 20px auto;">
+                <i class="fa-solid fa-heart" style="font-size: 40px; color: #ef4444;"></i>
+            </div>
+            <h2 id="success-title" style="margin-bottom: 15px;">Thank you!</h2>
+            <p class="subtext" style="text-align: left; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; color: #334155;">
+                Your support is the heartbeat of MedPYQ. Every contribution goes directly toward hosting costs, enabling us to keep our high-yield content accessible to medical students across the country. We are honored to have you as part of our community.
+            </p>
+            <button onclick="window.location.href='index.html'" class="pay-btn" style="background:#16a34a;">Return to Dashboard</button>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+        // --- 1. FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
+            authDomain: "medpyq-elearning.firebaseapp.com",
+            projectId: "medpyq-elearning",
+            databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Replace with your actual Live/Test Razorpay Key ID
+        const RZP_KEY_ID = "rzp_live_SDVpg3TnFNQeS5"; 
+
+        // Auto-fill email if user is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('inp-email').value = user.email;
+            }
+        });
+
+        // --- 2. UI LOGIC FOR DYNAMIC BUTTON ---
+        const amountInput = document.getElementById('inp-amount');
+        const payBtnText = document.getElementById('btn-pay-text');
+
+        amountInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value) || 0;
+            if (val > 0) {
+                payBtnText.innerHTML = `Donate ₹${val} <i class="fa-solid fa-arrow-right"></i>`;
+            } else {
+                payBtnText.innerHTML = `Donate <i class="fa-solid fa-arrow-right"></i>`;
+            }
+        });
+
+        // --- 3. RAZORPAY PAYMENT INTEGRATION ---
+        window.initiateDonation = function() {
+            const name = document.getElementById('inp-name').value.trim();
+            const email = document.getElementById('inp-email').value.trim();
+            const finalAmount = parseInt(amountInput.value) || 0;
+
+            if(finalAmount < 1) { 
+                alert("Please enter a valid donation amount."); 
+                amountInput.focus();
+                return; 
+            }
+            if(!email || !name) { 
+                alert("Please enter your name and email address."); 
+                return; 
+            }
+
+            const btn = document.getElementById('btn-pay-text');
+            btn.disabled = true; 
+            btn.innerText = "Connecting to Secure Gateway...";
+
+            var options = {
+                "key": RZP_KEY_ID,
+                "amount": finalAmount * 100, // Razorpay works in paise (multiply by 100)
+                "currency": "INR",
+                "name": "MedPYQ Support",
+                "description": "Voluntary Contribution",
+                "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmZCvBG0AQGL_GETLyEhJk2AFjghV6myUYLndf7t7Ev0s7n2v3TGtrhnLo8pGCpW2AdN6FYNEzXLRSr1wGUfqwJOxmP4GMX_5O-Mm0TYjGbiXLYzB-E_2JnZwUzaNiWLsxN4zNO8wSDRe9_BgYm-D5ufatVrKQqu5BnWz57KPiOXq6iTuQTCUqSNMCxJ0/s1024/1763696369451.jpg",
+                "handler": function (response){ 
+                    // Move to success screen
+                    document.getElementById('view-loading').classList.add('hidden');
+                    document.getElementById('view-success').classList.remove('hidden');
+                    
+                    // Personalize the thank you note
+                    const prefix = name.toLowerCase().includes('dr') ? '' : 'Dr. ';
+                    document.getElementById('success-title').innerText = `Thank you, ${prefix}${name}!`;
+                },
+                "prefill": { "name": name, "email": email },
+                "theme": { "color": "#0f2b52" },
+                "modal": { 
+                    "ondismiss": function() { 
+                        // Reset button if user closes the modal
+                        btn.disabled = false; 
+                        payBtnText.innerHTML = `Donate ₹${finalAmount} <i class="fa-solid fa-arrow-right"></i>`;
+                        document.getElementById('view-loading').classList.add('hidden');
+                        document.getElementById('view-donation').classList.remove('hidden');
+                    } 
+                }
+            };
+
+            var rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function (response){ 
+                alert("Transaction Failed: " + response.error.description); 
+                btn.disabled = false; 
+                payBtnText.innerHTML = `Donate ₹${finalAmount} <i class="fa-solid fa-arrow-right"></i>`;
+                document.getElementById('view-loading').classList.add('hidden');
+                document.getElementById('view-donation').classList.remove('hidden');
+            });
+            
+            // Swap views
+            document.getElementById('view-donation').classList.add('hidden');
+            document.getElementById('view-loading').classList.remove('hidden');
+            
+            rzp.open();
+        }
+    </script>
+</body>
+</html>
