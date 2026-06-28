@@ -8,7 +8,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --blue: #0f2b52; --gold: #eebb4d; --bg: #f1f5f9; --text: #334155; --green: #22c55e; --red: #ef4444; --purple: #8b5cf6; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        body { 
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            overflow: hidden; 
+            height: 100vh; /* Fallback for older browsers */
+            height: 100dvh; /* Fixes the Samsung/Chrome bottom bar issue */
+            display: flex; 
+            flex-direction: column; 
+        }
         * { box-sizing: border-box; }
         
         /* Fixed Notch Padding for the Main Header */
@@ -28,7 +38,7 @@
         .cbt-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
         
         .cbt-main { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #e2e8f0; position: relative; }
-        .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue); }
+        .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue);flex-shrink: 0; }
         .question-content { padding: 30px; overflow-y: auto; flex: 1; font-size: 1.1rem; line-height: 1.6; }
         .q-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0; cursor: zoom-in; }
         
@@ -43,7 +53,7 @@
         .opt-row-wrong { border-color: var(--red) !important; background: #fee2e2 !important; color: #991b1b; font-weight: 600; cursor: default; }
         .expl-container { margin-top: 25px; padding: 20px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; line-height: 1.6; font-size: 1rem; color: #92400e; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
 
-        .cbt-footer { padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .cbt-footer { padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; }
         .footer-group { display: flex; gap: 10px; flex: 1; }
         .footer-group.right { justify-content: flex-end; }
         .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.95rem; text-align: center; }
@@ -234,7 +244,7 @@
         </div>
     </div>
 
-    <div id="view-test" class="hidden" style="height:100vh; display:flex; flex-direction:column;">
+<div id="view-test" class="hidden" style="flex: 1; height: 100%; display:flex; flex-direction:column;">
         <header class="cbt-header">
             <div class="cbt-title" id="test-header-title">Mock Test</div>
             <div class="cbt-timer" id="test-timer"><i class="fa-regular fa-clock"></i> 00:00:00</div>
