@@ -160,7 +160,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         // --- 1. CONFIGURATION ---
         const firebaseConfig = {
@@ -317,7 +317,7 @@
             rzp.open();
         }
 
-        // --- 6. FIREBASE UPGRADE & SILENT SUBMIT ---
+        // --- 6. FIREBASE UPGRADE & SILENT SUBMIT (WITH STACKING LOGIC) ---
         window.handleSuccess = async function(paymentId) {
             document.getElementById('view-pricing').classList.add('hidden');
             document.getElementById('view-loading').classList.remove('hidden');
@@ -326,26 +326,41 @@
             const city = document.getElementById('inp-city').value;
             const phone = document.getElementById('inp-phone').value;
 
-            // 1. Calculate Expiry Date based on selected plan
-            const expiryDate = Date.now() + (selectedPlan.months * 30 * 24 * 60 * 60 * 1000); 
+            // Convert selected plan months to milliseconds
+            const timeToAdd = selectedPlan.months * 30 * 24 * 60 * 60 * 1000;
 
             try {
-                // 2. Update Firebase Realtime Database
-                await update(ref(db, `users/${currentUserUid}`), {
+                // Fetch the user's current data to implement stacking
+                const userRef = ref(db, `users/${currentUserUid}`);
+                const snapshot = await get(userRef);
+                const userData = snapshot.val() || {};
+                
+                let currentExpiry = userData.planExpiry || 0;
+                let baseTime = Date.now();
+                
+                // STACKING LOGIC: If the user still has an active subscription, stack the new days on top
+                if (currentExpiry > Date.now()) {
+                    baseTime = currentExpiry;
+                }
+                
+                const newExpiryTimestamp = baseTime + timeToAdd;
+
+                // Update Firebase Realtime Database with the new stacked expiry date
+                await update(userRef, {
                     email: currentUserEmail,
                     accessLevel: 'pro',
                     plan: selectedPlan.name,
-                    planExpiry: expiryDate,
+                    planExpiry: newExpiryTimestamp,
                     lastPaymentId: paymentId,
                     updatedAt: Date.now()
                 });
 
-                // 3. Submit silently to Google Forms
+                // Submit silently to Google Forms
                 silentGoogleFormSubmit(name, currentUserEmail, city, phone, selectedCountry, selectedPlan.name + " (" + selectedPlan.display + ")", paymentId);
 
-                // 4. Redirect back to Home Page
+                // Redirect back to Home Page
                 setTimeout(() => { 
-                    alert("Success! Your Pro Access has been activated.");
+                    alert("Success! Your Pro Access has been activated/extended.");
                     window.location.href = "index.html"; 
                 }, 2000);
 
