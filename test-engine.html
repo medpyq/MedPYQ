@@ -8,17 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --blue: #0f2b52; --gold: #eebb4d; --bg: #f1f5f9; --text: #334155; --green: #22c55e; --red: #ef4444; --purple: #8b5cf6; }
-        body { 
-            margin: 0; 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            overflow: hidden; 
-            height: 100vh; /* Fallback for older browsers */
-            height: 100dvh; /* Fixes the Samsung/Chrome bottom bar issue */
-            display: flex; 
-            flex-direction: column; 
-        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
         * { box-sizing: border-box; }
         
         /* Fixed Notch Padding for the Main Header */
@@ -38,7 +28,7 @@
         .cbt-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
         
         .cbt-main { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #e2e8f0; position: relative; }
-        .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue);flex-shrink: 0; }
+        .question-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; font-weight: 700; color: var(--blue); flex-shrink: 0; }
         .question-content { padding: 30px; overflow-y: auto; flex: 1; font-size: 1.1rem; line-height: 1.6; }
         .q-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0; cursor: zoom-in; }
         
@@ -244,7 +234,7 @@
         </div>
     </div>
 
-<div id="view-test" class="hidden" style="flex: 1; height: 100%; display:flex; flex-direction:column;">
+    <div id="view-test" class="hidden" style="flex: 1; height: 100%; display:flex; flex-direction:column;">
         <header class="cbt-header">
             <div class="cbt-title" id="test-header-title">Mock Test</div>
             <div class="cbt-timer" id="test-timer"><i class="fa-regular fa-clock"></i> 00:00:00</div>
@@ -418,6 +408,7 @@
                 window.forceLogout = function() {
                     set(sessionRef, localSessionId); 
                 };
+                window.currentUserUid = user.uid; // Added so saveTestState works correctly
                 // ----------------------------------
 
                 if (ADMIN_EMAILS.includes(user.email)) {
@@ -443,10 +434,9 @@
                 const response = await fetch(testFileName);
                 if(!response.ok) throw new Error("Test file not found.");
                 questions = await response.json();
-                
-                questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
 
                 if (reviewId) {
+                    questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
                     document.getElementById('loading-title').innerText = "Loading Analysis...";
                     document.getElementById('loading-desc').innerText = "Fetching your saved answer sheet.";
                     
@@ -460,8 +450,32 @@
                         alert("Review data corrupted."); window.location.href = "index.html";
                     }
                 } else {
-                    state[0].status = 'unans'; 
-                    timeRemaining = config.durationMins * 60;
+                    // Check for saved test state to resume
+                    const storageKey = `medpyq_test_${uid || 'guest'}_${testFileName}`;
+                    const savedDataStr = localStorage.getItem(storageKey);
+                    let resumeTest = false;
+
+                    if (savedDataStr) {
+                        const savedData = JSON.parse(savedDataStr);
+                        // Only resume if the timer hasn't expired while they were gone
+                        if (savedData.endTime && savedData.endTime > Date.now()) {
+                            state = savedData.state;
+                            currentQIndex = savedData.currentQIndex || 0;
+                            timeRemaining = Math.floor((savedData.endTime - Date.now()) / 1000);
+                            window.testEndTime = savedData.endTime;
+                            resumeTest = true;
+                        } else {
+                            localStorage.removeItem(storageKey); // Timer expired, delete backup
+                        }
+                    }
+
+                    // If no valid backup exists, start a fresh test
+                    if (!resumeTest) {
+                        questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+                        state[0].status = 'unans'; 
+                        timeRemaining = config.durationMins * 60;
+                        window.testEndTime = Date.now() + (timeRemaining * 1000);
+                    }
 
                     document.getElementById('inst-exam-title').innerText = config.title;
                     document.getElementById('inst-time').innerText = config.durationMins + " Mins";
@@ -472,6 +486,11 @@
 
                     document.getElementById('view-loading').classList.add('hidden');
                     document.getElementById('view-instructions').classList.remove('hidden');
+                    
+                    // If resuming, change the instruction button text
+                    if (resumeTest) {
+                        document.querySelector('#view-instructions .btn-primary').innerText = "Resume My Test";
+                    }
                 }
 
             } catch (e) {
@@ -484,8 +503,11 @@
         window.startTest = function() {
             document.getElementById('view-instructions').classList.add('hidden');
             document.getElementById('view-test').classList.remove('hidden');
+            
+            // Start from where they left off
             renderPalette();
-            renderQuestion(0);
+            renderQuestion(currentQIndex); 
+            window.saveTestState();
             
             timerInterval = setInterval(() => {
                 timeRemaining--;
@@ -650,15 +672,29 @@
             renderPalette();
         }
 
-        window.selectOption = function(char) { if(window.isReviewMode) return; state[currentQIndex].ans = char; renderQuestion(currentQIndex); };
-        window.saveAndNext = function() { if(window.isReviewMode) return; if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; else state[currentQIndex].status = 'unans'; moveToNext(); };
-        window.markForReview = function() { if(window.isReviewMode) return; if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; else state[currentQIndex].status = 'review'; moveToNext(); };
-        window.clearResponse = function() { if(window.isReviewMode) return; state[currentQIndex].ans = null; state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex); };
+        // --- TEST STATE PERSISTENCE ---
+        window.testEndTime = null;
+
+        window.saveTestState = function() {
+            if (window.isReviewMode) return; // Don't save state if just reviewing
+            const storageKey = `medpyq_test_${window.currentUserUid || 'guest'}_${testFileName}`;
+            localStorage.setItem(storageKey, JSON.stringify({
+                state: state,
+                currentQIndex: currentQIndex,
+                endTime: window.testEndTime
+            }));
+        };
+
+        window.selectOption = function(char) { if(window.isReviewMode) return; state[currentQIndex].ans = char; renderQuestion(currentQIndex); window.saveTestState(); };
+        window.saveAndNext = function() { if(window.isReviewMode) return; if(state[currentQIndex].ans) state[currentQIndex].status = 'ans'; else state[currentQIndex].status = 'unans'; moveToNext(); window.saveTestState(); };
+        window.markForReview = function() { if(window.isReviewMode) return; if(state[currentQIndex].ans) state[currentQIndex].status = 'ans-review'; else state[currentQIndex].status = 'review'; moveToNext(); window.saveTestState(); };
+        window.clearResponse = function() { if(window.isReviewMode) return; state[currentQIndex].ans = null; state[currentQIndex].status = 'unans'; renderQuestion(currentQIndex); window.saveTestState(); };
         
         window.prevQuestion = function() { 
             if(currentQIndex > 0) { 
                 if(!window.isReviewMode && state[currentQIndex].status === 'notvis') state[currentQIndex].status = 'unans'; 
                 renderQuestion(currentQIndex - 1); 
+                window.saveTestState();
             } 
         };
         
@@ -668,6 +704,7 @@
                 if(state[idx].status === 'notvis') state[idx].status = 'unans'; 
             }
             renderQuestion(idx); 
+            window.saveTestState();
             if(window.innerWidth <= 900) { window.togglePalette(); } 
         };
 
@@ -684,6 +721,11 @@
         window.submitTest = function(autoSubmit = false) {
             if(autoSubmit || confirm("Are you sure you want to submit the test?")) {
                 clearInterval(timerInterval);
+                
+                // Clear the saved state backup so they can't resume a submitted test
+                const storageKey = `medpyq_test_${window.currentUserUid || 'guest'}_${testFileName}`;
+                localStorage.removeItem(storageKey);
+                
                 generateReport(true); 
             }
         };
