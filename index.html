@@ -1005,15 +1005,30 @@
         window.addEventListener('online', hideOfflineScreen);
         window.addEventListener('offline', showOfflineScreen);
 
-        function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
+      function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
             const userTitle = document.querySelector('.user-info h3');
             const userSub = document.querySelector('.user-info p');
+            
             if (validityDays !== null && validityDays !== undefined) {
                 if(userTitle) { userTitle.innerText = "Pro Member"; }
-                if(userSub) { userSub.innerHTML = `<div style='color: white;'>${email}</div><div style='color: #22c55e;'>Validity: ${validityDays}</div>`; }
+                if(userSub) { 
+                    userSub.innerHTML = `
+                        <div style='color: white; font-size: 0.85rem; margin-bottom: 5px;'>${email}</div>
+                        <div style='display: flex; align-items: center; gap: 10px;'>
+                            <div style='color: #22c55e; font-weight: bold;'>Validity: ${validityDays}</div>
+                            <button onclick="triggerExternalPayment('premium.html')" style="background: var(--app-gold); color: var(--app-blue); border: none; padding: 3px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; cursor: pointer; text-transform: uppercase;">Extend</button>
+                        </div>
+                    `; 
+                }
             } else {
                 if(userTitle) { userTitle.innerText = email.includes('@') ? email.split('@')[0] : email; }
-                if(userSub) { userSub.innerHTML = statusText; userSub.className = isExpired ? 'auth-status-expired' : 'auth-status-active'; }
+                if(userSub) { 
+                    userSub.innerHTML = `
+                        <div style="margin-bottom: 5px;">${statusText}</div>
+                        <button onclick="triggerExternalPayment('premium.html')" style="background: var(--app-gold); color: var(--app-blue); border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; text-align: center; margin-top: 5px;">👑 Upgrade to Pro</button>
+                    `; 
+                    userSub.className = isExpired ? 'auth-status-expired' : 'auth-status-active'; 
+                }
             }
         }
         document.addEventListener('DOMContentLoaded', updateExamUI);
