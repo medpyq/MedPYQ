@@ -1315,7 +1315,7 @@
             let cleanQuestion = q.stem.replace(/<[^>]*>?/gm, '').trim(); 
             let optionsText = q.options ? "\n\nOptions:\n" + q.options.map((opt, i) => `${String.fromCharCode(65+i)}) ${opt.replace(/<[^>]*>?/gm, '').trim()}`).join('\n') : "";
             
-            let shareText = `Do you know this answer? 🤔\n\n"${cleanQuestion}"${optionsText}\n\nThis has come in ${window.medpyqExam} ${q.year}.\n\nI'm studying it on MedPYQ, you too join.`;
+            let shareText = `Do you know this answer? 🤔\n\n"${cleanQuestion}"${optionsText}\n\nThis has come in ${window.medpyqExam} ${q.year}.\n\nAvailable chapter-wise on MedPYQ.`;
             
             if (navigator.share) { navigator.share({ title: 'MedPYQ Challenge', text: shareText, url: "https://www.medpyq.com" }); } 
             else if (navigator.clipboard) { navigator.clipboard.writeText(shareText + "\n\nLink: https://www.medpyq.com").then(() => alert("Question copied to clipboard to share with friends!")); }
