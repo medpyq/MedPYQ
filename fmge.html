@@ -136,6 +136,21 @@
         </div>
 
     </div>
+<!-- Google Analytics Tracking -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
 
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", 
+            authDomain: "medpyq-elearning.firebaseapp.com", 
+            databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", 
+            projectId: "medpyq-elearning" 
+        };
+
+        // Initialize Firebase and Analytics
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>
