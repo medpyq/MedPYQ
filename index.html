@@ -1034,14 +1034,19 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getAuth, onAuthStateChanged /*...*/ } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getDatabase, ref /*...*/ } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+// Add the Analytics import here
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
+        
+        const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", /* ... */ };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-        const firebaseConfig = { apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", authDomain: "medpyq-elearning.firebaseapp.com", databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", projectId: "medpyq-elearning" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
+// Initialize Analytics here
+const analytics = getAnalytics(app);
+        
         const ADMIN_EMAILS = ["educateindiainstitute@gmail.com", "pankajkumarmahto1009@gmail.com"];
         const SUB_DB = { 'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31' };
 
