@@ -304,7 +304,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
         // GLOBAL APPLICATION STATE
         window.appData = [];
         window.currentQIDForReport = "";
@@ -316,14 +315,12 @@
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
             authDomain: "medpyq-elearning.firebaseapp.com",
             databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com",
-            projectId: "medpyq-elearning",
-            measurementId: "G-D6GET866T2"
+            projectId: "medpyq-elearning"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const analytics = getAnalytics(app);
 
         // --- SECURITY CONSTANTS ---
         const ADMIN_EMAILS = [
