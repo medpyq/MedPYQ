@@ -233,7 +233,7 @@
     #admin-fab:hover { transform: scale(1.1); }
 
     /* --- MODALS & OVERLAYS --- */
-    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #admin-modal-overlay, #payment-browser-overlay {
+    #offline-overlay, #auth-overlay, #session-conflict-overlay, #reset-success-overlay, #pro-paywall-overlay, #admin-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; display: none; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(8px);
     }
     
@@ -301,7 +301,7 @@
             </div>
         </div>
        <div class="sidebar-footer">
-            <div onclick="triggerExternalPayment('donate.html')" class="sidebar-donate-btn">
+            <div onclick="window.openSecureCheckout('donate.html')" class="sidebar-donate-btn">
                 <i class="fas fa-heart" style="color: #ef4444;"></i>
                 <span style="font-weight: 700; font-size: 0.95rem; text-transform: uppercase;">Support Us</span>
             </div>
@@ -768,7 +768,7 @@
             <div style="font-size: 40px; margin-bottom:10px;">👑</div>
             <h2 id="paywall-title">Unlock MedPYQ Pro</h2>
             <p id="paywall-text">Premium Question Banks are reserved for members. Please sign in to continue.</p>
-            <button class="btn-gold" id="paywall-btn-pay" onclick="triggerExternalPayment('premium.html')" style="display:none;">Get Pro Access</button>
+            <button class="btn-gold" id="paywall-btn-pay" onclick="window.openSecureCheckout('premium.html')" style="display:none;">Get Pro Access</button>
             <button class="btn-primary" id="paywall-btn-login" onclick="document.getElementById('pro-paywall-overlay').style.display='none'; window.authApp.open();" style="background:#f1f5f9; color:#475569;">Member Login</button>
             <div onclick="document.getElementById('pro-paywall-overlay').style.display='none'" style="margin-top:20px; color:#94a3b8; cursor:pointer; font-size:0.8rem;">Maybe Later</div>
         </div>
@@ -796,27 +796,7 @@
             <button class="btn-secondary" onclick="document.getElementById('admin-modal-overlay').style.display='none'">Cancel</button>
         </div>
     </div>
-
-    <div id="payment-browser-overlay">
-        <div class="modal-card">
-            <div class="modal-icon" style="background:#fefce8; color:#eab308;">
-                <i class="fas fa-shield-halved"></i>
-            </div>
-            <h2 style="color:#0f2b52;">Secure Checkout</h2>
-            <p style="margin-bottom: 20px;">To ensure UPI apps (GPay, PhonePe, etc.) work flawlessly, please open the payment page in your phone's external browser.</p>
-            
-            <a id="btn-open-default" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; margin-bottom:10px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; text-decoration:none; border:none; background: var(--app-blue); color: white;">
-                <i class="fas fa-external-link-alt"></i> Open in Browser
-            </a>
-            
-            <button id="btn-copy-link" onclick="copyPaymentLink()" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; margin-bottom:10px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; border:none; background: #f1f5f9; color: #475569;">
-                <i class="fas fa-link"></i> Copy Link
-            </button>
-            
-            <div onclick="document.getElementById('payment-browser-overlay').style.display='none'" style="margin-top:15px; color:#94a3b8; cursor:pointer; font-size:0.85rem; font-weight:600;">Cancel</div>
-        </div>
-    </div>
-
+    
     <script>
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
         window.isUserPro = null; 
@@ -855,34 +835,47 @@
            
         ];
 
-        // --- EXTERNAL PAYMENT INTERCEPTION LOGIC ---
-        let currentPaymentUrl = "";
-
-        function triggerExternalPayment(targetPage) {
-            const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            currentPaymentUrl = basePath + targetPage;
-            document.getElementById('btn-open-default').href = currentPaymentUrl;
-            document.getElementById('payment-browser-overlay').style.display = 'flex';
-        }
-
-        function copyPaymentLink() {
-            navigator.clipboard.writeText(currentPaymentUrl).then(() => {
-                const btn = document.getElementById('btn-copy-link');
-                const originalText = btn.innerHTML;
-                
-                btn.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
-                btn.style.color = '#16a34a';
-                btn.style.background = '#dcfce7';
-                
+        window.openSecureCheckout = function(checkoutUrl) {
+            // 1. Build and inject the dynamic loader
+            const loaderHtml = `
+                <div id="secure-checkout-loader" style="position:fixed;inset:0;background:rgba(15,23,42,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;backdrop-filter:blur(5px);transition:opacity 0.5s;">
+                    <div id="loader-spinner" style="border:4px solid #334155;border-top:4px solid #eebb4d;border-radius:50%;width:50px;height:50px;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
+                    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+                    <h3 id="loader-title" style="margin:0 0 10px 0;font-size:1.2rem;">Preparing Checkout</h3>
+                    <p id="loader-msg" style="color:#94a3b8;font-size:0.9rem;max-width:300px;">Opening secure browser for secure payment...</p>
+                    <div id="loader-actions" style="display:none;margin-top:20px;gap:10px;">
+                        <button onclick="window.openSecureCheckout('${checkoutUrl}')" style="background:#eebb4d;color:#0f2b52;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;cursor:pointer;">Try Again</button>
+                        <button onclick="document.getElementById('secure-checkout-loader').remove()" style="background:#334155;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;cursor:pointer;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing overlay if any
+            const existing = document.getElementById('secure-checkout-loader');
+            if (existing) existing.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', loaderHtml);
+            
+            // 2. Attempt to open checkout in a new tab
+            const newWindow = window.open(checkoutUrl, "_blank");
+            
+            // 3. Adblocker / Popup Blocker Detection
+            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                document.getElementById('loader-spinner').style.display = 'none';
+                document.getElementById('loader-title').innerHTML = '🛡️ Adblocker Detected';
+                document.getElementById('loader-msg').innerText = 'Your browser or adblocker prevented the secure checkout from opening. Please disable your adblocker or popup blocker for this site and try again.';
+                document.getElementById('loader-actions').style.display = 'flex';
+            } else {
+                // 4. Success: Fade out and remove after 2.5 seconds
                 setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.color = '#475569';
-                    btn.style.background = '#f1f5f9';
-                }, 2000);
-            }).catch(err => {
-                alert("Failed to copy link. Please open in browser directly.");
-            });
-        }
+                    const loader = document.getElementById('secure-checkout-loader');
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.remove(), 500);
+                    }
+                }, 2500);
+            }
+        };
 
         // --- CUSTOM DROPDOWN LOGIC ---
         function toggleHeaderDropdown() {
@@ -1014,7 +1007,7 @@
         window.addEventListener('online', hideOfflineScreen);
         window.addEventListener('offline', showOfflineScreen);
 
-     function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
+        function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
             const userTitle = document.querySelector('.user-info h3');
             const userSub = document.querySelector('.user-info p');
             
@@ -1024,7 +1017,7 @@
                     userSub.innerHTML = `
                         <div style='color: white; font-size: 0.85rem; margin-bottom: 5px;'>${email}</div>
                         <div style='color: #22c55e; font-weight: bold; margin-bottom: 8px;'>Validity: ${validityDays}</div>
-                        <button onclick="triggerExternalPayment('premium.html')" style="background: var(--app-gold); color: var(--app-blue); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">Extend</button>
+                        <button onclick="window.openSecureCheckout('premium.html')" style="background: var(--app-gold); color: var(--app-blue); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">Extend</button>
                     `; 
                 }
             } else {
@@ -1032,45 +1025,45 @@
                 if(userSub) { 
                     userSub.innerHTML = `
                         <div style="margin-bottom: 5px;">${statusText}</div>
-                        <button onclick="triggerExternalPayment('premium.html')" style="background: var(--app-gold); color: var(--app-blue); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; text-align: center; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">👑 Upgrade to Pro</button>
+                        <button onclick="window.openSecureCheckout('premium.html')" style="background: var(--app-gold); color: var(--app-blue); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; text-align: center; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">👑 Upgrade to Pro</button>
                     `; 
                     userSub.className = isExpired ? 'auth-status-expired' : 'auth-status-active'; 
                 }
             }
         }
+
         document.addEventListener('DOMContentLoaded', updateExamUI);
     </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-// REMOVED the static analytics import from here
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-const firebaseConfig = { 
-    apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", 
-    authDomain: "medpyq-elearning.firebaseapp.com", 
-    databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", 
-    projectId: "medpyq-elearning",
-    measurementId: "G-D6GET866T2" 
-};
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", 
+            authDomain: "medpyq-elearning.firebaseapp.com", 
+            databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", 
+            projectId: "medpyq-elearning",
+            measurementId: "G-D6GET866T2" 
+        };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
-// Dynamically import Analytics so ad blockers won't crash the entire app
-import("https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js")
-    .then((analyticsModule) => {
-        analyticsModule.isSupported().then((supported) => {
-            if (supported) {
-                const analytics = analyticsModule.getAnalytics(app);
-            }
-        });
-    })
-    .catch((error) => {
-        console.warn("Analytics blocked by browser or extension, continuing without it.");
-    });
+        // Dynamically import Analytics so ad blockers won't crash the entire app
+        import("https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js")
+            .then((analyticsModule) => {
+                analyticsModule.isSupported().then((supported) => {
+                    if (supported) {
+                        const analytics = analyticsModule.getAnalytics(app);
+                    }
+                });
+            })
+            .catch((error) => {
+                console.warn("Analytics blocked by browser or extension, continuing without it.");
+            });
 
         const ADMIN_EMAILS = ["educateindiainstitute@gmail.com", "pankajkumarmahto1009@gmail.com"];
         const SUB_DB = { 'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31' };
@@ -1109,7 +1102,17 @@ import("https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js")
                 const e = document.getElementById('auth-email').value;
                 if(!e) { this.showError("Enter email first"); return; }
                 document.getElementById('btn-action-primary').innerText = "Sending...";
-                sendPasswordResetEmail(auth, e).then(() => { document.getElementById('reset-success-overlay').style.display = 'flex'; this.toggleMode('login'); }).catch((error) => { this.showError(this.cleanError(error.code)); document.getElementById('btn-action-primary').innerText = "Send Link"; });
+                sendPasswordResetEmail(auth, e).then(() => { 
+                    document.getElementById('reset-success-overlay').style.display = 'flex'; 
+                    this.toggleMode('login'); 
+                }).catch((error) => { 
+                    if (error.code === 'auth/user-not-found') {
+                        this.showError("Your email is not registered with us, please register.");
+                    } else {
+                        this.showError(this.cleanError(error.code)); 
+                    }
+                    document.getElementById('btn-action-primary').innerText = "Send Link"; 
+                });
             },
             logout: function() { signOut(auth).then(() => location.reload()); },
             renderUI: function() {
@@ -1324,24 +1327,39 @@ import("https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js")
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                     localStorage.setItem('medpyq_session_id', localSessionId);
                 }
-                
-                const sessionRef = ref(db, `users/${user.uid}/activeSession`);
-                set(sessionRef, localSessionId);
 
-                onValue(sessionRef, (snapshot) => {
-                    const activeDbSession = snapshot.val();
-                    if (activeDbSession && activeDbSession !== localSessionId) {
-                        document.getElementById('session-conflict-overlay').style.display = 'flex';
+                const sessionsRef = ref(db, `users/${user.uid}/active_sessions`);
+
+                get(sessionsRef).then((snapshot) => {
+                    let sessions = snapshot.val() || {};
+                    sessions[localSessionId] = Date.now(); 
+                    
+                    let keys = Object.keys(sessions);
+                    if (keys.length > 2) {
+                        keys.sort((a, b) => sessions[a] - sessions[b]);
+                        while (keys.length > 2) {
+                            delete sessions[keys.shift()];
+                        }
+                    }
+                    set(sessionsRef, sessions);
+                });
+
+                onValue(sessionsRef, (snapshot) => {
+                    const sessions = snapshot.val() || {};
+                    if (!sessions[localSessionId]) {
                         signOut(auth);
-                    } else {
-                        document.getElementById('session-conflict-overlay').style.display = 'none';
+                        
+                        document.body.innerHTML = `
+                            <div style="position:fixed;inset:0;background:#0f172a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;">
+                                <div style="font-size:50px;margin-bottom:20px;">🔒</div>
+                                <h2 style="font-size:24px;margin-bottom:10px;font-family:sans-serif;">Session Terminated</h2>
+                                <p style="color:#94a3b8;margin-bottom:30px;max-width:400px;font-family:sans-serif;line-height:1.5;">You logged into your account on a new device. To maintain your 2-device limit, this older session has been automatically signed out.</p>
+                                <button onclick="window.location.reload()" style="background:#eebb4d;color:#0f2b52;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;font-size:16px;cursor:pointer;">Return to Login</button>
+                            </div>
+                        `;
                     }
                 });
 
-                window.forceLogout = function() {
-                    set(sessionRef, localSessionId);
-                };
-                
                 const email = user.email.toLowerCase();
                 const displayName = user.displayName || email.split('@')[0];
                 
@@ -1443,6 +1461,7 @@ import("https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js")
             } catch (e) { console.error(e); alert("Error generating test. Check console."); } 
             finally { btn.innerText = "Generate & Download"; btn.disabled = false; document.getElementById('admin-modal-overlay').style.display = 'none'; }
         };
+
     </script>
 </body>
 </html>
