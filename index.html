@@ -1330,10 +1330,14 @@
 
                 const sessionsRef = ref(db, `users/${user.uid}/active_sessions`);
 
+                // 1. Fetch the current active sessions
                 get(sessionsRef).then((snapshot) => {
                     let sessions = snapshot.val() || {};
+                    
+                    // Add or update this device's session timestamp
                     sessions[localSessionId] = Date.now(); 
                     
+                    // Sort and enforce the 2-device limit
                     let keys = Object.keys(sessions);
                     if (keys.length > 2) {
                         keys.sort((a, b) => sessions[a] - sessions[b]);
@@ -1341,23 +1345,29 @@
                             delete sessions[keys.shift()];
                         }
                     }
-                    set(sessionsRef, sessions);
-                });
-
-                onValue(sessionsRef, (snapshot) => {
-                    const sessions = snapshot.val() || {};
-                    if (!sessions[localSessionId]) {
-                        signOut(auth);
+                    
+                    // 2. IMPORTANT: Save the sessions to Firebase FIRST
+                    set(sessionsRef, sessions).then(() => {
                         
-                        document.body.innerHTML = `
-                            <div style="position:fixed;inset:0;background:#0f172a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;">
-                                <div style="font-size:50px;margin-bottom:20px;">🔒</div>
-                                <h2 style="font-size:24px;margin-bottom:10px;font-family:sans-serif;">Session Terminated</h2>
-                                <p style="color:#94a3b8;margin-bottom:30px;max-width:400px;font-family:sans-serif;line-height:1.5;">You logged into your account on a new device. To maintain your 2-device limit, this older session has been automatically signed out.</p>
-                                <button onclick="window.location.reload()" style="background:#eebb4d;color:#0f2b52;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;font-size:16px;cursor:pointer;">Return to Login</button>
-                            </div>
-                        `;
-                    }
+                        // 3. ONLY start listening for kickouts AFTER the save is complete
+                        onValue(sessionsRef, (liveSnapshot) => {
+                            const activeSessions = liveSnapshot.val() || {};
+                            
+                            // If this device's token was removed by a 3rd device logging in
+                            if (!activeSessions[localSessionId]) {
+                                signOut(auth);
+                                
+                                document.body.innerHTML = `
+                                    <div style="position:fixed;inset:0;background:#0f172a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;">
+                                        <div style="font-size:50px;margin-bottom:20px;">🔒</div>
+                                        <h2 style="font-size:24px;margin-bottom:10px;font-family:sans-serif;">Session Terminated</h2>
+                                        <p style="color:#94a3b8;margin-bottom:30px;max-width:400px;font-family:sans-serif;line-height:1.5;">You logged into your account on a new device. To maintain your 2-device limit, this older session has been automatically signed out.</p>
+                                        <button onclick="window.location.reload()" style="background:#eebb4d;color:#0f2b52;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;font-size:16px;cursor:pointer;">Return to Login</button>
+                                    </div>
+                                `;
+                            }
+                        });
+                    });
                 });
 
                 const email = user.email.toLowerCase();
