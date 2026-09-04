@@ -166,7 +166,12 @@
     color: #0f2b52;
     font-weight: 700;
 }
-    </style>
+   /* --- ACCESSIBILITY: TEXT RESIZING --- */
+body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
+body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
+body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
+body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
+ </style>
 </head>
 <body>
 
@@ -188,7 +193,11 @@
                 <h1 id="dynamic-title">Loading...</h1>
                 <p id="dynamic-subtitle">Chapter-wise PYQs</p>
             </div>
-            <div class="q-count" id="q-count">0 Qs</div>
+            <div class="q-count" id="q-count">0 Qs</div><div style="display: flex; align-items: center; gap: 12px;">
+                <!-- NEW TEXT SIZE BUTTON (Table) -->
+                <button onclick="window.cycleTextSize()" style="background:transparent; border:none; color:var(--app-blue); font-size:1.2rem; cursor:pointer; font-weight:900; font-family: serif; padding: 0;">Aa</button>
+                <div class="q-count" id="q-count">0 Qs</div>
+            </div>
         </header>
 
         <div class="controls-bar">
@@ -233,6 +242,8 @@
             <button class='icon-btn' onclick='window.UD_toggleDrawer("filter")'><i class="fas fa-filter"></i></button>
             <div style="text-align: center;"><div class='ud-title' id='ud-top-title'>MedPYQ Deck</div><div class='ud-subtitle' id='ud-counter'>0/0</div></div>
             <div style='display:flex; gap:8px;'>
+                <!-- NEW TEXT SIZE BUTTON (Deck) -->
+                <button class='icon-btn' onclick='window.cycleTextSize()' style="font-weight:900; font-family: serif; font-size: 1.1rem;">Aa</button>
                 <button class='icon-btn' onclick='window.UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
                 <button class='icon-btn' onclick='window.UD_toggleDrawer("nav")'><i class="fas fa-bars-staggered"></i></button>
             </div>
@@ -310,6 +321,19 @@
         window.filterState = { units: [], chapters: [], years: [], search: "" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
         window.nestedCurriculum = null;
+        // --- TEXT RESIZING LOGIC ---
+        window.currentTextSize = parseInt(localStorage.getItem('medpyq_text_size')) || 0;
+        window.applyTextSize = function(level) {
+            document.body.classList.remove('text-lg', 'text-xl');
+            if (level === 1) document.body.classList.add('text-lg');
+            else if (level === 2) document.body.classList.add('text-xl');
+        };
+        window.cycleTextSize = function() {
+            window.currentTextSize = (window.currentTextSize + 1) % 3;
+            localStorage.setItem('medpyq_text_size', window.currentTextSize);
+            window.applyTextSize(window.currentTextSize);
+        };
+        window.applyTextSize(window.currentTextSize);
 
         const firebaseConfig = {
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE",
