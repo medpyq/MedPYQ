@@ -189,6 +189,11 @@
     color: #0f2b52;
     font-weight: 700;
 }
+/* --- ACCESSIBILITY: TEXT RESIZING --- */
+body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
+body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
+body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
+body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
     </style>
 </head>
 <body>
@@ -239,6 +244,8 @@
             <div class="cbt-title" id="test-header-title">Mock Test</div>
             <div class="cbt-timer" id="test-timer"><i class="fa-regular fa-clock"></i> 00:00:00</div>
             <div class="header-controls">
+                <!-- NEW TEXT SIZE BUTTON -->
+                <button onclick="window.cycleTextSize()" style="background:transparent; border:none; color:white; font-size:1.15rem; cursor:pointer; padding:0 10px; font-weight:800; font-family: serif; transition: 0.2s;" title="Change Text Size">Aa</button>
                 <button class="btn-submit-test" id="btn-top-submit" onclick="submitTest()">Submit</button>
                 <button class="mobile-palette-btn" onclick="togglePalette()"><i class="fas fa-th-large"></i></button>
             </div>
@@ -357,6 +364,19 @@
         
         window.isReviewMode = false; 
         window.reviewData = [];
+        // --- TEXT RESIZING LOGIC ---
+        window.currentTextSize = parseInt(localStorage.getItem('medpyq_text_size')) || 0;
+        window.applyTextSize = function(level) {
+            document.body.classList.remove('text-lg', 'text-xl');
+            if (level === 1) document.body.classList.add('text-lg');
+            else if (level === 2) document.body.classList.add('text-xl');
+        };
+        window.cycleTextSize = function() {
+            window.currentTextSize = (window.currentTextSize + 1) % 3;
+            localStorage.setItem('medpyq_text_size', window.currentTextSize);
+            window.applyTextSize(window.currentTextSize);
+        };
+        window.applyTextSize(window.currentTextSize);
         
         // URL Parsing
         const urlParams = new URLSearchParams(window.location.search);
