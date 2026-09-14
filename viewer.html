@@ -199,9 +199,14 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             </div>
         </header>
 
-        <div class="controls-bar">
+   <div class="controls-bar">
             <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
             
+            <!-- NEW SAVED FILTER BUTTON -->
+            <button id="btn-filter-saved" onclick="window.SYNC_toggleSaved()" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
+                <i class="fas fa-bookmark"></i> Saved
+            </button>
+
             <div class="ms-dropdown" id="unit-dropdown-container" style="display:none;">
                 <button class="ms-btn" onclick="window.toggleDropdown('table-unit-content')">
                     <span id="unit-btn-text">All Units</span> <i class="fas fa-chevron-down"></i>
@@ -317,7 +322,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         // GLOBAL APPLICATION STATE
         window.appData = [];
         window.currentQIDForReport = "";
-        window.filterState = { units: [], chapters: [], years: [], search: "" };
+        window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
         window.nestedCurriculum = null;
         // --- TEXT RESIZING LOGIC ---
@@ -1115,7 +1120,11 @@ window.userBookmarks = [];
             const deckFilterDiv = document.getElementById('deck-dynamic-filters');
 
             let tableChapHtml = '';
-            let deckHtml = `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Chapters</div>`;
+            let deckHtml = `
+                <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#0f2b52; text-transform:uppercase;">Quick Filters</div>
+                <label class="ms-label sync-chk-row" style="background:#fffbeb;"><input type="checkbox" id="deck-chk-saved" onchange="window.SYNC_toggleSaved()" ${window.filterState.savedOnly ? 'checked' : ''}> <span style="color:#b45309; font-weight:bold;"><i class="fas fa-bookmark" style="color:var(--app-gold);"></i> Saved Questions Only</span></label>
+                <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>
+            `;
             
             if (nestedCurriculum) {
                 nestedCurriculum.forEach(unitObj => {
@@ -1193,8 +1202,31 @@ window.userBookmarks = [];
             window.SYNC_applyFilters();
         };
 
+        window.SYNC_toggleSaved = function() {
+            window.filterState.savedOnly = !window.filterState.savedOnly;
+            
+            // Update Table Button UI
+            const btn = document.getElementById('btn-filter-saved');
+            if(btn) {
+                if(window.filterState.savedOnly) {
+                    btn.style.background = '#fef3c7'; btn.style.color = '#b45309'; btn.style.borderColor = '#f59e0b';
+                } else {
+                    btn.style.background = 'white'; btn.style.color = '#64748b'; btn.style.borderColor = '#cbd5e1';
+                }
+            }
+            
+            // Update Deck Checkbox UI
+            const chk = document.getElementById('deck-chk-saved');
+            if(chk) chk.checked = window.filterState.savedOnly;
+
+            window.SYNC_applyFilters();
+        };
+
         window.SYNC_resetFilters = function() {
-            window.filterState = { units: [], chapters: [], years: [], search: "" };
+            window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false };
+            const btnSaved = document.getElementById('btn-filter-saved');
+            if(btnSaved) { btnSaved.style.background = 'white'; btnSaved.style.color = '#64748b'; btnSaved.style.borderColor = '#cbd5e1'; }
+            
             document.getElementById('postSearch').value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.getElementById('chap-btn-text').innerText = "All Chapters";
@@ -1207,7 +1239,9 @@ window.userBookmarks = [];
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
                 const matchesChapter = window.filterState.chapters.length === 0 || window.filterState.chapters.includes(item.topic);
                 const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
-                return matchesSearch && matchesChapter && matchesYear;
+                const matchesSaved = !window.filterState.savedOnly || window.userBookmarks.includes(item.uid);
+                
+                return matchesSearch && matchesChapter && matchesYear && matchesSaved;
             });
 
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
@@ -1372,7 +1406,12 @@ window.userBookmarks = [];
                     if (window.deckState.userStatus[q.uid]) {
                         statusClass = window.deckState.userStatus[q.uid] === q.ans_key ? 'status-correct' : 'status-wrong';
                     }
-                    return `<div class="ud-nav-item ${statusClass} ${i === window.deckState.currentIndex ? 'active' : ''}" onclick="window.UD_navJump(${i})">${i+1}</div>`;
+                    
+                    let bookmarkIcon = window.userBookmarks.includes(q.uid) 
+                        ? `<i class="fas fa-bookmark" style="position:absolute; top:-5px; right:-5px; color:var(--app-gold); font-size:14px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); z-index: 10;"></i>` 
+                        : '';
+
+                    return `<div class="ud-nav-item ${statusClass} ${i === window.deckState.currentIndex ? 'active' : ''}" style="position:relative; overflow:visible;" onclick="window.UD_navJump(${i})">${i+1}${bookmarkIcon}</div>`;
                 }).join('');
             }
             document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
