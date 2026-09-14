@@ -968,8 +968,15 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             document.getElementById('view-toggle-btn').style.display = 'none';
         }
 
+window.userBookmarks = [];
         async function fetchData() {
             try {
+                // Fetch the user's saved list first
+                if(auth.currentUser) {
+                    const bSnap = await get(ref(db, `users/${auth.currentUser.uid}/bookmarks`));
+                    window.userBookmarks = Object.keys(bSnap.val() || {});
+                }
+
                 const dbPath = `question_banks/${activeExam}/${activeSubject}`;
                 const snapshot = await get(ref(db, dbPath));
                 
@@ -1051,28 +1058,48 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             return now + (nextIntervalDays * msPerDay);
         };
 
-        window.saveLocalBookmark = async function(btn, q_id, exam, subject) {
+      window.toggleBookmark = async function(btn, q_id, exam, subject) {
             const user = auth.currentUser;
-            if (!user) {
-                alert("Session lost. Please log in again.");
-                return;
-            }
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            
-            try {
-                const bookmarkRef = ref(db, `users/${user.uid}/bookmarks/${q_id}`);
-                const nextReview = window.calculateNextReviewDate(1);
-                await set(bookmarkRef, { exam: exam, subject: subject, current_step: 1, next_review_date: nextReview });
-                
-                btn.innerHTML = '<i class="fas fa-check" style="color:#16a34a;"></i> Saved';
-                setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
-            } catch (error) {
-                console.error(error);
-                alert("Error saving. Please try again.");
-                btn.innerHTML = originalHtml;
+            if (!user) { alert("Session lost. Please log in again."); return; }
+
+            const isSaved = window.userBookmarks.includes(q_id);
+
+            if (isSaved) {
+                if(confirm("Remove this question from your Active Recall deck?")) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+                    try {
+                        await set(ref(db, `users/${user.uid}/bookmarks/${q_id}`), null);
+                        window.userBookmarks = window.userBookmarks.filter(id => id !== q_id); // Remove from local memory
+                        
+                        // Revert Button UI
+                        btn.innerHTML = '<i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs';
+                        btn.style.color = '#0f2b52';
+                        btn.style.borderColor = '#cbd5e1';
+                        btn.style.background = 'transparent';
+                    } catch (e) {
+                        console.error(e); alert("Error removing bookmark.");
+                    }
+                }
+            } else {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                try {
+                    const bookmarkRef = ref(db, `users/${user.uid}/bookmarks/${q_id}`);
+                    const nextReview = window.calculateNextReviewDate(1);
+                    await set(bookmarkRef, { exam: exam, subject: subject, current_step: 1, next_review_date: nextReview });
+                    
+                    window.userBookmarks.push(q_id); // Add to local memory
+                    
+                    // Upgrade Button UI to Green
+                    btn.innerHTML = '<i class="fas fa-check" style="color:#16a34a;"></i> Saved';
+                    btn.style.color = '#16a34a';
+                    btn.style.borderColor = '#bbf7d0';
+                    btn.style.background = '#f0fdf4';
+                } catch (error) {
+                    console.error(error); alert("Error saving.");
+                }
             }
         };
+        
             // AUTO-OPEN DECK VIEW BY DEFAULT
             if (!window.deckState.isOpen) {
                 window.UD_toggleMode();
@@ -1219,7 +1246,10 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                         <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
                         <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
                         <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
-                        <button class="btn-ask-ai" onclick="window.saveLocalBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #0f2b52; border-color: #cbd5e1; margin-top: 5px;"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs</button>
+                        ${window.userBookmarks.includes(item.uid) 
+                            ? `<button class="btn-ask-ai" onclick="window.toggleBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; margin-top: 5px;"><i class="fas fa-check" style="color: #16a34a;"></i> Saved</button>`
+                            : `<button class="btn-ask-ai" onclick="window.toggleBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #0f2b52; border-color: #cbd5e1; background: transparent; margin-top: 5px;"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs</button>`
+                        }
                     </td>
                 </tr>`;
             });
@@ -1300,7 +1330,10 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                    <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
                    
                    <div style="display:flex; gap:8px;">
-                       <button class="ud-ai-btn" onclick="window.saveLocalBookmark(this, '${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save</button>
+                       ${window.userBookmarks.includes(q.uid)
+                            ? `<button class="ud-ai-btn" style="color: #16a34a; border-color: #bbf7d0; background: #f0fdf4;" onclick="window.toggleBookmark(this, '${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-check" style="color: #16a34a;"></i> Saved</button>`
+                            : `<button class="ud-ai-btn" style="background: transparent;" onclick="window.toggleBookmark(this, '${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save</button>`
+                        }
                        <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> AI</button>
                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
                    </div>
