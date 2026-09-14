@@ -294,6 +294,7 @@
             <div class="widget">
                 <h2>Menu</h2>
                 <ul>
+                    <li><a href="#" onclick="closeSidebar(); switchTab('saved'); return false;"><i class="fas fa-bookmark" style="margin-right: 10px; color: var(--app-gold);"></i>Bookmark Manager</a></li>
                     <li><a href="about.html">About Us</a></li>
                     <li><a href="contact.html">Contact</a></li>
                     <li><a href="privacy.html">Privacy Policy</a></li>
@@ -339,6 +340,8 @@
             <h1>Welcome to MedPYQ</h1>
             <p>Your dedicated partner for mastering NEET PG, INI-CET, FMGE, and UPSC CMS.</p>
             <a class="medpyq-btn" onclick="switchTab('qbank')">Start Practicing</a>
+            <!-- Dynamic Spaced Repetition Banner -->
+        <div id="home-due-banner"></div>
         </div>
 
         <h2 class="medpyq-section-title">Select Your Target</h2>
@@ -723,7 +726,26 @@
             <p style="margin:0; font-size:1rem;">Expert video lectures are currently under production.</p>
         </div>
     </div>
+<div class="screen" id="view-saved">
+        <div style="padding: 20px; max-width: 800px; margin: 0 auto; padding-bottom: 100px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--app-blue); margin: 0;"><i class="fas fa-brain" style="color: var(--app-gold);"></i> Daily 1 Qs</h2>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: bold; background: #e2e8f0; padding: 5px 10px; border-radius: 6px;" id="due-count-badge">0 Due Today</div>
+            </div>
+            
+            <div id="exam-date-container" style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: var(--app-blue); font-size: 0.9rem;">Target Exam Date:</span>
+                <input type="date" id="target-exam-date" onchange="window.updateTargetDate(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 10px; font-family: inherit; outline: none;">
+            </div>
 
+            <div id="flashcard-container">
+                <div style="text-align:center; padding:40px; color:#94a3b8; background:white; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                    <i class="fas fa-bookmark" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>
+                    Bookmark questions during your practice to build your active recall deck.
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><span>Home</span></div>
         <div class="nav-item" onclick="switchTab('qbank', this)"><i class="fas fa-layer-group"></i><span>QBank</span></div>
@@ -994,12 +1016,49 @@
             window.scrollTo(0,0);
 
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(element) element.classList.add('active');
-            else {
+            if(element) {
+                element.classList.add('active');
+            } else {
                const nav = document.querySelector(`.nav-item[onclick*="'${screenName}'"]`);
                if(nav) nav.classList.add('active');
             }
+
+            // Trigger the spaced repetition fetch when opening the Review tab
+            if(screenName === 'saved') {
+                const storedDate = localStorage.getItem('medpyq_target_date');
+                if(storedDate) document.getElementById('target-exam-date').value = storedDate;
+                if(window.loadDueFlashcards) window.loadDueFlashcards();
+            }
         }
+
+        // The Kerfoot/Cepeda Spaced Repetition Math Engine
+        window.calculateNextReviewDate = function(currentStep) {
+            const targetDateStr = localStorage.getItem('medpyq_target_date');
+            const now = Date.now();
+            const msPerDay = 24 * 60 * 60 * 1000;
+            
+            let daysRemaining = 90; // Default if no date is set
+            if (targetDateStr) {
+                const targetTime = new Date(targetDateStr).getTime();
+                daysRemaining = Math.max(1, (targetTime - now) / msPerDay);
+            }
+
+            let nextIntervalDays = 1;
+            if (currentStep === 1) nextIntervalDays = 1; 
+            else if (currentStep === 2) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.10)); 
+            else if (currentStep === 3) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.20)); 
+            else if (currentStep >= 4) nextIntervalDays = 21; 
+
+            return now + (nextIntervalDays * msPerDay);
+        };
+
+        window.updateTargetDate = function(dateValue) {
+            if(dateValue) {
+                localStorage.setItem('medpyq_target_date', dateValue);
+                alert("Target exam date saved. Repetition intervals updated.");
+                if(window.loadDueFlashcards) window.loadDueFlashcards();
+            }
+        };
 
         function showOfflineScreen() { document.getElementById('offline-overlay').style.display = 'flex'; }
         function hideOfflineScreen() { document.getElementById('offline-overlay').style.display = 'none'; }
@@ -1204,6 +1263,127 @@
         };
 
         // --- ELITE ANALYTICS CHARTS ---
+        // --- SPACED REPETITION / BOOKMARK ENGINE ---
+        window.bookmarkQuestion = async function(q_id, exam, subject) {
+            if (!window.currentUserUid) {
+                document.getElementById('auth-overlay').style.display = 'flex';
+                return;
+            }
+            const bookmarkRef = ref(db, `users/${window.currentUserUid}/bookmarks/${q_id}`);
+            const nextReview = window.calculateNextReviewDate(1);
+            await set(bookmarkRef, { exam: exam, subject: subject, current_step: 1, next_review_date: nextReview });
+            alert("Saved to Daily 1 Qs for Active Recall!");
+        };
+
+        window.loadDueFlashcards = async function() {
+            if (!window.currentUserUid) return;
+            
+            const container = document.getElementById('flashcard-container');
+            const badge = document.getElementById('due-count-badge');
+            const homeBanner = document.getElementById('home-due-banner');
+            
+            if(container) container.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">Loading due questions...</div>';
+            
+            const snap = await get(ref(db, `users/${window.currentUserUid}/bookmarks`));
+            const bookmarks = snap.val() || {};
+            const now = Date.now();
+            let dueQuestions = [];
+            
+            for (const [q_id, data] of Object.entries(bookmarks)) {
+                if (now >= data.next_review_date) dueQuestions.push({ q_id, ...data });
+            }
+            
+            // Populate the Home Screen Banner if there are due questions
+            if (homeBanner) {
+                if (dueQuestions.length > 0) {
+                    homeBanner.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #eebb4d 0%, #d4a03c 100%); color: #0f2b52; margin: 0 20px 30px 20px; padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(238, 187, 77, 0.3);" onclick="switchTab('saved')">
+                            <div>
+                                <div style="font-weight: 800; font-size: 1.1rem;"><i class="fas fa-brain"></i> Active Recall</div>
+                                <div style="font-size: 0.85rem; font-weight: 500; margin-top: 3px;">You have ${dueQuestions.length} Daily Qs due for review.</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="font-size: 1.2rem;"></i>
+                        </div>
+                    `;
+                } else {
+                    homeBanner.innerHTML = '';
+                }
+            }
+
+            if(badge) badge.innerText = `${dueQuestions.length} Due Today`;
+            if(!container) return; // Stop here if we are just updating the banner from the home screen
+            
+            if (dueQuestions.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#16a34a; background:#f0fdf4; border-radius:12px; border: 1px solid #bbf7d0;"><i class="fas fa-check-circle" style="font-size:3rem; margin-bottom:15px;"></i><br>You are all caught up for today!</div>';
+                return;
+            }
+            
+            const activeCard = dueQuestions[0];
+            const qSnap = await get(ref(db, `question_banks/${activeCard.exam}/${activeCard.subject}`));
+            const qDataArray = qSnap.val();
+            let questionData = null;
+            
+            if(Array.isArray(qDataArray)) {
+                questionData = qDataArray.find(q => q && q.q === activeCard.q_id);
+            } else if (qDataArray) {
+                questionData = Object.values(qDataArray).find(q => q && q.q === activeCard.q_id);
+            }
+            
+            if(questionData) {
+                window.renderFlashcard(questionData, activeCard);
+            } else {
+                container.innerHTML = '<div style="text-align:center; color:#ef4444;">Error loading question data.</div>';
+            }
+        };
+
+        window.renderFlashcard = function(qData, bookmarkData) {
+            const container = document.getElementById('flashcard-container');
+            let optionsHtml = '';
+            qData.options.forEach((opt, index) => {
+                const letter = String.fromCharCode(65 + index);
+                optionsHtml += `
+                    <div onclick="window.processRecall('${letter}', '${qData.ans_key}', '${bookmarkData.q_id}', ${bookmarkData.current_step})" 
+                         style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; transition: 0.2s;">
+                        <span style="font-weight: bold; margin-right: 15px; color: var(--app-blue);">${letter}.</span> ${opt}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <div style="font-size: 0.8rem; color: var(--app-gold); font-weight: 800; margin-bottom: 15px; text-transform: uppercase; display: flex; justify-content: space-between;">
+                        <span>Active Recall • Step ${bookmarkData.current_step}</span>
+                        <span onclick="window.removeBookmark('${bookmarkData.q_id}')" style="color: #ef4444; cursor: pointer;"><i class="fas fa-trash"></i> Remove</span>
+                    </div>
+                    <div style="font-size: 1.1rem; color: var(--app-blue); font-weight: 500; margin-bottom: 20px; line-height: 1.5;">${qData.stem}</div>
+                    ${qData.img ? `<img src="${qData.img}" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;">` : ''}
+                    <div>${optionsHtml}</div>
+                </div>
+            `;
+        };
+
+        window.processRecall = async function(selected, correct, q_id, current_step) {
+            let nextStep = current_step;
+            let isCorrect = selected === correct;
+            
+            if (isCorrect) nextStep++; 
+            else nextStep = 1; 
+            
+            alert(isCorrect ? "Correct! Interval Increased." : "Incorrect. Progress reset to Step 1.");
+            
+            const nextReview = window.calculateNextReviewDate(nextStep);
+            await set(ref(db, `users/${window.currentUserUid}/bookmarks/${q_id}/current_step`), nextStep);
+            await set(ref(db, `users/${window.currentUserUid}/bookmarks/${q_id}/next_review_date`), nextReview);
+            
+            window.loadDueFlashcards();
+        };
+
+        window.removeBookmark = async function(q_id) {
+            if(confirm("Are you sure you want to remove this question from your Daily 1 Qs?")) {
+                await set(ref(db, `users/${window.currentUserUid}/bookmarks/${q_id}`), null);
+                window.loadDueFlashcards();
+            }
+        };
         window.renderPerformance = async function(uid) {
             const container = document.getElementById('performance-list');
             try {
@@ -1376,6 +1556,7 @@
                 let isPro = false; let validityText = null;
                 
                 window.renderPerformance(user.uid);
+                if(window.loadDueFlashcards) window.loadDueFlashcards();
                 
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true; validityText = "Lifetime Access";
