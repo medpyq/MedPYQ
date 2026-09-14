@@ -1403,8 +1403,9 @@
             let optionsHtml = '';
             qData.options.forEach((opt, index) => {
                 const letter = String.fromCharCode(65 + index);
+                // Added id and class to manipulate colors after clicking
                 optionsHtml += `
-                    <div onclick="window.processRecall('${letter}', '${qData.ans_key}', '${bookmarkData.q_id}', ${bookmarkData.current_step})" 
+                    <div id="fc-opt-${letter}" class="fc-option" onclick="window.revealAnswer('${letter}', '${qData.ans_key}', '${bookmarkData.q_id}', ${bookmarkData.current_step})" 
                          style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; transition: 0.2s;">
                         <span style="font-weight: bold; margin-right: 15px; color: var(--app-blue);">${letter}.</span> ${opt}
                     </div>
@@ -1419,14 +1420,63 @@
                     </div>
                     <div style="font-size: 1.1rem; color: var(--app-blue); font-weight: 500; margin-bottom: 20px; line-height: 1.5;">${qData.stem}</div>
                     ${qData.img ? `<img src="${qData.img}" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;">` : ''}
-                    <div>${optionsHtml}</div>
+                    
+                    <div id="fc-options-container">${optionsHtml}</div>
+
+                    <!-- Hidden Explanation Box -->
+                    <div id="fc-explanation" style="display: none; margin-top: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px;">
+                        <div style="font-weight: bold; color: #d97706; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase;">Explanation</div>
+                        <div style="font-size: 0.95rem; color: #334155; line-height: 1.5;">${qData.explanation}</div>
+                    </div>
+
+                    <!-- Hidden Continue Button -->
+                    <button id="fc-next-btn" style="display: none; width: 100%; margin-top: 20px; padding: 14px; background: var(--app-blue); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 43, 82, 0.2);" onclick="window.processRecall('${qData.ans_key}', '${bookmarkData.q_id}', ${bookmarkData.current_step})">
+                        Continue to Next Question <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
+                    </button>
                 </div>
             `;
         };
 
-        window.processRecall = async function(selected, correct, q_id, current_step) {
+        // NEW STEP: Reveal the answer and explanation first
+        window.revealAnswer = function(selected, correct, q_id, current_step) {
+            // Prevent clicking other options after answering
+            if(document.getElementById('fc-next-btn').style.display === 'block') return;
+
+            // Save the user's choice temporarily for the next step
+            window.tempSelectedAnswer = selected;
+
+            // Color code the options
+            document.querySelectorAll('.fc-option').forEach(el => {
+                el.style.pointerEvents = 'none'; // Lock clicks
+                const optLetter = el.id.replace('fc-opt-', '');
+                
+                if (optLetter === correct) {
+                    el.style.background = '#dcfce7'; // Green bg
+                    el.style.borderColor = '#22c55e'; // Green border
+                    el.style.color = '#14532d';
+                    el.style.fontWeight = 'bold';
+                } else if (optLetter === selected && selected !== correct) {
+                    el.style.background = '#fee2e2'; // Red bg
+                    el.style.borderColor = '#ef4444'; // Red border
+                    el.style.color = '#7f1d1d';
+                }
+            });
+
+            // Show explanation and the next button
+            document.getElementById('fc-explanation').style.display = 'block';
+            document.getElementById('fc-next-btn').style.display = 'block';
+            
+            // Auto-scroll slightly so the button is visible on small screens
+            setTimeout(() => {
+                document.getElementById('fc-next-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        };
+
+        // FINAL STEP: Process the math and load the next card when they click Continue
+        window.processRecall = async function(correct, q_id, current_step) {
+            let selected = window.tempSelectedAnswer;
             let nextStep = current_step;
-            let isCorrect = selected === correct;
+            let isCorrect = (selected === correct);
             
             if (isCorrect) nextStep++; 
             else nextStep = 1; 
@@ -1434,6 +1484,11 @@
             // Log that this question was answered in this session so Cram Mode moves forward
             window.sessionAnswered = window.sessionAnswered || [];
             window.sessionAnswered.push(q_id);
+            
+            // Change button to a loading state to prevent double clicking
+            const btn = document.getElementById('fc-next-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving progress...';
+            btn.style.opacity = '0.7';
             
             const nextReview = window.calculateNextReviewDate(nextStep);
             await set(ref(db, `users/${window.currentUserUid}/bookmarks/${q_id}/current_step`), nextStep);
