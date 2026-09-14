@@ -1051,13 +1051,12 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             return now + (nextIntervalDays * msPerDay);
         };
 
-        window.saveLocalBookmark = async function(q_id, exam, subject) {
+        window.saveLocalBookmark = async function(btn, q_id, exam, subject) {
             const user = auth.currentUser;
             if (!user) {
                 alert("Session lost. Please log in again.");
                 return;
             }
-            const btn = event.currentTarget;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             
@@ -1220,7 +1219,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                         <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
                         <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
                         <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
-                        <button class="btn-ask-ai" onclick="window.saveLocalBookmark('${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #0f2b52; border-color: #cbd5e1; margin-top: 5px;"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs</button>
+                        <button class="btn-ask-ai" onclick="window.saveLocalBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #0f2b52; border-color: #cbd5e1; margin-top: 5px;"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs</button>
                     </td>
                 </tr>`;
             });
@@ -1297,16 +1296,15 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             area.innerHTML = `
             <div class="ud-card">
                 <div class="ud-card-top">
-                    <!-- CHANGED: Top left now shows the dynamic Question Number -->
-                    <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
-                    
-                    <div style="display:flex; gap:8px;">
-                        <div style="display:flex; gap:8px;">
-                        <button class="ud-ai-btn" onclick="window.saveLocalBookmark('${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save</button>
-                        <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> AI</button>
-                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
-                    </div>
-                </div>
+                   <!-- CHANGED: Top left now shows the dynamic Question Number -->
+                   <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
+                   
+                   <div style="display:flex; gap:8px;">
+                       <button class="ud-ai-btn" onclick="window.saveLocalBookmark(this, '${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save</button>
+                       <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> AI</button>
+                       <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
+                   </div>
+               </div>
                 
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
