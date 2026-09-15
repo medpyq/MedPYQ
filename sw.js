@@ -20,11 +20,15 @@ messaging.onBackgroundMessage((payload) => {
     console.log('[sw.js] Received background message ', payload);
 
     const notificationTitle = payload.notification.title || 'MedPYQ Alert';
+    
+    // Safely check if a URL exists; if not, default to your homepage
+    const targetUrl = (payload.data && payload.data.url) ? payload.data.url : 'https://medpyq.github.io/MedPYQ/';
+
     const notificationOptions = {
         body: payload.notification.body,
         icon: 'https://cdn-icons-png.flaticon.com/512/2913/2913008.png',
         badge: 'https://cdn-icons-png.flaticon.com/512/2913/2913008.png',
-        data: { url: payload.data ? payload.data.url : 'https://medpyq.github.io/' }
+        data: { url: targetUrl }
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
