@@ -1683,6 +1683,45 @@
                 
                 window.renderPerformance(user.uid);
                 if(window.loadDueFlashcards) window.loadDueFlashcards();
+
+                // --- TRUE WEB PUSH SETUP (FIREBASE CLOUD MESSAGING) ---
+                if ('Notification' in window && 'serviceWorker' in navigator) {
+                    Notification.requestPermission().then(async permission => {
+                        if (permission === 'granted') {
+                            try {
+                                // Register the background worker
+                                const reg = await navigator.serviceWorker.register('sw.js');
+                                
+                                // Import FCM dynamically
+                                const { getMessaging, getToken } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging.js");
+                                
+                                // Temporarily update your config just for messaging
+                                const msgApp = initializeApp({
+                                    ...firebaseConfig,
+                                    messagingSenderId: "851775924721",
+                                    appId: "1:851775924721:web:7d40eb80e421df7ebefc50"
+                                }, "MessagingApp");
+                                
+                                const messaging = getMessaging(msgApp);
+                                
+                                // Generate the unique device token using your VAPID Key
+                                const currentToken = await getToken(messaging, { 
+                                    vapidKey: "BFFowQl4w-S3bvhcDPgpC-ISpgS7VtRHqtYjU9XzKLzYR9nFToNvEpJKd3_x4SOkKxkEbIn5QFhlITWsaz5QhkU",
+                                    serviceWorkerRegistration: reg 
+                                });
+                                
+                                if (currentToken) {
+                                    console.log("FCM Token Generated Successfully!");
+                                    // Save this token to the user's profile in the database
+                                    await set(ref(db, `users/${window.currentUserUid}/fcmToken`), currentToken);
+                                }
+                            } catch (err) {
+                                console.error('FCM setup failed:', err);
+                            }
+                        }
+                    });
+                }
+                // --------------------------------------------------------
                 
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true; validityText = "Lifetime Access";
