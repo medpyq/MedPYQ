@@ -22,8 +22,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification.title || 'MedPYQ Alert';
     
     // Safely check if a URL exists; if not, default to your homepage
-    const targetUrl = (payload.data && payload.data.url) ? payload.data.url : 'https://medpyq.github.io/MedPYQ/';
-
+const targetUrl = (payload.data && payload.data.url) ? payload.data.url : 'https://medpyq.com/recall-engine.html';
     const notificationOptions = {
         body: payload.notification.body,
         icon: 'https://cdn-icons-png.flaticon.com/512/2913/2913008.png',
