@@ -1610,18 +1610,62 @@
                     scoreData.push(t.accuracy);
                 });
 
+                // --- FETCH QBANK SUBJECT MASTERY ---
+                const solvedSnap = await get(ref(db, `users/${uid}/solved/${selectedExam.toLowerCase()}`));
+                const solvedData = solvedSnap.val() || {};
+                
+                let subjectHtml = `<h3 style="color:var(--app-blue); font-size:1.1rem; margin-top:30px; margin-bottom:15px;"><i class="fas fa-bullseye" style="color:var(--app-gold);"></i> Subject Mastery</h3><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px; margin-bottom: 30px;">`;
+                
+                const subjects = Object.keys(solvedData);
+                if(subjects.length === 0) {
+                    subjectHtml += `<div style="color:#64748b; font-size:0.9rem; grid-column: 1 / -1; background: white; padding: 20px; border-radius: 12px; text-align: center; border: 1px dashed #cbd5e1;">No QBank data available yet. Start practicing to generate your mastery profile!</div>`;
+                } else {
+                    // Sort subjects alphabetically
+                    subjects.sort().forEach(sub => {
+                        const qList = Object.values(solvedData[sub]);
+                        const total = qList.length;
+                        const correct = qList.filter(q => q.correct).length;
+                        const acc = Math.round((correct / total) * 100) || 0;
+                        
+                        // Dynamic Color Logic: Red (<50), Gold (50-74), Green (75+)
+                        let color = '#ef4444'; let bgLight = '#fef2f2';
+                        if(acc >= 75) { color = '#22c55e'; bgLight = '#f0fdf4'; }
+                        else if(acc >= 50) { color = '#eebb4d'; bgLight = '#fffbeb'; }
+
+                        const formattedSub = sub.replace(/-/g, ' '); // Clean up "neet-pg" hyphens if any
+
+                        subjectHtml += `
+                        <div style="background:white; border-radius:12px; padding:15px; border:1px solid #e2e8f0; box-shadow:0 4px 15px rgba(0,0,0,0.02); transition: 0.2s;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <strong style="text-transform:capitalize; color:var(--app-blue); font-size:0.9rem;">${formattedSub}</strong>
+                                <span style="font-weight:900; color:${color}; font-size:1rem; background:${bgLight}; padding:4px 8px; border-radius:8px;">${acc}%</span>
+                            </div>
+                            <div style="width:100%; background:#f1f5f9; border-radius:10px; height:8px; overflow:hidden;">
+                                <div style="width:${acc}%; background:${color}; height:100%; border-radius:10px; transition: width 1s ease-in-out;"></div>
+                            </div>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:10px; font-weight: 600;">
+                                <i class="fas fa-check" style="color:#22c55e;"></i> ${correct} / ${total} Correct
+                            </div>
+                        </div>`;
+                    });
+                }
+                subjectHtml += `</div>`;
+
                 let html = `
                 <div class="chart-dashboard">
                     <div class="chart-box">
-                        <h3>Overall Accuracy</h3>
+                        <h3>Overall Mock Accuracy</h3>
                         <div style="width: 100%; max-width: 200px;"><canvas id="accChart"></canvas></div>
                     </div>
                     <div class="chart-box">
-                        <h3>Recent Test Scores</h3>
+                        <h3>Recent Mock Scores</h3>
                         <div style="width: 100%;"><canvas id="scoreChart"></canvas></div>
                     </div>
                 </div>
-                <h3 style="color:var(--app-blue); font-size:1.1rem; margin-bottom:15px;">Test History Log</h3>`;
+                
+                ${subjectHtml}
+                
+                <h3 style="color:var(--app-blue); font-size:1.1rem; margin-bottom:15px;"><i class="fas fa-history" style="color:var(--app-gold);"></i> Test History Log</h3>`;
                 
                 historyArr.forEach(record => {
                     html += `
