@@ -214,7 +214,10 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             <button id="btn-filter-saved" onclick="window.SYNC_toggleSaved()" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
                 <i class="fas fa-bookmark"></i> Saved
             </button>
-
+<!-- RESET ALL PROGRESS BUTTON -->
+            <button onclick="window.resetAllProgress()" style="padding: 10px 12px; border: 1px solid #fca5a5; border-radius: 8px; background: #fef2f2; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #dc2626; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
+                <i class="fas fa-trash-can"></i> Reset Progress
+            </button>
             <div class="ms-dropdown" id="unit-dropdown-container" style="display:none;">
                 <button class="ms-btn" onclick="window.toggleDropdown('table-unit-content')">
                     <span id="unit-btn-text">All Units</span> <i class="fas fa-chevron-down"></i>
@@ -1566,7 +1569,42 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             }
             window.UD_renderCard();
         };
+// --- WIPE ENTIRE SUBJECT PROGRESS ---
+        window.resetAllProgress = async function() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("You must be logged in to reset progress.");
+                return;
+            }
 
+            // 1. Confirm with the user (this is a destructive action)
+            const confirmReset = confirm(`Are you sure you want to delete all your answers for ${window.medpyqSubject}? This cannot be undone.`);
+            if (!confirmReset) return;
+
+            // 2. Clear the In-Memory State
+            window.deckState.userStatus = {};
+
+            // 3. Clear LocalStorage for this specific subject
+            const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
+            localStorage.removeItem(cacheKey);
+
+            // 4. Wipe the saved index so the "Resume" modal doesn't trigger
+            const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
+            localStorage.removeItem(indexKey);
+            window.deckState.currentIndex = 0;
+
+            // 5. Delete the entire node from Firebase Database
+            try {
+                await set(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}`), null);
+                alert("Progress successfully reset!");
+                
+                // 6. Reset Filters and Re-render the UI
+                window.SYNC_resetFilters();
+            } catch (err) {
+                console.error("Error resetting progress:", err);
+                alert("Failed to reset progress in the database. Please try again.");
+            }
+        };
         window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); window.saveCurrentIndex(); } };
         window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); window.saveCurrentIndex(); } };
 
