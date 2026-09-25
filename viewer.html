@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>MedPYQ Viewer</title>
     <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;600;700;800&display=swap' rel='stylesheet'/>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
@@ -201,6 +201,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
 
    <div class="controls-bar">
             <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
+            
             <!-- ATTEMPT STATUS DROPDOWN -->
             <select id="filter-attempt-status" onchange="window.SYNC_setAttemptFilter(this.value)" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #0f2b52; font-size: 0.9rem; font-weight: bold; font-family: inherit; outline: none; cursor: pointer;">
                 <option value="all">All Questions</option>
@@ -208,6 +209,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                 <option value="incorrect">Incorrect Only</option>
                 <option value="correct">Correct Only</option>
             </select>
+
             <!-- NEW SAVED FILTER BUTTON -->
             <button id="btn-filter-saved" onclick="window.SYNC_toggleSaved()" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
                 <i class="fas fa-bookmark"></i> Saved
@@ -320,7 +322,8 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             </div>
         </div>
     </div>
-<!-- 2-DEVICE SESSION CONFLICT OVERLAY -->
+
+    <!-- 2-DEVICE SESSION CONFLICT OVERLAY -->
     <div id="session-conflict-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
         <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
             <div style="color:#ef4444; background:#fee2e2; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-mobile-screen-button"></i></div>
@@ -329,16 +332,32 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             <button class="ud-btn" style="width: 100%; background: #0f2b52; color: white;" onclick="window.forceLogout()">Use Here Instead</button>
         </div>
     </div>
+
+    <!-- RESUME PROMPT OVERLAY -->
+    <div id="resume-prompt-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="color:#0f2b52; background:#e0f2fe; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <h3 style="color:#0f172a; font-size:1.4rem; margin:0 0 8px 0; font-weight:800;">Resume Practice?</h3>
+            <p style="color:#64748b; font-size:0.9rem; margin:0 0 25px 0;">You left off at Question <span id="resume-q-num"></span> in your last session. Would you like to resume or start fresh?</p>
+            <div style="display:flex; gap:10px;">
+                <button class="ud-btn" style="background:#f1f5f9; color:#64748b; flex:1;" onclick="window.startFresh()">Start Fresh</button>
+                <button class="ud-btn" style="background:#0f2b52; color:white; flex:1;" onclick="window.resumeSession()">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        
         // GLOBAL APPLICATION STATE
         window.appData = [];
         window.currentQIDForReport = "";
         window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false, attemptStatus: "all" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
         window.nestedCurriculum = null;
+        
         // --- TEXT RESIZING LOGIC ---
         window.currentTextSize = parseInt(localStorage.getItem('medpyq_text_size')) || 0;
         window.applyTextSize = function(level) {
@@ -910,9 +929,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             ]
         };
 
-        
-
-// --- SECURITY CHECK & AUTHENTICATION (2-DEVICE POOL) ---
+        // --- SECURITY CHECK & AUTHENTICATION (2-DEVICE POOL) ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 window.currentUserUid = user.uid;
@@ -983,8 +1000,6 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             }
         });
 
-       
-
         function grantAccess() {
             document.getElementById('paywall-overlay').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
@@ -1000,7 +1015,8 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             document.getElementById('view-toggle-btn').style.display = 'none';
         }
 
-window.userBookmarks = [];
+        window.userBookmarks = [];
+
         async function fetchData() {
             try {
                 const user = auth.currentUser;
@@ -1030,6 +1046,24 @@ window.userBookmarks = [];
                 
                 if (snapshot.exists()) {
                     processData(snapshot.val());
+                    
+                    // CHECK FOR SAVED RESUME STATE
+                    if (user) {
+                        const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
+                        const savedIndex = parseInt(localStorage.getItem(indexKey));
+                        
+                        // If they have a saved index > 0, ask to resume
+                        if (!isNaN(savedIndex) && savedIndex > 0 && savedIndex < window.deckState.activeDb.length) {
+                            window.tempSavedIndex = savedIndex;
+                            document.getElementById('resume-q-num').innerText = savedIndex + 1;
+                            document.getElementById('resume-prompt-overlay').style.display = 'flex';
+                        } else {
+                            if (!window.deckState.isOpen) window.UD_toggleMode(); // Start fresh
+                        }
+                    } else {
+                        if (!window.deckState.isOpen) window.UD_toggleMode(); // Start fresh for guests
+                    }
+
                 } else {
                     document.getElementById('tableBody').innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px;'>No questions uploaded yet for this subject.</td></tr>";
                     document.getElementById('ud-card-area').innerHTML = "<div style='text-align:center; padding:40px; color:#64748b; font-weight:bold;'>No questions available.</div>";
@@ -1088,6 +1122,7 @@ window.userBookmarks = [];
             
             initUniversalDeck(window.appData);
             window.SYNC_applyFilters();
+
             // --- INDEPENDENT SPACED REPETITION ENGINE ---
         window.calculateNextReviewDate = function(currentStep) {
             const targetDateStr = localStorage.getItem('medpyq_target_date');
@@ -1147,12 +1182,8 @@ window.userBookmarks = [];
                 }
             }
         };
-        
-            // AUTO-OPEN DECK VIEW BY DEFAULT
-            if (!window.deckState.isOpen) {
-                window.UD_toggleMode();
-            }
         }
+
         // ==========================================
         // UI & ADVANCED FILTER LOGIC
         // ==========================================
@@ -1165,7 +1196,17 @@ window.userBookmarks = [];
             let tableChapHtml = '';
             let deckHtml = `
                 <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#0f2b52; text-transform:uppercase;">Quick Filters</div>
-                <label class="ms-label sync-chk-row" style="background:#fffbeb;"><input type="checkbox" id="deck-chk-saved" onchange="window.SYNC_toggleSaved()" ${window.filterState.savedOnly ? 'checked' : ''}> <span style="color:#b45309; font-weight:bold;"><i class="fas fa-bookmark" style="color:var(--app-gold);"></i> Saved Questions Only</span></label>
+                
+                <div style="padding: 10px 20px;">
+                    <select id="deck-filter-attempt-status" onchange="window.SYNC_setAttemptFilter(this.value)" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #0f2b52; font-size: 0.9rem; font-weight: bold; font-family: inherit; outline: none; cursor: pointer;">
+                        <option value="all">All Questions</option>
+                        <option value="unattempted">Unattempted Only</option>
+                        <option value="incorrect">Incorrect Only</option>
+                        <option value="correct">Correct Only</option>
+                    </select>
+                </div>
+
+                <label class="ms-label sync-chk-row" style="background:#fffbeb; margin-top:5px;"><input type="checkbox" id="deck-chk-saved" onchange="window.SYNC_toggleSaved()" ${window.filterState.savedOnly ? 'checked' : ''}> <span style="color:#b45309; font-weight:bold;"><i class="fas fa-bookmark" style="color:var(--app-gold);"></i> Saved Questions Only</span></label>
                 <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>
             `;
             
@@ -1267,6 +1308,13 @@ window.userBookmarks = [];
 
         window.SYNC_setAttemptFilter = function(status) {
             window.filterState.attemptStatus = status;
+            
+            // Sync both dropdowns (Table View and Deck Drawer)
+            const mainSelect = document.getElementById('filter-attempt-status');
+            const deckSelect = document.getElementById('deck-filter-attempt-status');
+            if (mainSelect) mainSelect.value = status;
+            if (deckSelect) deckSelect.value = status;
+
             window.SYNC_applyFilters();
         };
 
@@ -1275,14 +1323,42 @@ window.userBookmarks = [];
             const btnSaved = document.getElementById('btn-filter-saved');
             if(btnSaved) { btnSaved.style.background = 'white'; btnSaved.style.color = '#64748b'; btnSaved.style.borderColor = '#cbd5e1'; }
             
-            const attemptSelect = document.getElementById('filter-attempt-status');
-            if(attemptSelect) attemptSelect.value = "all";
+            const mainSelect = document.getElementById('filter-attempt-status');
+            const deckSelect = document.getElementById('deck-filter-attempt-status');
+            if(mainSelect) mainSelect.value = "all";
+            if(deckSelect) deckSelect.value = "all";
 
             document.getElementById('postSearch').value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.getElementById('chap-btn-text').innerText = "All Chapters";
             document.getElementById('year-btn-text').innerText = "All Exams";
             window.SYNC_applyFilters();
+        };
+
+        // --- RESUME SESSION LOGIC ---
+        window.saveCurrentIndex = function() {
+            const user = auth.currentUser;
+            // Only save the index if the user is looking at the FULL list (no filters applied).
+            // Otherwise, an index of '5' on a filtered list would load the wrong question when they return.
+            if (user && window.deckState.activeDb.length === window.appData.length) {
+                const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
+                localStorage.setItem(indexKey, window.deckState.currentIndex);
+            }
+        };
+
+        window.startFresh = function() {
+            document.getElementById('resume-prompt-overlay').style.display = 'none';
+            window.deckState.currentIndex = 0;
+            window.saveCurrentIndex();
+            window.UD_renderCard();
+            if (!window.deckState.isOpen) window.UD_toggleMode();
+        };
+
+        window.resumeSession = function() {
+            document.getElementById('resume-prompt-overlay').style.display = 'none';
+            window.deckState.currentIndex = window.tempSavedIndex;
+            window.UD_renderCard();
+            if (!window.deckState.isOpen) window.UD_toggleMode();
         };
 
         window.SYNC_applyFilters = function() {
@@ -1364,6 +1440,7 @@ window.userBookmarks = [];
         function initUniversalDeck(data) {
             window.deckState.activeDb = [...data];
             window.deckState.currentIndex = 0;
+            // Preserves existing userStatus loaded during fetchData()
         }
 
         window.UD_toggleMode = function() {
@@ -1490,8 +1567,8 @@ window.userBookmarks = [];
             window.UD_renderCard();
         };
 
-        window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); } };
-        window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); } };
+        window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); window.saveCurrentIndex(); } };
+        window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); window.saveCurrentIndex(); } };
 
         window.UD_toggleDrawer = function(id) { 
             if(id === 'nav') {
@@ -1511,7 +1588,7 @@ window.userBookmarks = [];
             document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
         };
         
-        window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); };
+        window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); window.saveCurrentIndex(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
         // ==========================================
@@ -1589,11 +1666,13 @@ window.userBookmarks = [];
             }, 1000);
         };
     </script>
+
     <!-- Image Lightbox Overlay -->
 <div id="lightbox" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; touch-action:none;">
     <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:white; font-size:30px; cursor:pointer;">&times;</button>
     <img id="lightbox-img" style="max-width:90%; max-height:80%; object-fit:contain; cursor:grab;">
 </div>
+
     <!-- Replace your existing Lightbox script with this -->
 <script>
     const lb = document.getElementById('lightbox');
