@@ -335,13 +335,30 @@
     </header>
 
     <div class="screen active" id="view-home">
-        <div class="medpyq-hero">
+        <div class="medpyq-hero" style="position: relative;">
+            <!-- STREAK BADGE -->
+            <div id="user-streak-badge" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 20px; font-weight: 800; color: #eebb4d; font-size: 0.9rem; display: none; align-items: center; gap: 5px; border: 1px solid rgba(238, 187, 77, 0.3);">
+                <i class="fas fa-fire"></i> <span id="streak-count-text">0</span> Day Streak
+            </div>
+
             <div style="font-size: 3rem; margin-bottom: 10px; color: #eebb4d;"><i class="fa-solid fa-user-doctor"></i></div>
             <h1>Welcome to MedPYQ</h1>
             <p>Your dedicated partner for mastering NEET PG, INI-CET, FMGE, and UPSC CMS.</p>
             <a class="medpyq-btn" onclick="switchTab('qbank')">Start Practicing</a>
             <!-- Dynamic Spaced Repetition Banner -->
-        <div id="home-due-banner"></div>
+            <div id="home-due-banner" style="margin-top: 25px;"></div>
+        </div>
+
+        <!-- QUESTION OF THE DAY CARD -->
+        <div id="qotd-container" style="padding: 0 15px; margin-top: -20px; margin-bottom: 30px; position: relative; z-index: 10;">
+            <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <div style="color: #ef4444; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px;"><i class="fas fa-calendar-day"></i> Question of the Day</div>
+                    <div style="color: #0f2b52; font-weight: 700; font-size: 1.05rem;">Keep your streak alive!</div>
+                    <div style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">1 High-Yield MCQ chosen for you.</div>
+                </div>
+                <button onclick="window.startQOTD()" style="background: #0f2b52; color: white; border: none; padding: 12px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 43, 82, 0.2); transition: 0.2s;"><i class="fas fa-play"></i> Solve</button>
+            </div>
         </div>
 
         <h2 class="medpyq-section-title">Select Your Target</h2>
@@ -1725,7 +1742,10 @@
                 
                 window.renderPerformance(user.uid);
                 if(window.loadDueFlashcards) window.loadDueFlashcards();
-
+                
+                // TRIGGER THE STREAK ENGINE
+                if(window.calculateDailyStreak) window.calculateDailyStreak(user.uid);
+                
                 // --- TRUE WEB PUSH SETUP (FIREBASE CLOUD MESSAGING) ---
                 if ('Notification' in window && 'serviceWorker' in navigator) {
                     Notification.requestPermission().then(async permission => {
@@ -1950,6 +1970,93 @@
                 alert("A network error occurred while generating your quiz.");
             } finally {
                 btn.innerHTML = 'Generate & Start Test'; btn.disabled = false;
+            }
+        };
+        // --- DAILY HABIT ENGINE (STREAK & QOTD) ---
+        
+        // 1. Calculate and Display the Streak
+        window.calculateDailyStreak = async function(uid) {
+            try {
+                // Fetch the user's login history
+                const streakRef = ref(db, `users/${uid}/habit_tracker`);
+                const snap = await get(streakRef);
+                let tracker = snap.val() || { currentStreak: 0, lastLoginDate: null };
+                
+                // Get today's date string in local timezone (e.g., "2026-09-25")
+                const today = new Date().toLocaleDateString('en-CA'); 
+                
+                if (tracker.lastLoginDate !== today) {
+                    // Check if they logged in yesterday
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toLocaleDateString('en-CA');
+                    
+                    if (tracker.lastLoginDate === yesterdayStr) {
+                        tracker.currentStreak += 1; // Streak continues!
+                    } else {
+                        tracker.currentStreak = 1; // Streak broken, restart at 1
+                    }
+                    tracker.lastLoginDate = today;
+                    
+                    // Save updated streak to Firebase
+                    await set(streakRef, tracker);
+                }
+                
+                // Display the Badge
+                const badge = document.getElementById('user-streak-badge');
+                const text = document.getElementById('streak-count-text');
+                if (badge && text && tracker.currentStreak > 0) {
+                    text.innerText = tracker.currentStreak;
+                    badge.style.display = 'flex';
+                }
+                
+            } catch (err) {
+                console.error("Streak tracker error:", err);
+            }
+        };
+
+        // 2. Launch the Question of the Day
+        window.startQOTD = async function() {
+            const btn = document.querySelector('#qotd-container button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                // Fetch a random high-yield subject (e.g., Medicine)
+                const snap = await get(ref(db, `question_banks/${selectedExam.toLowerCase()}/medicine`));
+                const data = snap.val();
+                
+                if(data) {
+                    let qs = Array.isArray(data) ? data : Object.values(data);
+                    qs = qs.filter(q => q !== null);
+                    
+                    // Pick 1 random question based on today's date (so it's the same for everyone today)
+                    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                    const qotdIndex = dayOfYear % qs.length;
+                    const qotd = qs[qotdIndex];
+                    
+                    // Format for the test engine
+                    qotd.uid = qotd.q || ("QOTD" + dayOfYear);
+                    
+                    // Store as a 1-question custom quiz
+                    localStorage.setItem('medpyq_custom_quiz', JSON.stringify([qotd]));
+                    localStorage.setItem('medpyq_custom_config', JSON.stringify({
+                        title: `Question of the Day`,
+                        time: 2 // 2 minutes
+                    }));
+                    
+                    // Launch test engine
+                    window.location.href = `test-engine.html?customTest=true`;
+                } else {
+                    alert("QOTD is not available for this exam yet.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Could not load QOTD.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         };
     </script>
