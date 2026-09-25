@@ -201,7 +201,13 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
 
    <div class="controls-bar">
             <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
-            
+            <!-- ATTEMPT STATUS DROPDOWN -->
+            <select id="filter-attempt-status" onchange="window.SYNC_setAttemptFilter(this.value)" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #0f2b52; font-size: 0.9rem; font-weight: bold; font-family: inherit; outline: none; cursor: pointer;">
+                <option value="all">All Questions</option>
+                <option value="unattempted">Unattempted Only</option>
+                <option value="incorrect">Incorrect Only</option>
+                <option value="correct">Correct Only</option>
+            </select>
             <!-- NEW SAVED FILTER BUTTON -->
             <button id="btn-filter-saved" onclick="window.SYNC_toggleSaved()" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
                 <i class="fas fa-bookmark"></i> Saved
@@ -314,15 +320,23 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             </div>
         </div>
     </div>
-
+<!-- 2-DEVICE SESSION CONFLICT OVERLAY -->
+    <div id="session-conflict-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="color:#ef4444; background:#fee2e2; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <h3 style="color:#0f172a; font-size:1.4rem; margin:0 0 8px 0; font-weight:800;">Device Conflict</h3>
+            <p style="color:#64748b; font-size:0.9rem; margin:0 0 25px 0;">You have logged in on another device. To maintain your 2-device limit, this session has been paused.</p>
+            <button class="ud-btn" style="width: 100%; background: #0f2b52; color: white;" onclick="window.forceLogout()">Use Here Instead</button>
+        </div>
+    </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
         // GLOBAL APPLICATION STATE
         window.appData = [];
         window.currentQIDForReport = "";
-        window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false };
+        window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false, attemptStatus: "all" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
         window.nestedCurriculum = null;
         // --- TEXT RESIZING LOGIC ---
@@ -898,46 +912,57 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
 
         
 
-
-
-        // --- SECURITY CHECK & AUTHENTICATION ---
+// --- SECURITY CHECK & AUTHENTICATION (2-DEVICE POOL) ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-            // --- CONCURRENT SESSION CONTROL ---
+                window.currentUserUid = user.uid;
                 let localSessionId = localStorage.getItem('medpyq_session_id');
                 if (!localSessionId) {
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                     localStorage.setItem('medpyq_session_id', localSessionId);
                 }
                 
-                const sessionRef = ref(db, `users/${user.uid}/activeSession`);
-                
-                // 1. Claim the session for this device
-                set(sessionRef, localSessionId);
+                const sessionsRef = ref(db, `users/${user.uid}/active_sessions`);
 
-              // 2. Listen in real-time. If DB session changes, lock the screen.
-                onValue(sessionRef, (snapshot) => {
-                    const activeDbSession = snapshot.val();
-                    if (activeDbSession && activeDbSession !== localSessionId) {
-                        // Show the overlay AND force a complete Firebase Sign Out
-                        document.getElementById('session-conflict-overlay').style.display = 'flex';
-                        signOut(auth); // Kicks them completely out of the app
-                    } else {
-                        document.getElementById('session-conflict-overlay').style.display = 'none';
+                try {
+                    const snap = await get(sessionsRef);
+                    let sessions = snap.val() || {};
+                    sessions[localSessionId] = Date.now();
+
+                    // Maintain max 2 concurrent devices
+                    let keys = Object.keys(sessions);
+                    if (keys.length > 2) {
+                        keys.sort((a, b) => sessions[a] - sessions[b]);
+                        while (keys.length > 2) {
+                            delete sessions[keys.shift()];
+                        }
                     }
-                });
 
-                // 3. The "Use Here Instead" button logic
-                window.forceLogout = function() {
-                    set(sessionRef, localSessionId); // Steals the session back
-                };
-                // ----------------------------------
+                    await set(sessionsRef, sessions);
+
+                    onValue(sessionsRef, (liveSnapshot) => {
+                        const activeSessions = liveSnapshot.val() || {};
+                        const conflictEl = document.getElementById('session-conflict-overlay');
+                        if (!activeSessions[localSessionId]) {
+                            if (conflictEl) conflictEl.style.display = 'flex';
+                            signOut(auth);
+                        } else {
+                            if (conflictEl) conflictEl.style.display = 'none';
+                        }
+                    });
+
+                    window.forceLogout = function() {
+                        sessions[localSessionId] = Date.now();
+                        set(sessionsRef, sessions).then(() => location.reload());
+                    };
+                } catch (err) {
+                    console.error("Session sync error:", err);
+                }
+
                 const isAdmin = ADMIN_EMAILS.includes(user.email);
-                
                 if (isAdmin) {
                     grantAccess();
                 } else {
-                    // Check Firebase Database for Subscription Status
                     try {
                         const snapshot = await get(ref(db, `users/${user.uid}`));
                         const userData = snapshot.val();
@@ -958,6 +983,8 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             }
         });
 
+       
+
         function grantAccess() {
             document.getElementById('paywall-overlay').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
@@ -976,10 +1003,26 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
 window.userBookmarks = [];
         async function fetchData() {
             try {
-                // Fetch the user's saved list first
-                if(auth.currentUser) {
-                    const bSnap = await get(ref(db, `users/${auth.currentUser.uid}/bookmarks`));
+                const user = auth.currentUser;
+                if(user) {
+                    // 1. Fetch user bookmarks
+                    const bSnap = await get(ref(db, `users/${user.uid}/bookmarks`));
                     window.userBookmarks = Object.keys(bSnap.val() || {});
+
+                    // 2. Load cached attempts from LocalStorage for instant rendering
+                    const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
+                    const localCache = localStorage.getItem(cacheKey);
+                    if (localCache) {
+                        try { window.deckState.userStatus = JSON.parse(localCache) || {}; } catch(e){}
+                    }
+
+                    // 3. Fetch confirmed attempts from Firebase Cloud
+                    const solvedSnap = await get(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}`));
+                    const cloudSolved = solvedSnap.val() || {};
+                    for (let qid in cloudSolved) {
+                        window.deckState.userStatus[qid] = cloudSolved[qid].ans;
+                    }
+                    localStorage.setItem(cacheKey, JSON.stringify(window.deckState.userStatus));
                 }
 
                 const dbPath = `question_banks/${activeExam}/${activeSubject}`;
@@ -1222,11 +1265,19 @@ window.userBookmarks = [];
             window.SYNC_applyFilters();
         };
 
+        window.SYNC_setAttemptFilter = function(status) {
+            window.filterState.attemptStatus = status;
+            window.SYNC_applyFilters();
+        };
+
         window.SYNC_resetFilters = function() {
-            window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false };
+            window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false, attemptStatus: "all" };
             const btnSaved = document.getElementById('btn-filter-saved');
             if(btnSaved) { btnSaved.style.background = 'white'; btnSaved.style.color = '#64748b'; btnSaved.style.borderColor = '#cbd5e1'; }
             
+            const attemptSelect = document.getElementById('filter-attempt-status');
+            if(attemptSelect) attemptSelect.value = "all";
+
             document.getElementById('postSearch').value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.getElementById('chap-btn-text').innerText = "All Chapters";
@@ -1241,7 +1292,18 @@ window.userBookmarks = [];
                 const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
                 const matchesSaved = !window.filterState.savedOnly || window.userBookmarks.includes(item.uid);
                 
-                return matchesSearch && matchesChapter && matchesYear && matchesSaved;
+                // Status Attempt Filter
+                let matchesStatus = true;
+                const userAns = window.deckState.userStatus[item.uid];
+                if (window.filterState.attemptStatus === 'unattempted') {
+                    matchesStatus = !userAns;
+                } else if (window.filterState.attemptStatus === 'incorrect') {
+                    matchesStatus = userAns && userAns !== item.ans_key;
+                } else if (window.filterState.attemptStatus === 'correct') {
+                    matchesStatus = userAns && userAns === item.ans_key;
+                }
+
+                return matchesSearch && matchesChapter && matchesYear && matchesSaved && matchesStatus;
             });
 
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
@@ -1302,7 +1364,6 @@ window.userBookmarks = [];
         function initUniversalDeck(data) {
             window.deckState.activeDb = [...data];
             window.deckState.currentIndex = 0;
-            window.deckState.userStatus = {};
         }
 
         window.UD_toggleMode = function() {
@@ -1376,11 +1437,14 @@ window.userBookmarks = [];
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
                 
-                <!-- CHANGED: Question ID (q.uid) moved here, before the Chapter and Year badges -->
-                <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                    <span class="ud-label" style="background:white; border: 1px solid #0f2b52; color:#0f2b52;">${q.uid}</span>
-                    <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
-                    <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
+            <!-- Badges and Reset Option -->
+                <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <span class="ud-label" style="background:white; border: 1px solid #0f2b52; color:#0f2b52;">${q.uid}</span>
+                        <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
+                        <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
+                    </div>
+                    ${window.deckState.userStatus[q.uid] ? `<button onclick="window.UD_resetAnswer('${q.uid}')" style="background:none; border:none; color:#ef4444; font-size:0.8rem; font-weight:bold; cursor:pointer; text-decoration:underline;"><i class="fas fa-rotate-left"></i> Reset Question</button>` : ''}
                 </div>
                 
                 <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
@@ -1392,7 +1456,37 @@ window.userBookmarks = [];
 
         window.UD_checkAns = function(el, selectedOption, correctOption, id) {
             if (window.deckState.userStatus[id]) return; // Already answered
+            
+            // 1. Update in-memory state
             window.deckState.userStatus[id] = selectedOption;
+
+            // 2. Persist to LocalStorage for zero-latency instant offline access
+            const user = auth.currentUser;
+            if (user) {
+                const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
+                localStorage.setItem(cacheKey, JSON.stringify(window.deckState.userStatus));
+
+                // 3. Write attempt to Firebase Database in background
+                const isCorrect = (selectedOption === correctOption);
+                set(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}/${id}`), {
+                    ans: selectedOption,
+                    correct: isCorrect,
+                    timestamp: Date.now()
+                }).catch(err => console.error("Error recording attempt:", err));
+            }
+
+            window.UD_renderCard();
+        };
+
+        // Reset option so students can retry incorrectly answered questions
+        window.UD_resetAnswer = function(id) {
+            delete window.deckState.userStatus[id];
+            const user = auth.currentUser;
+            if (user) {
+                const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
+                localStorage.setItem(cacheKey, JSON.stringify(window.deckState.userStatus));
+                set(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}/${id}`), null);
+            }
             window.UD_renderCard();
         };
 
