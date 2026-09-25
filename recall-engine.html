@@ -11,21 +11,30 @@
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); color: #334155; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         * { box-sizing: border-box; }
 
-        /* HEADER & SYNAPTIC PROGRESS */
-        .recall-header { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .btn-exit { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        /* HEADER & MODE CONTROLS */
+        .recall-header { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; flex-shrink: 0; }
+        .btn-exit { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; position: relative; z-index: 100; }
         .btn-exit:hover { background: rgba(255,255,255,0.2); }
         
-        .progress-wrapper { padding: 0 20px 10px; display: flex; align-items: center; gap: 15px; }
+        .mode-toggles { padding: 0 20px 15px; display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 100; }
+        .mode-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+        .mode-active { background: #0ea5e9; color: white; }
+        .mode-inactive { background: rgba(255,255,255,0.05); color: #94a3b8; }
+
+        /* SYNAPTIC PROGRESS */
+        .progress-wrapper { padding: 0 20px 10px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
         .brain-icon { font-size: 1.5rem; color: #38bdf8; transition: text-shadow 0.3s; }
         .brain-icon.glow { text-shadow: 0 0 15px rgba(56, 189, 248, 0.8); }
         .progress-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; flex: 1; overflow: hidden; position: relative; }
         .progress-bar-fill { background: linear-gradient(90deg, #0ea5e9, #38bdf8); height: 100%; width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(14, 165, 233, 0.5); }
-        
-        .stats-text { color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-align: right; padding-right: 20px; margin-top: -5px; margin-bottom: 10px; }
+        .stats-text { color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-align: right; padding-right: 20px; margin-top: -5px; margin-bottom: 10px; flex-shrink: 0; }
+
+        /* MAIN CONTENT CONTAINERS (Flex 1 ensures they take up remaining space) */
+        .state-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .center-msg { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
 
         /* CARD AREA */
-        .card-container { flex: 1; padding: 0 20px 20px; display: flex; justify-content: center; align-items: stretch; perspective: 1200px; }
+        .card-container { flex: 1; padding: 0 20px 20px; display: flex; justify-content: center; align-items: stretch; perspective: 1200px; min-height: 0; }
         .flipper { position: relative; width: 100%; max-width: 800px; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
         .card-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); overflow-y: auto; display: flex; flex-direction: column; }
         .card-back { transform: rotateY(180deg); }
@@ -48,7 +57,7 @@
         .expl-box { background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 20px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 0.95rem; line-height: 1.6; color: #334155; }
 
         /* NEURO-ADAPTIVE FOOTER */
-        .action-footer { padding: 15px 20px max(20px, env(safe-area-inset-bottom, 20px)); background: #0f172a; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); }
+        .action-footer { padding: 15px 20px max(20px, env(safe-area-inset-bottom, 20px)); background: #0f172a; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         
         .btn-state { display: none; width: 100%; max-width: 800px; gap: 12px; }
         .btn-state.active { display: flex; }
@@ -60,12 +69,8 @@
         .btn-wrong { background: #ef4444; }
         .btn-guess { background: #f59e0b; }
         .btn-mastered { background: #10b981; }
-        
         .btn-subtext { font-size: 0.7rem; opacity: 0.9; font-weight: 600; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* LOADING & EMPTY STATES */
-        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
-        
         @media (max-width: 600px) {
             .card-face { padding: 20px; }
             .q-stem { font-size: 1.05rem; }
@@ -75,7 +80,25 @@
 </head>
 <body>
 
-    <div class="overlay" id="loading-overlay">
+    <!-- ALWAYS VISIBLE HEADER & MODE TOGGLE -->
+    <header class="recall-header">
+        <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-network-wired" style="color: #0ea5e9;"></i> Neuro-Recall
+        </div>
+        <button class="btn-exit" onclick="window.location.href='index.html'">Save & Exit</button>
+    </header>
+
+    <div class="mode-toggles">
+        <button id="mode-due" class="mode-btn mode-active" onclick="window.setMode('due')">
+            Due Today (<span id="due-count">0</span>)
+        </button>
+        <button id="mode-all" class="mode-btn mode-inactive" onclick="window.setMode('all')">
+            Full Vault (<span id="all-count">0</span>)
+        </button>
+    </div>
+
+    <!-- STATE 1: LOADING -->
+    <div id="loading-state" class="state-container center-msg">
         <div style="position:relative; width: 80px; height: 80px; margin-bottom: 20px;">
             <i class="fas fa-brain fa-beat" style="font-size: 4rem; color: #0ea5e9; position: absolute; inset:0; display:flex; align-items:center; justify-content:center;"></i>
         </div>
@@ -83,7 +106,8 @@
         <p style="color: #94a3b8;">Fetching your targeted recall deck.</p>
     </div>
 
-    <div class="overlay" id="done-overlay" style="display: none;">
+    <!-- STATE 2: DONE / EMPTY QUEUE -->
+    <div id="done-state" class="state-container center-msg" style="display: none;">
         <div style="background: rgba(16, 185, 129, 0.2); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid #10b981;">
             <i class="fas fa-bolt" style="font-size: 45px; color: #10b981;"></i>
         </div>
@@ -92,67 +116,54 @@
         <button onclick="window.location.href='index.html'" style="background: white; color: #0f172a; border: none; padding: 15px 35px; border-radius: 30px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">Return to Dashboard</button>
     </div>
 
-    <header class="recall-header">
-        <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-network-wired" style="color: #0ea5e9;"></i> Neuro-Recall
+    <!-- STATE 3: ACTIVE REVIEW ENGINE -->
+    <div id="active-review-state" class="state-container" style="display: none;">
+        
+        <div class="progress-wrapper">
+            <i class="fas fa-brain brain-icon" id="brain-glow"></i>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill"></div></div>
         </div>
-        <button class="btn-exit" onclick="window.location.href='index.html'">Save & Exit</button>
-    </header>
+        <div class="stats-text" id="prog-text">0 / 0 Synapses Fired</div>
 
-    <!-- NEW: MODE TOGGLE CONTROL -->
-    <div style="padding: 0 20px 15px; display: flex; gap: 10px;">
-        <button id="mode-due" onclick="window.setMode('due')" style="flex:1; padding:10px; border-radius:10px; border:none; background:#0ea5e9; color:white; font-weight:800; font-size: 0.85rem; cursor:pointer; transition:0.2s;">
-            Due Today (<span id="due-count">0</span>)
-        </button>
-        <button id="mode-all" onclick="window.setMode('all')" style="flex:1; padding:10px; border-radius:10px; border:none; background:rgba(255,255,255,0.05); color:#94a3b8; font-weight:800; font-size: 0.85rem; cursor:pointer; transition:0.2s;">
-            Full Vault (<span id="all-count">0</span>)
-        </button>
-    </div>
+        <div class="card-container">
+            <div class="flipper" id="fc-flipper">
+                <!-- FRONT (Retrieval Practice) -->
+                <div class="card-face" id="card-front">
+                    <div id="front-content"></div>
+                </div>
+                
+                <!-- BACK (Metacognition & Feedback) -->
+                <div class="card-face card-back" id="card-back">
+                    <div id="back-content"></div>
+                </div>
+            </div>
+        </div>
 
-    <div class="progress-wrapper">
-        <i class="fas fa-brain brain-icon" id="brain-glow"></i>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill"></div></div>
-    </div>
-    <div class="stats-text" id="prog-text">0 / 0 Synapses Fired</div>
-
-    <div class="card-container">
-        <div class="flipper" id="fc-flipper">
-            <!-- FRONT (Retrieval Practice) -->
-            <div class="card-face" id="card-front">
-                <div id="front-content"></div>
+        <div class="action-footer">
+            <div class="btn-state active" id="state-front" style="color: #64748b; font-weight: 600; font-size: 0.9rem; text-align: center; display: block;">
+                Select an option above to test your recall.
             </div>
             
-            <!-- BACK (Metacognition & Feedback) -->
-            <div class="card-face card-back" id="card-back">
-                <div id="back-content"></div>
+            <div class="btn-state" id="state-wrong">
+                <button class="neuro-btn btn-wrong" onclick="window.gradeNeuro(0)">
+                    <i class="fas fa-rotate-left" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
+                    Review Later
+                    <div class="btn-subtext">Synaptic strength reset</div>
+                </button>
             </div>
-        </div>
-    </div>
 
-    <div class="action-footer">
-        <div class="btn-state active" id="state-front" style="color: #64748b; font-weight: 600; font-size: 0.9rem; text-align: center; display: block;">
-            Select an option above to test your recall.
-        </div>
-        
-        <div class="btn-state" id="state-wrong">
-            <button class="neuro-btn btn-wrong" onclick="window.gradeNeuro(0)">
-                <i class="fas fa-rotate-left" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
-                Review Later
-                <div class="btn-subtext">Synaptic strength reset</div>
-            </button>
-        </div>
-
-        <div class="btn-state" id="state-correct">
-            <button class="neuro-btn btn-guess" onclick="window.gradeNeuro(1)">
-                <i class="fas fa-question-circle" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
-                I Guessed
-                <div class="btn-subtext" id="time-guess">+1 Day</div>
-            </button>
-            <button class="neuro-btn btn-mastered" onclick="window.gradeNeuro(2)">
-                <i class="fas fa-check-double" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
-                Nailed It
-                <div class="btn-subtext" id="time-mastered">+X Days</div>
-            </button>
+            <div class="btn-state" id="state-correct">
+                <button class="neuro-btn btn-guess" onclick="window.gradeNeuro(1)">
+                    <i class="fas fa-question-circle" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
+                    I Guessed
+                    <div class="btn-subtext" id="time-guess">+1 Day</div>
+                </button>
+                <button class="neuro-btn btn-mastered" onclick="window.gradeNeuro(2)">
+                    <i class="fas fa-check-double" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
+                    Nailed It
+                    <div class="btn-subtext" id="time-mastered">+X Days</div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -212,8 +223,10 @@
 
         // The Engine that builds the queue based on the selected mode
         window.buildQueue = async function() {
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('done-overlay').style.display = 'none';
+            // UI State: Show Loading
+            document.getElementById('loading-state').style.display = 'flex';
+            document.getElementById('done-state').style.display = 'none';
+            document.getElementById('active-review-state').style.display = 'none';
             document.getElementById('loading-text').innerText = window.isCramMode ? "Loading Full Vault..." : "Building Neural Pathways...";
             
             dueQueue = [];
@@ -223,6 +236,9 @@
 
             // 1. Filter logic based on Mode
             for (const [qid, data] of Object.entries(allBookmarksData)) {
+                // Legacy check: Ignore broken bookmarks missing exam/subject data
+                if (!data.exam || !data.subject) continue;
+
                 let isDue = now >= data.next_review_date;
                 if (isDue) strictlyDue++;
 
@@ -247,8 +263,8 @@
 
             // 3. Handle Empty Queue
             if (filteredItems.length === 0) {
-                document.getElementById('loading-overlay').style.display = 'none';
-                document.getElementById('done-overlay').style.display = 'flex';
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('done-state').style.display = 'flex';
                 document.getElementById('done-text').innerText = window.isCramMode 
                     ? "You have reviewed every single question in your vault! Excellent work." 
                     : "You have completed all active recall sessions for today. Your neuroplasticity is optimized.";
@@ -280,7 +296,9 @@
                 }
             }
 
-            document.getElementById('loading-overlay').style.display = 'none';
+            // Show active review area, hide loading
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('active-review-state').style.display = 'flex';
             loadNextCard();
         };
 
@@ -291,11 +309,11 @@
             const btnAll = document.getElementById('mode-all');
 
             if (window.isCramMode) {
-                btnAll.style.background = '#0ea5e9'; btnAll.style.color = 'white';
-                btnDue.style.background = 'rgba(255,255,255,0.05)'; btnDue.style.color = '#94a3b8';
+                btnAll.className = 'mode-btn mode-active';
+                btnDue.className = 'mode-btn mode-inactive';
             } else {
-                btnDue.style.background = '#0ea5e9'; btnDue.style.color = 'white';
-                btnAll.style.background = 'rgba(255,255,255,0.05)'; btnAll.style.color = '#94a3b8';
+                btnDue.className = 'mode-btn mode-active';
+                btnAll.className = 'mode-btn mode-inactive';
             }
             
             // Clear their session memory so they can re-review things if they switch modes
@@ -305,7 +323,11 @@
 
         function loadNextCard() {
             if (dueQueue.length === 0) {
-                document.getElementById('done-overlay').style.display = 'flex';
+                document.getElementById('active-review-state').style.display = 'none';
+                document.getElementById('done-state').style.display = 'flex';
+                document.getElementById('done-text').innerText = window.isCramMode 
+                    ? "You have reviewed every single question in your vault! Excellent work." 
+                    : "You have completed all active recall sessions for today. Your neuroplasticity is optimized.";
                 return;
             }
 
