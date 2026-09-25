@@ -1632,14 +1632,30 @@
                     }
                     
                     let html = '';
-                    // Sort comments chronologically
-                    const comments = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
+                    const currentUser = auth.currentUser;
+                    const isAdmin = currentUser && ADMIN_EMAILS.includes(currentUser.email);
+                    
+                    // Map keys to preserve the unique Comment ID so we can edit/delete them later
+                    const comments = Object.keys(data).map(key => ({ ...data[key], id: key })).sort((a,b) => a.timestamp - b.timestamp);
                     
                     comments.forEach(c => {
                         const dateStr = new Date(c.timestamp).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
                         // Differentiate the current user visually
-                        const isMe = auth.currentUser && c.uid === auth.currentUser.uid;
+                        const isMe = currentUser && c.uid === currentUser.uid;
                         const badgeHtml = c.author.includes('Admin') ? `<span style="background:#fee2e2; color:#dc2626; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:5px; font-weight:800;">ADMIN</span>` : '';
+                        
+                        // Action buttons (Edit for author only; Delete for author OR admin)
+                        let actionsHtml = '';
+                        if (isMe || isAdmin) {
+                            actionsHtml += `<div style="display:flex; gap:12px; margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1;">`;
+                            if (isMe) {
+                                // Escape quotes safely for the inline function
+                                const safeText = c.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                                actionsHtml += `<button onclick="window.UD_editComment('${q_id}', '${c.id}', '${safeText}')" style="background:none; border:none; color:#0ea5e9; font-size:0.75rem; font-weight:bold; cursor:pointer; padding:0; transition:0.2s;"><i class="fas fa-edit"></i> Edit</button>`;
+                            }
+                            actionsHtml += `<button onclick="window.UD_deleteComment('${q_id}', '${c.id}')" style="background:none; border:none; color:#ef4444; font-size:0.75rem; font-weight:bold; cursor:pointer; padding:0; transition:0.2s;"><i class="fas fa-trash-alt"></i> Delete</button>`;
+                            actionsHtml += `</div>`;
+                        }
                         
                         html += `
                         <div style="margin-bottom: 12px; border-radius: 8px; background: ${isMe ? '#f0f9ff' : '#f8fafc'}; padding: 12px; border: 1px solid ${isMe ? '#bae6fd' : '#e2e8f0'};">
@@ -1648,6 +1664,7 @@
                                 <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">${dateStr}</span>
                             </div>
                             <div style="color:#334155; font-size:0.9rem; line-height:1.5; word-wrap: break-word;">${c.text}</div>
+                            ${actionsHtml}
                         </div>`;
                     });
                     
@@ -1698,6 +1715,34 @@
             }
         };
 
+// --- EDIT COMMENT ---
+        window.UD_editComment = async function(q_id, commentId, oldText) {
+            const newText = prompt("Edit your comment:", oldText);
+            
+            // Validate: Only update if text is changed and not empty
+            if (newText !== null && newText.trim() !== "" && newText.trim() !== oldText) {
+                try {
+                    // Update only the text field in Firebase (preserves author/timestamp)
+                    await set(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}/${commentId}/text`), newText.trim());
+                } catch (e) {
+                    console.error(e);
+                    alert("Failed to edit comment. Permission denied.");
+                }
+            }
+        };
+
+        // --- DELETE COMMENT ---
+        window.UD_deleteComment = async function(q_id, commentId) {
+            if (confirm("Are you sure you want to delete this comment?")) {
+                try {
+                    // Setting a Firebase node to null deletes it entirely
+                    await set(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}/${commentId}`), null);
+                } catch (e) {
+                    console.error(e);
+                    alert("Failed to delete comment. Permission denied.");
+                }
+            }
+        };
         // ==========================================
         // UTILITIES (AI, Share, Report)
         // ==========================================
