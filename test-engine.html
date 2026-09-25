@@ -469,12 +469,29 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         });
 
         async function loadTest(uid) {
-            if(!testFileName) { alert("Test file missing."); window.location.href = "index.html"; return; }
+            const isCustom = urlParams.get('custom') === 'true';
 
             try {
-                const response = await fetch(testFileName);
-                if(!response.ok) throw new Error("Test file not found.");
-                questions = await response.json();
+                if (isCustom) {
+                    // Load the dynamically generated quiz from local storage
+                    const customDataStr = localStorage.getItem('medpyq_custom_test');
+                    if (!customDataStr) { alert("Custom test expired or corrupted."); window.location.href = "index.html"; return; }
+                    
+                    questions = JSON.parse(customDataStr);
+                    
+                    // Set custom exam parameters (1 minute per question)
+                    config.title = urlParams.get('title') || "Custom Quiz";
+                    config.durationMins = questions.length; 
+                    config.marksCorrect = 4;
+                    config.marksWrong = 1;
+                    
+                } else {
+                    // Load the standard hardcoded JSON file
+                    if(!testFileName) { alert("Test file missing."); window.location.href = "index.html"; return; }
+                    const response = await fetch(testFileName);
+                    if(!response.ok) throw new Error("Test file not found.");
+                    questions = await response.json();
+                }
 
                 if (reviewId) {
                     questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
