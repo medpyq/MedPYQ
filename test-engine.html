@@ -378,36 +378,37 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         };
         window.applyTextSize(window.currentTextSize);
         
-        // URL Parsing
+     // URL Parsing
         const urlParams = new URLSearchParams(window.location.search);
         const testFileName = urlParams.get('testFile'); 
         const reviewId = urlParams.get('reviewId');     
+        window.isCustomTest = urlParams.get('customTest') === 'true'; // DETECT CUSTOM QUIZ
         
-        // Extract Exam Type from filename to set proper marking scheme
         let examType = 'neet-pg';
         if(testFileName && testFileName.includes('inicet')) examType = 'inicet';
         else if(testFileName && testFileName.includes('fmge')) examType = 'fmge';
         else if(testFileName && testFileName.includes('cms')) examType = 'upsc-cms';
 
+        // Dynamic Config
+        let config = { title: "NEET PG Grand Mock", marksCorrect: 4, marksWrong: 1, durationMins: 210 };
         const EXAM_CONFIG = {
             'neet-pg': { title: "NEET PG Grand Mock", marksCorrect: 4, marksWrong: 1, durationMins: 210 },
             'inicet': { title: "INI-CET National Mock", marksCorrect: 1, marksWrong: 0.33, durationMins: 180 },
             'fmge': { title: "FMGE Screening Mock", marksCorrect: 1, marksWrong: 0, durationMins: 150 },
             'upsc-cms': { title: "UPSC CMS Mock", marksCorrect: 2.08, marksWrong: 0.69, durationMins: 120 }
         };
-        const config = EXAM_CONFIG[examType];
+        if(!window.isCustomTest && EXAM_CONFIG[examType]) config = EXAM_CONFIG[examType];
 
         window.togglePalette = function() {
             document.getElementById('cbt-sidebar').classList.toggle('open');
             document.getElementById('palette-overlay').classList.toggle('open');
         };
 
-        // --- AUTH & DATA FETCH ---
+        // --- AUTH & DEVICE CONFLICT CONTROL (2-DEVICE POOL) ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-         window.currentUserUid = user.uid;
+                window.currentUserUid = user.uid; 
                 
-                // --- 2-DEVICE CONCURRENT SESSION CONTROL ---
                 let localSessionId = localStorage.getItem('medpyq_session_id');
                 if (!localSessionId) {
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -421,25 +422,21 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                     let sessions = snap.val() || {};
                     sessions[localSessionId] = Date.now();
 
-                    // Maintain max 2 concurrent devices
                     let keys = Object.keys(sessions);
                     if (keys.length > 2) {
                         keys.sort((a, b) => sessions[a] - sessions[b]);
-                        while (keys.length > 2) {
-                            delete sessions[keys.shift()];
-                        }
+                        while (keys.length > 2) { delete sessions[keys.shift()]; }
                     }
 
                     await set(sessionsRef, sessions);
 
                     onValue(sessionsRef, (liveSnapshot) => {
                         const activeSessions = liveSnapshot.val() || {};
-                        const conflictEl = document.getElementById('session-conflict-overlay');
                         if (!activeSessions[localSessionId]) {
-                            if (conflictEl) conflictEl.style.display = 'flex';
+                            document.getElementById('session-conflict-overlay').style.display = 'flex';
                             signOut(auth);
                         } else {
-                            if (conflictEl) conflictEl.style.display = 'none';
+                            document.getElementById('session-conflict-overlay').style.display = 'none';
                         }
                     });
 
@@ -450,7 +447,6 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                 } catch (err) {
                     console.error("Session sync error:", err);
                 }
-                // ----------------------------------
 
                 if (ADMIN_EMAILS.includes(user.email)) {
                     loadTest(user.uid);
@@ -460,7 +456,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                     if (data && data.accessLevel === 'pro' && data.planExpiry > Date.now()) {
                         loadTest(user.uid);
                     } else {
-                        alert("Pro Access Required for Mock Tests."); window.location.href = "premium.html";
+                        alert("Pro Access Required for Tests."); window.location.href = "premium.html";
                     }
                 }
             } else {
@@ -469,87 +465,92 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         });
 
         async function loadTest(uid) {
-            const isCustom = urlParams.get('custom') === 'true';
-
             try {
-                if (isCustom) {
-                    // Load the dynamically generated quiz from local storage
-                    const customDataStr = localStorage.getItem('medpyq_custom_test');
-                    if (!customDataStr) { alert("Custom test expired or corrupted."); window.location.href = "index.html"; return; }
+                if (window.isCustomTest) {
+                    // --- LOAD CUSTOM QUIZ FROM MEMORY ---
+                    const customData = localStorage.getItem('medpyq_custom_quiz');
+                    const customConfig = localStorage.getItem('medpyq_custom_config');
                     
-                    questions = JSON.parse(customDataStr);
+                    if(!customData) { alert("Quiz data lost. Please generate again."); window.location.href = "index.html"; return; }
                     
-                    // Set custom exam parameters (1 minute per question)
-                    config.title = urlParams.get('title') || "Custom Quiz";
-                    config.durationMins = questions.length; 
-                    config.marksCorrect = 4;
+                    questions = JSON.parse(customData);
+                    let parsedConfig = JSON.parse(customConfig);
+                    
+                    // Override the config for custom mode
+                    config.title = parsedConfig.title;
+                    config.durationMins = parsedConfig.time;
+                    config.marksCorrect = 4; // Default to standard marking for custom practice
                     config.marksWrong = 1;
                     
+                    questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+                    state[0].status = 'unans'; 
+                    timeRemaining = config.durationMins * 60;
+                    window.testEndTime = Date.now() + (timeRemaining * 1000);
+
                 } else {
-                    // Load the standard hardcoded JSON file
+                    // --- NORMAL FULL MOCK TEST LOGIC ---
                     if(!testFileName) { alert("Test file missing."); window.location.href = "index.html"; return; }
                     const response = await fetch(testFileName);
                     if(!response.ok) throw new Error("Test file not found.");
                     questions = await response.json();
-                }
 
-                if (reviewId) {
-                    questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
-                    document.getElementById('loading-title').innerText = "Loading Analysis...";
-                    document.getElementById('loading-desc').innerText = "Fetching your saved answer sheet.";
-                    
-                    const historySnap = await get(ref(db, `users/${uid}/testHistory/${reviewId}`));
-                    const historyData = historySnap.val();
-                    
-                    if(historyData && historyData.answers) {
-                        state = historyData.answers; 
-                        generateReport(false); 
-                    } else {
-                        alert("Review data corrupted."); window.location.href = "index.html";
-                    }
-                } else {
-                    // Check for saved test state to resume
-                    const storageKey = `medpyq_test_${uid || 'guest'}_${testFileName}`;
-                    const savedDataStr = localStorage.getItem(storageKey);
-                    let resumeTest = false;
-
-                    if (savedDataStr) {
-                        const savedData = JSON.parse(savedDataStr);
-                        // Only resume if the timer hasn't expired while they were gone
-                        if (savedData.endTime && savedData.endTime > Date.now()) {
-                            state = savedData.state;
-                            currentQIndex = savedData.currentQIndex || 0;
-                            timeRemaining = Math.floor((savedData.endTime - Date.now()) / 1000);
-                            window.testEndTime = savedData.endTime;
-                            resumeTest = true;
+                    if (reviewId) {
+                        questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+                        document.getElementById('loading-title').innerText = "Loading Analysis...";
+                        document.getElementById('loading-desc').innerText = "Fetching your saved answer sheet.";
+                        
+                        const historySnap = await get(ref(db, `users/${uid}/testHistory/${reviewId}`));
+                        const historyData = historySnap.val();
+                        
+                        if(historyData && historyData.answers) {
+                            state = historyData.answers; 
+                            generateReport(false); 
+                            return; // Stop here for review mode
                         } else {
-                            localStorage.removeItem(storageKey); // Timer expired, delete backup
+                            alert("Review data corrupted."); window.location.href = "index.html"; return;
+                        }
+                    } else {
+                        // Check for saved test state to resume
+                        const storageKey = `medpyq_test_${uid || 'guest'}_${testFileName}`;
+                        const savedDataStr = localStorage.getItem(storageKey);
+                        let resumeTest = false;
+
+                        if (savedDataStr) {
+                            const savedData = JSON.parse(savedDataStr);
+                            if (savedData.endTime && savedData.endTime > Date.now()) {
+                                state = savedData.state;
+                                currentQIndex = savedData.currentQIndex || 0;
+                                timeRemaining = Math.floor((savedData.endTime - Date.now()) / 1000);
+                                window.testEndTime = savedData.endTime;
+                                resumeTest = true;
+                            } else {
+                                localStorage.removeItem(storageKey);
+                            }
+                        }
+
+                        if (!resumeTest) {
+                            questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
+                            state[0].status = 'unans'; 
+                            timeRemaining = config.durationMins * 60;
+                            window.testEndTime = Date.now() + (timeRemaining * 1000);
+                        }
+                        
+                        if (resumeTest) {
+                            document.querySelector('#view-instructions .btn-primary').innerText = "Resume My Test";
                         }
                     }
-
-                    // If no valid backup exists, start a fresh test
-                    if (!resumeTest) {
-                        questions.forEach((_, i) => { state[i] = { ans: null, status: 'notvis' }; });
-                        state[0].status = 'unans'; 
-                        timeRemaining = config.durationMins * 60;
-                        window.testEndTime = Date.now() + (timeRemaining * 1000);
-                    }
-
-                    document.getElementById('inst-exam-title').innerText = config.title;
-                    document.getElementById('inst-time').innerText = config.durationMins + " Mins";
-                    document.getElementById('inst-qs').innerText = questions.length;
-                    document.getElementById('inst-marks').innerText = `+${config.marksCorrect} / -${config.marksWrong}`;
-                    document.getElementById('test-header-title').innerText = config.title;
-                    document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
-
-                    document.getElementById('view-loading').classList.add('hidden');
-                    document.getElementById('view-instructions').classList.remove('hidden');
-                    
-                    // If resuming, change the instruction button text
-                    if (resumeTest) {
-                        document.querySelector('#view-instructions .btn-primary').innerText = "Resume My Test";
-                    }
                 }
+
+                // Push config UI
+                document.getElementById('inst-exam-title').innerText = config.title;
+                document.getElementById('inst-time').innerText = config.durationMins + " Mins";
+                document.getElementById('inst-qs').innerText = questions.length;
+                document.getElementById('inst-marks').innerText = `+${config.marksCorrect} / -${config.marksWrong}`;
+                document.getElementById('test-header-title').innerText = config.title;
+                document.getElementById('q-mark-display').innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
+
+                document.getElementById('view-loading').classList.add('hidden');
+                document.getElementById('view-instructions').classList.remove('hidden');
 
             } catch (e) {
                 console.error(e); alert("Failed to load test. Please try again after a while.");
@@ -828,7 +829,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             
             window.scrollTo(0,0);
 
-            if(saveToDatabase && auth.currentUser) {
+            if(saveToDatabase && auth.currentUser && !window.isCustomTest) {
                 const now = new Date();
                 const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
                 const historyId = "TEST_" + Date.now();
