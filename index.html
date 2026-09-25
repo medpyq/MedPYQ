@@ -672,8 +672,11 @@
 
     </div>
 
-    <div class="screen" id="view-qbank">
-        <div style="padding:15px; color:#999; font-size:0.8rem; background:#fff;">SUBJECTS</div>
+  <div class="screen" id="view-qbank">
+        <div style="padding:15px; background:#fff; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #f1f5f9; margin-bottom: 10px;">
+            <span style="color:#94a3b8; font-size:0.8rem; font-weight: 800; letter-spacing: 0.5px;">SUBJECTS</span>
+            <button onclick="window.openCustomQuizModal()" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.8rem; cursor:pointer; transition: 0.2s;"><i class="fas fa-bolt"></i> Custom Quiz</button>
+        </div>
         <div class="grid-container">
             <a class="subject-card" onclick="navigateToSubject('Anatomy')"><div class="icon-circle"><i class="fas fa-bone"></i></div><div class="sub-name">Anatomy</div><div class="sub-count">Click to Practice</div></a>
             <a class="subject-card" onclick="navigateToSubject('Physiology')"><div class="icon-circle"><i class="fas fa-heart-pulse"></i></div><div class="sub-name">Physiology</div><div class="sub-count">Click to Practice</div></a>
@@ -827,7 +830,46 @@
             <button class="btn-secondary" onclick="document.getElementById('admin-modal-overlay').style.display='none'">Cancel</button>
         </div>
     </div>
-    
+    <!-- CUSTOM QUIZ BUILDER MODAL -->
+    <div id="custom-quiz-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 90%; max-width: 450px; border-radius: 20px; padding: 30px; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; display: flex; flex-direction: column;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:#0f172a; font-size:1.4rem; margin:0; font-weight:800;"><i class="fas fa-bolt" style="color:#eebb4d;"></i> Custom Quiz</h3>
+                <i class="fas fa-times" style="font-size:1.2rem; color:#64748b; cursor:pointer; padding: 5px;" onclick="document.getElementById('custom-quiz-overlay').style.display='none'"></i>
+            </div>
+
+            <div style="overflow-y: auto; flex:1; padding-right: 5px;">
+                <div class="auth-input-group">
+                    <label class="auth-label">Select Mode</label>
+                    <select id="cq-mode" class="admin-select" style="margin-bottom:0;">
+                        <option value="unattempted">Unattempted Questions</option>
+                        <option value="incorrect">Previously Incorrect Qs</option>
+                        <option value="all">Mixed (All Questions)</option>
+                    </select>
+                </div>
+
+                <div class="auth-input-group" style="margin-top:15px;">
+                    <label class="auth-label">Number of Questions</label>
+                    <select id="cq-count" class="admin-select" style="margin-bottom:0;">
+                        <option value="10">10 Questions</option>
+                        <option value="20" selected>20 Questions</option>
+                        <option value="40">40 Questions</option>
+                        <option value="100">100 Questions</option>
+                    </select>
+                </div>
+
+                <div class="auth-input-group" style="margin-top:15px;">
+                    <label class="auth-label">Select Subjects</label>
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:15px; max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;" id="cq-subjects-container">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btn-start-custom" onclick="window.generateCustomQuiz()" style="margin-top:20px; box-shadow: 0 4px 10px rgba(15,43,82,0.2);">Generate & Start Test</button>
+        </div>
+    </div>
     <script>
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
         window.isUserPro = null; 
@@ -1817,7 +1859,99 @@
             } catch (e) { console.error(e); alert("Error generating test. Check console."); } 
             finally { btn.innerText = "Generate & Download"; btn.disabled = false; document.getElementById('admin-modal-overlay').style.display = 'none'; }
         };
+// --- CUSTOM QUIZ BUILDER ENGINE ---
+        window.openCustomQuizModal = function() {
+            if (window.isUserPro === false) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
+            
+            const subs = ['Anatomy','Physiology','Biochemistry','Pharmacology','Microbiology','Pathology','FMT','CFM','ENT','Ophthalmology','Medicine','Surgery','OBG','Pediatrics','Orthopaedics','Psychiatry','Dermatology','Anesthesiology','Radiology'];
+            
+            let subHtml = `<label style="font-size:0.9rem; font-weight:800; cursor:pointer; color:#0f2b52; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:5px; display:flex; align-items:center; gap:8px;"><input type="checkbox" id="cq-sel-all" checked onchange="document.querySelectorAll('.cq-sub-chk').forEach(c=>c.checked=this.checked)" style="width:16px; height:16px; accent-color:#0f2b52;"> Select All</label>`;
+            
+            subs.forEach(s => {
+                const val = s.toLowerCase().replace(/\s+/g, '-');
+                subHtml += `<label style="font-size:0.9rem; font-weight:600; cursor:pointer; color:#334155; display:flex; align-items:center; gap:8px;"><input type="checkbox" class="cq-sub-chk" value="${val}" checked style="width:16px; height:16px; accent-color:#0f2b52;"> ${s}</label>`;
+            });
+            document.getElementById('cq-subjects-container').innerHTML = subHtml;
+            document.getElementById('custom-quiz-overlay').style.display = 'flex';
+        };
 
+        window.generateCustomQuiz = async function() {
+            const btn = document.getElementById('btn-start-custom');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assembling Quiz...';
+            btn.disabled = true;
+
+            const mode = document.getElementById('cq-mode').value;
+            const count = parseInt(document.getElementById('cq-count').value);
+            const checkboxes = document.querySelectorAll('.cq-sub-chk:checked');
+            const selectedSubs = Array.from(checkboxes).map(c => c.value);
+
+            if(selectedSubs.length === 0) { 
+                alert("Please select at least one subject."); 
+                btn.innerHTML = 'Generate & Start Test'; btn.disabled = false; return; 
+            }
+
+            try {
+                let pool = [];
+                const user = auth.currentUser;
+                let userSolved = {};
+                
+                // Fetch the user's solved history to filter out attempted/correct questions
+                if(user) {
+                    const solvedSnap = await get(ref(db, `users/${user.uid}/solved/${selectedExam.toLowerCase()}`));
+                    userSolved = solvedSnap.val() || {};
+                }
+
+                // Loop through selected subjects and grab questions
+                for(let sub of selectedSubs) {
+                    const snap = await get(ref(db, `question_banks/${selectedExam.toLowerCase()}/${sub}`));
+                    const data = snap.val();
+                    
+                    if(data) {
+                        let qs = Array.isArray(data) ? data : Object.values(data);
+                        qs = qs.filter(q => q !== null);
+                        
+                        // Ensure UIDs are mapped
+                        qs = qs.map((q, i) => ({ ...q, uid: q.q || ("Q"+i) }));
+
+                        // Apply the Mode Filter (Incorrect / Unattempted / All)
+                        const subSolved = userSolved[sub] || {};
+                        qs = qs.filter(q => {
+                            const attempt = subSolved[q.uid];
+                            if(mode === 'unattempted') return !attempt;
+                            if(mode === 'incorrect') return attempt && attempt.correct === false;
+                            return true; // 'all' mode
+                        });
+
+                        pool.push(...qs);
+                    }
+                }
+
+                if(pool.length === 0) {
+                    alert(`We couldn't find any questions matching your criteria (${mode}) in the selected subjects. Try selecting more subjects or changing the mode.`);
+                    btn.innerHTML = 'Generate & Start Test'; btn.disabled = false; return;
+                }
+
+                // Shuffle the pool and slice to the requested length
+                pool.sort(() => 0.5 - Math.random());
+                const finalQuiz = pool.slice(0, count);
+
+                // Save securely to LocalStorage to instantly pass to the Test Engine
+                localStorage.setItem('medpyq_custom_quiz', JSON.stringify(finalQuiz));
+                localStorage.setItem('medpyq_custom_config', JSON.stringify({
+                    title: `Custom ${selectedExam} Quiz`,
+                    time: finalQuiz.length // 1 minute per question
+                }));
+
+                // Redirect to test engine with the custom flag
+                window.location.href = `test-engine.html?customTest=true`;
+
+            } catch(e) {
+                console.error(e);
+                alert("A network error occurred while generating your quiz.");
+            } finally {
+                btn.innerHTML = 'Generate & Start Test'; btn.disabled = false;
+            }
+        };
     </script>
 </body>
 </html>
