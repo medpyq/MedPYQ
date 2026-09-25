@@ -405,30 +405,51 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         // --- AUTH & DATA FETCH ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // --- CONCURRENT SESSION CONTROL ---
+         window.currentUserUid = user.uid;
+                
+                // --- 2-DEVICE CONCURRENT SESSION CONTROL ---
                 let localSessionId = localStorage.getItem('medpyq_session_id');
                 if (!localSessionId) {
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                     localStorage.setItem('medpyq_session_id', localSessionId);
                 }
                 
-                const sessionRef = ref(db, `users/${user.uid}/activeSession`);
-                set(sessionRef, localSessionId);
+                const sessionsRef = ref(db, `users/${user.uid}/active_sessions`);
 
-                onValue(sessionRef, (snapshot) => {
-                    const activeDbSession = snapshot.val();
-                    if (activeDbSession && activeDbSession !== localSessionId) {
-                        document.getElementById('session-conflict-overlay').style.display = 'flex';
-                        signOut(auth);
-                    } else {
-                        document.getElementById('session-conflict-overlay').style.display = 'none';
+                try {
+                    const snap = await get(sessionsRef);
+                    let sessions = snap.val() || {};
+                    sessions[localSessionId] = Date.now();
+
+                    // Maintain max 2 concurrent devices
+                    let keys = Object.keys(sessions);
+                    if (keys.length > 2) {
+                        keys.sort((a, b) => sessions[a] - sessions[b]);
+                        while (keys.length > 2) {
+                            delete sessions[keys.shift()];
+                        }
                     }
-                });
 
-                window.forceLogout = function() {
-                    set(sessionRef, localSessionId); 
-                };
-                window.currentUserUid = user.uid; // Added so saveTestState works correctly
+                    await set(sessionsRef, sessions);
+
+                    onValue(sessionsRef, (liveSnapshot) => {
+                        const activeSessions = liveSnapshot.val() || {};
+                        const conflictEl = document.getElementById('session-conflict-overlay');
+                        if (!activeSessions[localSessionId]) {
+                            if (conflictEl) conflictEl.style.display = 'flex';
+                            signOut(auth);
+                        } else {
+                            if (conflictEl) conflictEl.style.display = 'none';
+                        }
+                    });
+
+                    window.forceLogout = function() {
+                        sessions[localSessionId] = Date.now();
+                        set(sessionsRef, sessions).then(() => location.reload());
+                    };
+                } catch (err) {
+                    console.error("Session sync error:", err);
+                }
                 // ----------------------------------
 
                 if (ADMIN_EMAILS.includes(user.email)) {
