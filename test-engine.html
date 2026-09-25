@@ -43,6 +43,14 @@
         .opt-row-wrong { border-color: var(--red) !important; background: #fee2e2 !important; color: #991b1b; font-weight: 600; cursor: default; }
         .expl-container { margin-top: 25px; padding: 20px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; line-height: 1.6; font-size: 1rem; color: #92400e; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
 
+/* --- ACTIVE TEST FEATURES --- */
+        .medpyq-highlight { background-color: #fef08a; padding: 2px 4px; border-radius: 4px; font-weight: bold; color: #0f172a; }
+        .medpyq-strike { text-decoration: line-through; opacity: 0.5; background: #f8fafc; }
+        .medpyq-strike span { color: #94a3b8 !important; }
+        /* Prevent selection weirdness on buttons */
+        .option-lbl { user-select: none; -webkit-user-select: none; }
+        #q-stem { user-select: text; -webkit-user-select: text; }
+        
         .cbt-footer { padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; }
         .footer-group { display: flex; gap: 10px; flex: 1; }
         .footer-group.right { justify-content: flex-end; }
@@ -714,8 +722,9 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                         ${isSel && !isCorrectOpt ? '<i class="fas fa-times" style="color:var(--red); font-size:1.2rem;"></i>' : ''}
                         ${isCorrectOpt ? '<i class="fas fa-check" style="color:var(--green); font-size:1.2rem;"></i>' : ''}
                     </label>`;
-                } else {
-                    optsHtml += `<label class="option-lbl ${isSel?'selected':''}">
+           } else {
+                    // Added oncontextmenu for Right-Click/Long-Press Strikethrough
+                    optsHtml += `<label id="opt-lbl-${char}" class="option-lbl ${isSel?'selected':''}" oncontextmenu="window.toggleStrike(event, '${char}')">
                         <input type="radio" name="opt" value="${char}" ${isSel?'checked':''} onchange="window.selectOption('${char}')">
                         <span><strong>${char}.</strong> ${opt}</span>
                     </label>`;
@@ -767,6 +776,58 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             if(window.innerWidth <= 900) { window.togglePalette(); } 
         };
 
+// --- ACTIVE LEARNING TOOLS (HIGHLIGHT & STRIKETHROUGH) ---
+        
+        // 1. Strikethrough Logic (Right Click / Long Press)
+        window.toggleStrike = function(event, char) {
+            if(window.isReviewMode) return;
+            event.preventDefault(); // Prevent the browser context menu from opening
+            
+            const label = document.getElementById(`opt-lbl-${char}`);
+            if (label) {
+                label.classList.toggle('medpyq-strike');
+                
+                // If they strike out an option they had selected, unselect it automatically
+                const radio = label.querySelector('input[type="radio"]');
+                if (label.classList.contains('medpyq-strike') && radio.checked) {
+                    radio.checked = false;
+                    label.classList.remove('selected');
+                    window.clearResponse();
+                }
+            }
+        };
+
+        // 2. Highlighting Logic (Mouse Up / Touch End)
+        document.addEventListener('mouseup', handleHighlight);
+        document.addEventListener('touchend', handleHighlight);
+
+        function handleHighlight() {
+            if(window.isReviewMode) return;
+            
+            const selection = window.getSelection();
+            if (!selection.isCollapsed && selection.toString().trim().length > 0) {
+                // Ensure they are only highlighting inside the question stem
+                const stemContainer = document.getElementById('q-stem');
+                if (stemContainer && stemContainer.contains(selection.anchorNode)) {
+                    
+                    try {
+                        const range = selection.getRangeAt(0);
+                        const span = document.createElement('span');
+                        span.className = 'medpyq-highlight';
+                        
+                        // Wrap the selected text in the highlight span
+                        range.surroundContents(span);
+                        
+                        // Clear the blue browser selection
+                        selection.removeAllRanges();
+                    } catch (e) {
+                        // Ignore complex boundary selections that span across multiple divs
+                        console.warn("Highlighting crossed invalid DOM boundaries");
+                    }
+                }
+            }
+        }
+        
         function moveToNext() {
             if(currentQIndex < questions.length - 1) {
                 if(!window.isReviewMode && state[currentQIndex+1].status === 'notvis') state[currentQIndex+1].status = 'unans';
