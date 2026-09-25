@@ -12,11 +12,11 @@
         * { box-sizing: border-box; }
 
         /* HEADER & MODE CONTROLS */
-        .recall-header { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; flex-shrink: 0; }
-        .btn-exit { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; position: relative; z-index: 100; }
+        .recall-header { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; flex-shrink: 0; position: relative; z-index: 999999;}
+        .btn-exit { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; position: relative; z-index: 100; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
         .btn-exit:hover { background: rgba(255,255,255,0.2); }
         
-        .mode-toggles { padding: 0 20px 15px; display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 100; }
+        .mode-toggles { padding: 0 20px 15px; display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 999999; }
         .mode-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
         .mode-active { background: #0ea5e9; color: white; }
         .mode-inactive { background: rgba(255,255,255,0.05); color: #94a3b8; }
@@ -29,7 +29,7 @@
         .progress-bar-fill { background: linear-gradient(90deg, #0ea5e9, #38bdf8); height: 100%; width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(14, 165, 233, 0.5); }
         .stats-text { color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-align: right; padding-right: 20px; margin-top: -5px; margin-bottom: 10px; flex-shrink: 0; }
 
-        /* MAIN CONTENT CONTAINERS (Flex 1 ensures they take up remaining space) */
+        /* MAIN CONTENT CONTAINERS */
         .state-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .center-msg { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
 
@@ -80,19 +80,19 @@
 </head>
 <body>
 
-    <!-- ALWAYS VISIBLE HEADER & MODE TOGGLE -->
+    <!-- ALWAYS VISIBLE HEADER & MODE TOGGLE (FLUTTER OPTIMIZED) -->
     <header class="recall-header">
         <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
             <i class="fas fa-network-wired" style="color: #0ea5e9;"></i> Neuro-Recall
         </div>
-        <button class="btn-exit" onclick="window.location.href='index.html'">Save & Exit</button>
+        <a href="index.html" class="btn-exit">Save & Exit</a>
     </header>
 
     <div class="mode-toggles">
-        <button id="mode-due" class="mode-btn mode-active" onclick="window.setMode('due')">
+        <button id="mode-due" class="mode-btn mode-active" onclick="window.setMode('due')" ontouchend="window.setMode('due')">
             Due Today (<span id="due-count">0</span>)
         </button>
-        <button id="mode-all" class="mode-btn mode-inactive" onclick="window.setMode('all')">
+        <button id="mode-all" class="mode-btn mode-inactive" onclick="window.setMode('all')" ontouchend="window.setMode('all')">
             Full Vault (<span id="all-count">0</span>)
         </button>
     </div>
@@ -106,14 +106,14 @@
         <p style="color: #94a3b8;">Fetching your targeted recall deck.</p>
     </div>
 
-    <!-- STATE 2: DONE / EMPTY QUEUE -->
+    <!-- STATE 2: DONE / EMPTY QUEUE (FLUTTER OPTIMIZED) -->
     <div id="done-state" class="state-container center-msg" style="display: none;">
         <div style="background: rgba(16, 185, 129, 0.2); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid #10b981;">
             <i class="fas fa-bolt" style="font-size: 45px; color: #10b981;"></i>
         </div>
         <h2 style="margin: 0 0 10px 0;">Synapses Strengthened!</h2>
         <p id="done-text" style="color: #94a3b8; max-width: 320px; margin-bottom: 30px; line-height: 1.5;">You have completed all active recall sessions for today. Your neuroplasticity is optimized.</p>
-        <button onclick="window.location.href='index.html'" style="background: white; color: #0f172a; border: none; padding: 15px 35px; border-radius: 30px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">Return to Dashboard</button>
+        <a href="index.html" style="display: inline-block; background: white; color: #0f172a; text-decoration: none; padding: 15px 35px; border-radius: 30px; font-weight: 800; font-size: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">Return to Dashboard</a>
     </div>
 
     <!-- STATE 3: ACTIVE REVIEW ENGINE -->
