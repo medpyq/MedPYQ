@@ -203,6 +203,484 @@ body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1
 body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
 body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
     </style>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MedPYQ | Neuro-Adaptive Recall</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --app-bg: #0f172a; --card-bg: #ffffff; --primary: #0ea5e9; --correct: #10b981; --wrong: #ef4444; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); color: #334155; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        * { box-sizing: border-box; }
+
+        /* HEADER & MODE CONTROLS */
+        .recall-header { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; flex-shrink: 0; position: relative; z-index: 999999;}
+        .btn-exit { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; position: relative; z-index: 100; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-exit:hover { background: rgba(255,255,255,0.2); }
+        
+        .mode-toggles { padding: 0 20px 15px; display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 999999; }
+        .mode-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+        .mode-active { background: #0ea5e9; color: white; }
+        .mode-inactive { background: rgba(255,255,255,0.05); color: #94a3b8; }
+
+        /* SYNAPTIC PROGRESS */
+        .progress-wrapper { padding: 0 20px 10px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        .brain-icon { font-size: 1.5rem; color: #38bdf8; transition: text-shadow 0.3s; }
+        .brain-icon.glow { text-shadow: 0 0 15px rgba(56, 189, 248, 0.8); }
+        .progress-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; flex: 1; overflow: hidden; position: relative; }
+        .progress-bar-fill { background: linear-gradient(90deg, #0ea5e9, #38bdf8); height: 100%; width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(14, 165, 233, 0.5); }
+        .stats-text { color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-align: right; padding-right: 20px; margin-top: -5px; margin-bottom: 10px; flex-shrink: 0; }
+
+        /* MAIN CONTENT CONTAINERS */
+        .state-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .center-msg { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
+
+        /* CARD AREA */
+        .card-container { flex: 1; padding: 0 20px 20px; display: flex; justify-content: center; align-items: stretch; perspective: 1200px; min-height: 0; }
+        .flipper { position: relative; width: 100%; max-width: 800px; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
+        .card-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); overflow-y: auto; display: flex; flex-direction: column; }
+        .card-back { transform: rotateY(180deg); }
+
+        /* CONTENT STYLES */
+        .q-meta { font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; display: flex; justify-content: space-between; }
+        .synapse-level { background: #f1f5f9; color: #0ea5e9; padding: 3px 8px; border-radius: 6px; }
+        .q-stem { font-size: 1.15rem; font-weight: 600; color: #0f172a; line-height: 1.6; margin-bottom: 25px; }
+        .q-img { max-width: 100%; max-height: 250px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        
+        .opt-row { padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; font-size: 1rem; color: #334155; cursor: pointer; transition: 0.2s; display: flex; align-items: center; }
+        .opt-row:hover { border-color: #cbd5e1; background: #f8fafc; }
+        .opt-letter { font-weight: 800; margin-right: 12px; color: #94a3b8; background: #f1f5f9; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.85rem; }
+        
+        /* POST-ANSWER STYLES */
+        .result-banner { padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+        .result-correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .result-wrong { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        
+        .expl-box { background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 20px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 0.95rem; line-height: 1.6; color: #334155; }
+
+        /* NEURO-ADAPTIVE FOOTER */
+        .action-footer { padding: 15px 20px max(20px, env(safe-area-inset-bottom, 20px)); background: #0f172a; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
+        
+        .btn-state { display: none; width: 100%; max-width: 800px; gap: 12px; }
+        .btn-state.active { display: flex; }
+        
+        .neuro-btn { flex: 1; padding: 16px 10px; border: none; border-radius: 12px; font-weight: 800; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .neuro-btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .neuro-btn:active { transform: translateY(0); }
+        
+        .btn-wrong { background: #ef4444; }
+        .btn-guess { background: #f59e0b; }
+        .btn-mastered { background: #10b981; }
+        .btn-subtext { font-size: 0.7rem; opacity: 0.9; font-weight: 600; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        @media (max-width: 600px) {
+            .card-face { padding: 20px; }
+            .q-stem { font-size: 1.05rem; }
+            .neuro-btn { font-size: 0.9rem; padding: 14px 5px; }
+        }
+    </style>
+    <!-- BROKEN IMAGE SAFETY NET -->
+    <style>
+        /* 1. Instantly hide images with empty or missing links */
+        img[src=""], img[src="null"], img[src="undefined"], img:not([src]) {
+            display: none !important;
+        }
+    </style>
+    <script>
+        /* 2. Globally catch any image that tries to load a dead link (404) and hide it */
+        document.addEventListener('error', function(e) {
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+                e.target.style.display = 'none';
+            }
+        }, true); // The 'true' is required to capture the error phase
+    </script>
+</head>
+<body>
+
+    <!-- ALWAYS VISIBLE HEADER & MODE TOGGLE (FLUTTER OPTIMIZED) -->
+    <header class="recall-header">
+        <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-network-wired" style="color: #0ea5e9;"></i> Neuro-Recall
+        </div>
+        <a href="index.html" class="btn-exit">Save & Exit</a>
+    </header>
+
+    <div class="mode-toggles">
+        <button id="mode-due" class="mode-btn mode-active" onclick="window.setMode('due')" ontouchend="window.setMode('due')">
+            Due Today (<span id="due-count">0</span>)
+        </button>
+        <button id="mode-all" class="mode-btn mode-inactive" onclick="window.setMode('all')" ontouchend="window.setMode('all')">
+            Full Vault (<span id="all-count">0</span>)
+        </button>
+    </div>
+
+    <!-- STATE 1: LOADING -->
+    <div id="loading-state" class="state-container center-msg">
+        <div style="position:relative; width: 80px; height: 80px; margin-bottom: 20px;">
+            <i class="fas fa-brain fa-beat" style="font-size: 4rem; color: #0ea5e9; position: absolute; inset:0; display:flex; align-items:center; justify-content:center;"></i>
+        </div>
+        <h2 style="margin:0;" id="loading-text">Building Neural Pathways...</h2>
+        <p style="color: #94a3b8;">Fetching your targeted recall deck.</p>
+    </div>
+
+    <!-- STATE 2: DONE / EMPTY QUEUE (FLUTTER OPTIMIZED) -->
+    <div id="done-state" class="state-container center-msg" style="display: none;">
+        <div style="background: rgba(16, 185, 129, 0.2); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid #10b981;">
+            <i class="fas fa-bolt" style="font-size: 45px; color: #10b981;"></i>
+        </div>
+        <h2 style="margin: 0 0 10px 0;">Synapses Strengthened!</h2>
+        <p id="done-text" style="color: #94a3b8; max-width: 320px; margin-bottom: 30px; line-height: 1.5;">You have completed all active recall sessions for today. Your neuroplasticity is optimized.</p>
+        <a href="index.html" style="display: inline-block; background: white; color: #0f172a; text-decoration: none; padding: 15px 35px; border-radius: 30px; font-weight: 800; font-size: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">Return to Dashboard</a>
+    </div>
+
+    <!-- STATE 3: ACTIVE REVIEW ENGINE -->
+    <div id="active-review-state" class="state-container" style="display: none;">
+        
+        <div class="progress-wrapper">
+            <i class="fas fa-brain brain-icon" id="brain-glow"></i>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill"></div></div>
+        </div>
+        <div class="stats-text" id="prog-text">0 / 0 Synapses Fired</div>
+
+        <div class="card-container">
+            <div class="flipper" id="fc-flipper">
+                <!-- FRONT (Retrieval Practice) -->
+                <div class="card-face" id="card-front">
+                    <div id="front-content"></div>
+                </div>
+                
+                <!-- BACK (Metacognition & Feedback) -->
+                <div class="card-face card-back" id="card-back">
+                    <div id="back-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-footer">
+            <div class="btn-state active" id="state-front" style="color: #64748b; font-weight: 600; font-size: 0.9rem; text-align: center; display: block;">
+                Select an option above to test your recall.
+            </div>
+            
+            <div class="btn-state" id="state-wrong">
+                <button class="neuro-btn btn-wrong" onclick="window.gradeNeuro(0)">
+                    <i class="fas fa-rotate-left" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
+                    Review Later
+                    <div class="btn-subtext">Synaptic strength reset</div>
+                </button>
+            </div>
+
+            <div class="btn-state" id="state-correct">
+                <button class="neuro-btn btn-guess" onclick="window.gradeNeuro(1)">
+                    <i class="fas fa-question-circle" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
+                    I Guessed
+                    <div class="btn-subtext" id="time-guess">+1 Day</div>
+                </button>
+                <button class="neuro-btn btn-mastered" onclick="window.gradeNeuro(2)">
+                    <i class="fas fa-check-double" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
+                    Nailed It
+                    <div class="btn-subtext" id="time-mastered">+X Days</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", 
+            authDomain: "medpyq-elearning.firebaseapp.com", 
+            databaseURL: "https://medpyq-elearning-default-rtdb.firebaseio.com", 
+            projectId: "medpyq-elearning" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Global State Variables
+        let allBookmarksData = {};
+        let dueQueue = [];
+        let totalDue = 0;
+        let currentQData = null;
+        let currentBookmark = null;
+        let daysToExam = 90; 
+        
+        window.isCramMode = false;
+        window.sessionAnswered = [];
+
+        // Calculate Exam Compression for Optimal LTP 
+        const targetDateStr = localStorage.getItem('medpyq_target_date');
+        if (targetDateStr) {
+            const targetTime = new Date(targetDateStr).getTime();
+            daysToExam = Math.max(1, (targetTime - Date.now()) / (1000 * 60 * 60 * 24));
+        }
+
+        // Auth & Initial Fetch
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = "index.html"; return; }
+
+            try {
+                const snap = await get(ref(db, `users/${user.uid}/bookmarks`));
+                allBookmarksData = snap.val() || {};
+                
+                // Set initial counts
+                document.getElementById('all-count').innerText = Object.keys(allBookmarksData).length;
+                
+                await window.buildQueue();
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to connect to Neural Database.");
+                window.location.href = "index.html";
+            }
+        });
+
+        // The Engine that builds the queue based on the selected mode
+        window.buildQueue = async function() {
+            // UI State: Show Loading
+            document.getElementById('loading-state').style.display = 'flex';
+            document.getElementById('done-state').style.display = 'none';
+            document.getElementById('active-review-state').style.display = 'none';
+            document.getElementById('loading-text').innerText = window.isCramMode ? "Loading Full Vault..." : "Building Neural Pathways...";
+            
+            dueQueue = [];
+            const now = Date.now();
+            let filteredItems = [];
+            let strictlyDue = 0;
+
+            // 1. Filter logic based on Mode
+            for (const [qid, data] of Object.entries(allBookmarksData)) {
+                // Legacy check: Ignore broken bookmarks missing exam/subject data
+                if (!data.exam || !data.subject) continue;
+
+                let isDue = now >= data.next_review_date;
+                if (isDue) strictlyDue++;
+
+                // Skip cards they have already answered *this session*
+                if (window.sessionAnswered.includes(qid)) continue;
+
+                if (window.isCramMode) {
+                    filteredItems.push([qid, data]);
+                } else if (isDue) {
+                    filteredItems.push([qid, data]);
+                }
+            }
+
+            document.getElementById('due-count').innerText = strictlyDue;
+
+            // 2. Sorting Logic (Cram Mode = Weakest First | Due Mode = Most Overdue First)
+            if (window.isCramMode) {
+                filteredItems.sort((a, b) => a[1].current_step - b[1].current_step);
+            } else {
+                filteredItems.sort((a, b) => a[1].next_review_date - b[1].next_review_date);
+            }
+
+            // 3. Handle Empty Queue
+            if (filteredItems.length === 0) {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('done-state').style.display = 'flex';
+                document.getElementById('done-text').innerText = window.isCramMode 
+                    ? "You have reviewed every single question in your vault! Excellent work." 
+                    : "You have completed all active recall sessions for today. Your neuroplasticity is optimized.";
+                return;
+            }
+
+            totalDue = filteredItems.length;
+
+            // 4. HIGH SPEED CACHE OPTIMIZATION: Fetch entire subjects instead of individual questions
+            let subjectCache = {};
+            for (const [qid, data] of filteredItems) {
+                const cacheKey = `${data.exam}_${data.subject}`;
+                
+                if (!subjectCache[cacheKey]) {
+                    const qSnap = await get(ref(db, `question_banks/${data.exam}/${data.subject}`));
+                    subjectCache[cacheKey] = qSnap.val() || [];
+                }
+                
+                const qDataArray = subjectCache[cacheKey];
+                let qData = null;
+                if (Array.isArray(qDataArray)) {
+                    qData = qDataArray.find(q => q && q.q === qid);
+                } else if (qDataArray) {
+                    qData = Object.values(qDataArray).find(q => q && q.q === qid);
+                }
+
+                if (qData) {
+                    dueQueue.push({ bookmark: { q_id: qid, ...data }, question: qData });
+                }
+            }
+
+            // Show active review area, hide loading
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('active-review-state').style.display = 'flex';
+            loadNextCard();
+        };
+
+        // UI Toggle Function
+        window.setMode = function(mode) {
+            window.isCramMode = (mode === 'all');
+            const btnDue = document.getElementById('mode-due');
+            const btnAll = document.getElementById('mode-all');
+
+            if (window.isCramMode) {
+                btnAll.className = 'mode-btn mode-active';
+                btnDue.className = 'mode-btn mode-inactive';
+            } else {
+                btnDue.className = 'mode-btn mode-active';
+                btnAll.className = 'mode-btn mode-inactive';
+            }
+            
+            // Clear their session memory so they can re-review things if they switch modes
+            window.sessionAnswered = []; 
+            window.buildQueue();
+        };
+
+        function loadNextCard() {
+            if (dueQueue.length === 0) {
+                document.getElementById('active-review-state').style.display = 'none';
+                document.getElementById('done-state').style.display = 'flex';
+                document.getElementById('done-text').innerText = window.isCramMode 
+                    ? "You have reviewed every single question in your vault! Excellent work." 
+                    : "You have completed all active recall sessions for today. Your neuroplasticity is optimized.";
+                return;
+            }
+
+            document.getElementById('fc-flipper').style.transform = 'rotateY(0deg)';
+            
+            // Progress Bar Physics
+            const completed = totalDue - dueQueue.length;
+            document.getElementById('prog-text').innerText = `${completed} / ${totalDue} Synapses Fired`;
+            document.getElementById('prog-fill').style.width = `${(completed / totalDue) * 100}%`;
+            
+            // Brain glow effect on load
+            const brain = document.getElementById('brain-glow');
+            brain.classList.add('glow');
+            setTimeout(() => brain.classList.remove('glow'), 500);
+
+            // Set Footer State
+            document.querySelectorAll('.btn-state').forEach(el => el.classList.remove('active'));
+            document.getElementById('state-front').classList.add('active');
+
+            const currentItem = dueQueue[0];
+            currentQData = currentItem.question;
+            currentBookmark = currentItem.bookmark;
+
+            // Render Front
+            let optsHtml = '';
+            currentQData.options.forEach((opt, index) => {
+                const letter = String.fromCharCode(65 + index);
+                optsHtml += `
+                    <div class="opt-row" onclick="window.selectAnswer('${letter}')">
+                        <div class="opt-letter">${letter}</div>
+                        <div>${opt}</div>
+                    </div>`;
+            });
+
+            document.getElementById('front-content').innerHTML = `
+                <div class="q-meta">
+                    <span>${currentQData.year || currentBookmark.exam}</span>
+                    <span class="synapse-level"><i class="fas fa-bolt"></i> Level ${currentBookmark.current_step}</span>
+                </div>
+                <div class="q-stem">${currentQData.stem}</div>
+                ${currentQData.img ? `<img src="${currentQData.img}" class="q-img">` : ''}
+                <div>${optsHtml}</div>
+            `;
+
+            // Calculate Dynamic Neuro-Intervals
+            let step = currentBookmark.current_step;
+            window.calcGuessDays = Math.max(1, Math.round(step * 1.5));
+            window.calcMasteredDays = Math.max(3, Math.round((daysToExam * 0.15) * step));
+
+            document.getElementById('time-guess').innerText = `+${window.calcGuessDays}d`;
+            document.getElementById('time-mastered').innerText = `+${window.calcMasteredDays}d`;
+
+            // Pre-render Back 
+            document.getElementById('card-back').scrollTop = 0;
+            document.getElementById('card-front').scrollTop = 0;
+        }
+
+        window.selectAnswer = function(selectedLetter) {
+            const isCorrect = (selectedLetter === currentQData.ans_key);
+            const ansIndex = currentQData.ans_key.charCodeAt(0) - 65;
+            const correctText = currentQData.options[ansIndex];
+
+            // Render Back Content 
+            let bannerHtml = isCorrect 
+                ? `<div class="result-banner result-correct"><i class="fas fa-check-circle" style="font-size:1.5rem;"></i> Correct! Excellent retrieval.</div>`
+                : `<div class="result-banner result-wrong"><i class="fas fa-times-circle" style="font-size:1.5rem;"></i> Incorrect. The correct answer was ${currentQData.ans_key}.</div>`;
+
+            document.getElementById('back-content').innerHTML = `
+                ${bannerHtml}
+                <div class="q-stem" style="font-size:0.95rem; opacity:0.8; margin-bottom: 15px;">${currentQData.stem}</div>
+                <div style="background:#f1f5f9; padding:15px; border-radius:10px; font-weight:600; color:#0f172a; margin-bottom: 15px;">
+                    <span style="color:#10b981; margin-right:8px;">${currentQData.ans_key}.</span> ${correctText}
+                </div>
+                <div class="expl-box"><strong>Neuro-Link (Explanation):</strong><br><br>${currentQData.explanation}</div>
+            `;
+
+            document.getElementById('fc-flipper').style.transform = 'rotateY(180deg)';
+
+            document.querySelectorAll('.btn-state').forEach(el => el.classList.remove('active'));
+            if (isCorrect) {
+                document.getElementById('state-correct').classList.add('active');
+            } else {
+                document.getElementById('state-wrong').classList.add('active');
+            }
+        };
+
+        window.gradeNeuro = async function(gradeCode) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            document.querySelectorAll('.btn-state').forEach(el => el.classList.remove('active'));
+
+            let step = currentBookmark.current_step;
+            let nextIntervalDays = 0;
+
+            if (gradeCode === 0) { // WRONG
+                step = 1; 
+                nextIntervalDays = 0; 
+            } else if (gradeCode === 1) { // GUESSED 
+                step = step + 1;
+                nextIntervalDays = window.calcGuessDays;
+            } else if (gradeCode === 2) { // MASTERED
+                step = step + 2;
+                nextIntervalDays = window.calcMasteredDays;
+            }
+
+            const nextReview = Date.now() + (nextIntervalDays * 24 * 60 * 60 * 1000);
+            const item = dueQueue.shift(); 
+            
+            // Mark as answered in this session so we don't load it again if we switch modes
+            window.sessionAnswered.push(currentBookmark.q_id);
+
+            if (gradeCode === 0) {
+                // If wrong, push to the back of the queue so they see it again TODAY
+                item.bookmark.current_step = step;
+                dueQueue.push(item);
+            } else {
+                // Update local memory so changing tabs doesn't reset it
+                allBookmarksData[currentBookmark.q_id].current_step = step;
+                allBookmarksData[currentBookmark.q_id].next_review_date = nextReview;
+
+                // Sync to Firebase Database
+                try {
+                    await set(ref(db, `users/${user.uid}/bookmarks/${currentBookmark.q_id}/current_step`), step);
+                    await set(ref(db, `users/${user.uid}/bookmarks/${currentBookmark.q_id}/next_review_date`), nextReview);
+                } catch(e) { console.error("Neural sync error", e); }
+            }
+
+            loadNextCard();
+        };
+    </script>
+</body>
+</html>
 </head>
 <body>
 
