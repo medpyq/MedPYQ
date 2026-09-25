@@ -226,6 +226,21 @@
       gtag('js', new Date());
       gtag('config', 'G-D6GET866T2');
     </script>
+    <!-- BROKEN IMAGE SAFETY NET -->
+    <style>
+        /* 1. Instantly hide images with empty or missing links */
+        img[src=""], img[src="null"], img[src="undefined"], img:not([src]) {
+            display: none !important;
+        }
+    </style>
+    <script>
+        /* 2. Globally catch any image that tries to load a dead link (404) and hide it */
+        document.addEventListener('error', function(e) {
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+                e.target.style.display = 'none';
+            }
+        }, true); // The 'true' is required to capture the error phase
+    </script>
 </head>
 <body>
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
