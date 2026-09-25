@@ -21,7 +21,7 @@
         .btn-primary:active { transform: scale(0.98); }
 
         /* --- TABLE VIEW (MAIN CONTENT) --- */
-      #main-content { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 100px 20px; max-width: 1200px; margin: 0 auto; }
+        #main-content { padding: max(20px, env(safe-area-inset-top, 20px)) 20px 100px 20px; max-width: 1200px; margin: 0 auto; }
         .app-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
         .app-header h1 { margin: 0; color: var(--app-blue); font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
         .app-header p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; font-weight: bold; }
@@ -65,7 +65,7 @@
 
         /* --- UNIVERSAL DECK LAYER (Fullscreen Overlay) --- */
         #universal-deck-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8fafc; z-index: 999990; flex-direction: column; font-family: 'Inter', sans-serif; }
-.ud-header { height: auto; min-height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top, 10px)) 16px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; }
+        .ud-header { height: auto; min-height: 60px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top, 10px)) 16px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; }
         .ud-title { font-weight: 800; font-size: 16px; color: #0f2b52; }
         .ud-subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         
@@ -127,51 +127,48 @@
         .ai-icon-box { width: 70px; height: 70px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
    
    /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
-.question-content table,
-.ud-stem table,
-#ud-expl-box table,
-.expl-box table,
-.expl-container table {
-    width: 100%;
-    max-width: 100%;
-    border-collapse: collapse;
-    /* Forces the table to act as a scrollable block on mobile */
-    display: block; 
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 15px;
-}
+        .question-content table,
+        .ud-stem table,
+        #ud-expl-box table,
+        .expl-box table,
+        .expl-container table {
+            width: 100%;
+            max-width: 100%;
+            border-collapse: collapse;
+            display: block; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
 
-.question-content th, .question-content td,
-.ud-stem th, .ud-stem td,
-#ud-expl-box th, #ud-expl-box td,
-.expl-box th, .expl-box td,
-.expl-container th, .expl-container td {
-    /* Fluid typography: scales between 0.75rem (mobile) and 1rem (desktop) */
-    font-size: clamp(0.75rem, 2.5vw, 1rem); 
-    /* Fluid padding: scales between 4px and 10px */
-    padding: clamp(4px, 1.5vw, 10px);
-    border: 1px solid #cbd5e1;
-    word-break: normal; 
-    min-width: 80px; 
-}
+        .question-content th, .question-content td,
+        .ud-stem th, .ud-stem td,
+        #ud-expl-box th, #ud-expl-box td,
+        .expl-box th, .expl-box td,
+        .expl-container th, .expl-container td {
+            font-size: clamp(0.75rem, 2.5vw, 1rem); 
+            padding: clamp(4px, 1.5vw, 10px);
+            border: 1px solid #cbd5e1;
+            word-break: normal; 
+            min-width: 80px; 
+        }
 
-/* Subtle background for headers */
-.question-content th, 
-.ud-stem th, 
-#ud-expl-box th, 
-.expl-box th, 
-.expl-container th {
-    background: #f8fafc;
-    color: #0f2b52;
-    font-weight: 700;
-}
+        .question-content th, 
+        .ud-stem th, 
+        #ud-expl-box th, 
+        .expl-box th, 
+        .expl-container th {
+            background: #f8fafc;
+            color: #0f2b52;
+            font-weight: 700;
+        }
+
    /* --- ACCESSIBILITY: TEXT RESIZING --- */
-body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
-body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
-body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
-body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
- </style>
+        body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
+        body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
+        body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
+        body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
+    </style>
 </head>
 <body>
 
@@ -188,7 +185,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
     </div>
 
     <div id="main-content" style="display:none;">
-    <header class="app-header">
+        <header class="app-header">
             <div>
                 <h1 id="dynamic-title">Loading...</h1>
                 <p id="dynamic-subtitle">Chapter-wise PYQs</p>
@@ -199,7 +196,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             </div>
         </header>
 
-   <div class="controls-bar">
+        <div class="controls-bar">
             <input type="text" id="postSearch" class="search-input" placeholder="Search keywords..." onkeyup="window.SYNC_updateState('search', this.value, true)">
             
             <!-- ATTEMPT STATUS DROPDOWN -->
@@ -214,10 +211,12 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             <button id="btn-filter-saved" onclick="window.SYNC_toggleSaved()" style="padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
                 <i class="fas fa-bookmark"></i> Saved
             </button>
-<!-- RESET ALL PROGRESS BUTTON -->
+
+            <!-- RESET ALL PROGRESS BUTTON -->
             <button onclick="window.resetAllProgress()" style="padding: 10px 12px; border: 1px solid #fca5a5; border-radius: 8px; background: #fef2f2; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #dc2626; font-size: 0.9rem; font-weight:bold; font-family: inherit; transition: 0.2s;">
                 <i class="fas fa-trash-can"></i> Reset Progress
             </button>
+
             <div class="ms-dropdown" id="unit-dropdown-container" style="display:none;">
                 <button class="ms-btn" onclick="window.toggleDropdown('table-unit-content')">
                     <span id="unit-btn-text">All Units</span> <i class="fas fa-chevron-down"></i>
@@ -257,7 +256,6 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             <button class='icon-btn' onclick='window.UD_toggleDrawer("filter")'><i class="fas fa-filter"></i></button>
             <div style="text-align: center;"><div class='ud-title' id='ud-top-title'>MedPYQ Deck</div><div class='ud-subtitle' id='ud-counter'>0/0</div></div>
             <div style='display:flex; gap:8px;'>
-                <!-- NEW TEXT SIZE BUTTON (Deck) -->
                 <button class='icon-btn' onclick='window.cycleTextSize()' style="font-weight:900; font-family: serif; font-size: 1.1rem;">Aa</button>
                 <button class='icon-btn' onclick='window.UD_shareStats()'><i class='fas fa-share-nodes'></i></button>
                 <button class='icon-btn' onclick='window.UD_toggleDrawer("nav")'><i class="fas fa-bars-staggered"></i></button>
@@ -274,7 +272,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         <div class='ud-drawer' id='ud-filter-drawer'>
             <div class='ud-backdrop' onclick='window.UD_closeDrawers()'></div>
             <div class='ud-panel'>
-           <div style='padding: max(20px, env(safe-area-inset-top, 20px)) 20px 20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
+                <div style='padding: max(20px, env(safe-area-inset-top, 20px)) 20px 20px; border-bottom:1px solid #eee; font-weight:800; color:#0f2b52; display:flex; justify-content:space-between;'><span>Filters</span><span onclick='window.UD_closeDrawers()' style='cursor:pointer; font-size:20px;'>&times;</span></div>
                 <div id='deck-dynamic-filters' style='padding:0; overflow-y:auto; flex:1;'></div>
                 <div style='padding:15px; border-top:1px solid #eee; display:flex; gap:10px;'>
                     <button class='ud-btn' onclick='window.SYNC_resetFilters()' style='background:#f1f5f9; color:#64748b;'>Reset All</button>
@@ -296,6 +294,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         <i class="fas fa-layer-group"></i>
     </button>
 
+    <!-- Report Modal -->
     <div class="ud-modal-backdrop" id="ud-report-modal">
         <div class="ud-modal-card">
             <h3>Report Issue</h3>
@@ -314,6 +313,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         </div>
     </div>
 
+    <!-- AI Interaction Overlay -->
     <div class="ud-modal-backdrop" id="ai-interaction-overlay">
         <div class="ud-modal-card">
             <div class="ai-icon-box"><i class="fa-solid fa-check"></i></div>
@@ -656,42 +656,6 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         {
             unit: "Part 5: Infectious Diseases",
             chapters: ["124. Approach to the Patient with an Infectious Disease", "125. Molecular Mechanisms of Microbial Pathogenesis", "126. Microbial Genomics and Infectious Disease", "127. Approach to the Acutely Ill Infected Febrile Patient", "128. Principles of Immunization", "129. Immunization Principles and Vaccine Use", "130. Health Recommendations for International Travel", "131. Pneumonia", "132. Lung Abscess", "133. Infective Endocarditis", "134. Infections of the Skin, Muscles, and Soft Tissues", "135. Infectious Arthritis", "136. Osteomyelitis", "137. Intraabdominal Infections and Abscesses", "138. Acute Infectious Diarrheal Diseases and Bacterial Food Poisoning", "139. Clostridioides difficile Infection", "140. Urinary Tract Infections", "141. Sexually Transmitted Infections", "142. Encephalitis", "143. Acute Meningitis", "144. Chronic and Recurrent Meningitis", "145. Brain Abscess and Empyema", "146. Infectious Complications of Bites", "147. Infections Acquired in Health Care Facilities", "148. Infections in Transplant Recipients", "149. Treatment and Prophylaxis of Bacterial Infections", "150. Bacterial Resistance to Antimicrobial Agents", "151. Pneumococcal Infections", "152. Staphylococcal Infections", "153. Streptococcal Infections", "154. Enterococcal Infections", "155. Diphtheria and Other Corynebacterial Infections", "156. Listeria monocytogenes Infections", "157. Tetanus", "158. Botulism", "159. Gas Gangrene and Other Clostridial Infections", "160. Meningococcal Infections", "161. Gonococcal Infections", "162. Haemophilus and Moraxella Infections", "163. Infections Due to the HACEK Group", "164. Legionella Infections", "165. Pertussis and Other Bordetella Infections", "166. Diseases Caused by Gram-Negative Enteric Bacilli", "167. Acinetobacter Infections", "168. Helicobacter pylori Infections", "169. Infections Due to Campylobacter", "170. Pseudomonas and Related Infections", "171. Salmonellosis", "172. Shigellosis", "173. Cholera and Other Vibrioses", "174. Brucellosis", "175. Tularemia", "176. Plague and Other Yersinia Infections", "177. Bartonella Infections", "178. Donovanosis", "179. Nocardiosis", "180. Actinomycosis", "181. Whipple Disease", "182. Infections Due to Mixed Anaerobic Organisms", "183. Tuberculosis", "184. Leprosy", "185. Nontuberculous Mycobacterial Infections", "186. Antimycobacterial Agents", "187. Syphilis", "188. Endemic Treponematoses", "189. Leptospirosis", "190. Relapsing Fever", "191. Lyme Borreliosis", "192. Rickettsial Diseases", "193. Infections Due to Mycoplasmas", "194. Chlamydial Infections", "195. Principles of Medical Virology", "196. Antiviral Chemotherapy", "197. Herpes Simplex Virus Infections", "198. Varicella-Zoster Virus Infections", "199. Epstein-Barr Virus Infections", "200. Cytomegalovirus and Human Herpesvirus", "201. Monkeypox and Other Poxvirus Infections", "202. Parvovirus Infections", "203. Human Papillomavirus Infections", "204. Common Viral Respiratory Infections", "205. SARS-CoV-2 and COVID-19", "206. Influenza", "207. The Human Retroviruses", "208. HIV Disease: AIDS and Related Disorders", "209. Viral Gastroenteritis", "210. Enterovirus, Parechovirus, and Reovirus Infections", "211. Measles (Rubeola)", "212. Rubella (German Measles)", "213. Mumps", "214. Rabies and Other Rhabdovirus Infections", "215. Arthropod-Borne and Rodent-Borne Virus Infections", "216. The Filovirids", "217. Fungal Infections: Pathogenesis and Treatment", "218. Histoplasmosis", "219. Coccidioidomycosis", "220. Blastomycosis", "221. Cryptococcosis", "222. Candidiasis", "223. Aspergillosis", "224. Mucormycosis", "225. Superficial Fungal Infections", "226. Uncommon Disseminated Fungal Infections", "227. Pneumocystis Infections", "228. Introduction to Parasitic Infections", "229. Agents Used to Treat Parasitic Infections", "230. Amebiasis and Free-Living Amebae", "231. Malaria", "232. Babesiosis", "233. Leishmaniasis", "234. Chagas Disease and African Trypanosomiasis", "235. Toxoplasma Infections", "236. Protozoal Intestinal Infections and Trichomoniasis", "237. Introduction to Helminthic Infections", "238. Trichinellosis and Tissue Nematodes", "239. Intestinal Nematode Infections", "240. Filarial and Related Infections", "241. Schistosomiasis and Other Trematode Infections", "242. Cestode Infections"]
-        },
-        {
-            unit: "Part 6: Disorders of the Cardiovascular System",
-            chapters: ["243. Approach to the Patient with Possible Cardiovascular Disease", "244. Basic Biology of the Cardiovascular System", "245. Epidemiology of Cardiovascular Disease", "246. Physical Examination of the Cardiovascular System", "247. Electrocardiography", "248. Noninvasive Cardiac Imaging", "249. Diagnostic Cardiac Catheterization and Coronary Angiography", "250. Principles of Clinical Cardiac Electrophysiology", "251. The Bradyarrhythmias: Sinoatrial Node", "252. The Bradyarrhythmias: Atrioventricular Node", "253. Approach to Supraventricular Arrhythmias", "254. Physiologic and Nonphysiologic Sinus Rhythm", "255. Focal Atrial Tachycardia", "256. Paroxysmal Supraventricular Tachycardias", "257. Common Atrial Flutter and Macroreentrant Tachycardias", "258. Atrial Fibrillation", "259. Approach to Ventricular Arrhythmias", "260. Premature Ventricular Contractions", "261. Sustained Ventricular Tachycardia", "262. Polymorphic Ventricular Tachycardia and Fibrillation", "263. Electrical Storm and Incessant Ventricular Tachycardia", "264. Heart Failure: Pathophysiology and Diagnosis", "265. Heart Failure: Management", "266. Classification of Cardiomyopathy", "267. Genetic Cardiomyopathies", "268. Acute and Chronic Myocarditis", "269. Dilated Cardiomyopathies", "270. Amyloidosis and Other Restrictive Cardiomyopathies", "271. Cardiac Transplantation", "272. Aortic Stenosis", "273. Aortic Regurgitation", "274. Mitral Stenosis", "275. Mitral Regurgitation", "276. Mitral Valve Prolapse", "277. Tricuspid Valve Disease", "278. Pulmonic Valve Disease", "279. Multiple and Mixed Valvular Heart Disease", "280. Congenital Heart Disease in the Adult", "281. Pericardial Disease", "282. Atrial Myxoma and Other Cardiac Tumors", "283. Cardiac Trauma", "284. Ischemic Heart Disease", "285. Non-ST-Segment Elevation Acute Coronary Syndrome", "286. ST-Segment Elevation Myocardial Infarction", "287. Percutaneous Coronary Interventions", "288. Hypertension", "289. Renovascular Disease", "290. Deep-Venous Thrombosis and Pulmonary Thromboembolism", "291. Diseases of the Aorta", "292. Arterial Diseases of the Extremities", "293. Chronic Venous Disease and Lymphedema", "294. Pulmonary Hypertension"]
-        },
-        {
-            unit: "Part 7: Disorders of the Respiratory System",
-            chapters: ["295. Approach to the Patient with Disease of the Respiratory System", "296. Disturbances of Respiratory Function", "297. Diagnostic Procedures in Respiratory Disease", "298. Asthma", "299. Hypersensitivity Pneumonitis", "300. Occupational and Environmental Lung Disease", "301. Bronchiectasis", "302. Cystic Fibrosis", "303. Chronic Obstructive Pulmonary Disease", "304. Interstitial Lung Disease", "305. Disorders of the Pleura", "306. Disorders of the Mediastinum", "307. Disorders of Ventilation", "308. Sleep Apnea", "309. Lung Transplantation", "310. Interventional Pulmonary Medicine"]
-        },
-        {
-            unit: "Part 8: Critical Care Medicine",
-            chapters: ["311. Approach to the Patient with Critical Illness", "312. Acute Respiratory Distress Syndrome", "313. Mechanical Ventilatory Support", "314. Approach to the Patient with Shock", "315. Sepsis and Septic Shock", "316. Cardiogenic Shock and Pulmonary Edema", "317. Cardiovascular Collapse, Cardiac Arrest, and Sudden Cardiac Death", "318. Nervous System Disorders in Critical Care"]
-        },
-        {
-            unit: "Part 9: Disorders of the Kidney and Urinary Tract",
-            chapters: ["319. Approach to the Patient with Renal Disease", "320. Cell Biology and Physiology of the Kidney", "321. Acute Kidney Injury", "322. Chronic Kidney Disease", "323. Dialysis in the Treatment of Kidney Failure", "324. Interventional Nephrology", "325. Kidney Transplantation", "326. Glomerular Diseases", "327. Polycystic Kidney Disease", "328. Tubulointerstitial Diseases of the Kidney", "329. Thrombotic Renovascular Disorders", "330. Nephrolithiasis", "331. Urinary Tract Obstruction"]
-        },
-        {
-            unit: "Part 10: Disorders of the Gastrointestinal System",
-            chapters: ["332. Approach to the Patient with Gastrointestinal Disease", "333. Gastrointestinal Endoscopy", "334. Diseases of the Esophagus", "335. Peptic Ulcer Disease and Related Disorders", "336. Disorders of Absorption", "337. Inflammatory Bowel Disease", "338. Irritable Bowel Syndrome", "339. Diverticular Disease and Common Anorectal Disorders", "340. Mesenteric Vascular Insufficiency", "341. Acute Intestinal Obstruction", "342. Acute Appendicitis and Peritonitis", "343. Nutrient Requirements and Dietary Assessment", "344. Vitamin and Trace Mineral Deficiency", "345. Malnutrition and Nutritional Assessment", "346. Enteral and Parenteral Nutrition", "347. Approach to the Patient with Liver Disease", "348. Evaluation of Liver Function", "349. The Hyperbilirubinemias", "350. Acute Viral Hepatitis", "351. Toxic and Drug-Induced Hepatitis", "352. Chronic Hepatitis", "353. Alcohol-Associated Liver Disease", "354. Metabolic Dysfunction-Associated Steatotic Liver Disease", "355. Cirrhosis and Its Complications", "356. Liver Transplantation", "357. Diseases of the Gallbladder and Bile Ducts", "358. Approach to the Patient with Pancreatic Disease", "359. Acute and Chronic Pancreatitis"]
-        },
-        {
-            unit: "Part 11: Immune-Mediated, Inflammatory, and Rheumatologic Disorders",
-            chapters: ["360. Introduction to the Immune System", "361. Mechanisms of Regulation and Dysregulation of the Immune System", "362. Primary Immune Deficiency Diseases", "363. Urticaria, Angioedema, and Allergic Rhinitis", "364. Anaphylaxis", "365. Desensitization", "366. Mastocytosis", "367. Autoimmunity and Autoimmune Diseases", "368. Systemic Lupus Erythematosus", "369. Antiphospholipid Syndrome", "370. Rheumatoid Arthritis", "371. Acute Rheumatic Fever", "372. Systemic Sclerosis (Scleroderma)", "373. Sjögren's Disease", "374. Spondyloarthritis", "375. The Vasculitis Syndromes", "376. Behçet Syndrome", "377. Inflammatory Myopathies", "378. Relapsing Polychondritis", "379. Sarcoidosis", "380. IgG4-Related Disease", "381. Familial Mediterranean Fever", "382. Approach to Articular and Musculoskeletal Disorders", "383. Osteoarthritis", "384. Gout and Other Crystal-Associated Arthropathies", "385. Fibromyalgia", "386. Arthritis Associated with Systemic Disease", "387. Periarticular Disorders of the Extremities"]
-        },
-        {
-            unit: "Part 12: Endocrinology and Metabolism",
-            chapters: ["388. Approach to the Patient with Endocrine Disorders", "389. Mechanisms of Hormone Action", "390. Physiology of Anterior Pituitary Hormones", "391. Hypopituitarism", "392. Pituitary Tumor Syndromes", "393. Disorders of the Neurohypophysis", "394. Thyroid Gland Physiology and Testing", "395. Hypothyroidism", "396. Hyperthyroidism", "397. Thyroid Nodular Disease and Thyroid Cancer", "398. Disorders of the Adrenal Cortex", "399. Pheochromocytoma", "400. Multiple Endocrine Neoplasia Syndromes", "401. Autoimmune Polyendocrine Syndromes", "402. Sex Development", "403. Disorders of the Testes and Male Reproductive System", "404. Disorders of the Female Reproductive System", "405. Menstrual Disorders and Pelvic Pain", "406. Hirsutism", "407. Menopause and Postmenopausal Hormone Therapy", "408. Infertility and Contraception", "409. Sexual Dysfunction", "410. Women's Health", "411. Men's Health", "412. LGBTQIA+ Health", "413. Pathobiology of Obesity", "414. Evaluation and Management of Obesity", "415. Diabetes Mellitus: Diagnosis, Classification, and Pathophysiology", "416. Diabetes Mellitus: Management and Therapies", "417. Diabetes Mellitus: Complications", "418. Hypoglycemia", "419. Disorders of Lipoprotein Metabolism", "420. The Metabolic Syndrome", "421. Bone and Mineral Metabolism in Health and Disease", "422. Disorders of the Parathyroid Gland and Calcium Homeostasis", "423. Osteoporosis", "424. Paget's Disease and Other Dysplasias of Bone", "425. Heritable Disorders of Connective Tissue", "426. Hemochromatosis", "427. Wilson's Disease", "428. The Porphyrias", "429. Lysosomal Storage Diseases", "430. Glycogen Storage Diseases", "431. Inherited Disorders of Amino Acid Metabolism", "432. Inherited Defects of Membrane Transport"]
-        },
-        {
-            unit: "Part 13: Neurologic Disorders",
-            chapters: ["433. Approach to the Patient with Neurologic Disease", "434. Neuroimaging in Neurologic Disorders", "435. Pathobiology of Neurologic Diseases", "436. Seizures and Epilepsy", "437. Introduction to Cerebrovascular Diseases", "438. Ischemic Stroke", "439. Intracerebral Hemorrhage", "440. Subarachnoid Hemorrhage", "441. Migraine and Other Primary Headache Disorders", "442. Alzheimer's Disease", "443. Frontotemporal Dementia", "444. Vascular Dementia", "445. Dementia with Lewy Bodies", "446. Parkinson's Disease", "447. Tremor, Chorea, and Other Movement Disorders", "448. Amyotrophic Lateral Sclerosis and Other Motor Neuron Diseases", "449. Prion Diseases", "450. Ataxic Disorders", "451. Disorders of the Autonomic Nervous System", "452. Trigeminal Neuralgia, Bell's Palsy, and Other Cranial Nerve Disorders", "453. Diseases of the Spinal Cord", "454. Concussion and Other Traumatic Brain Injuries", "455. Multiple Sclerosis", "456. Neuromyelitis Optica", "457. Peripheral Neuropathy", "458. Guillain-Barré Syndrome", "459. Myasthenia Gravis", "460. Muscular Dystrophies and Other Muscle Diseases", "461. Myalgic Encephalomyelitis/Chronic Fatigue Syndrome", "462. Biology of Psychiatric Disorders", "463. Psychiatric Disorders", "464. Alcohol and Alcohol Use Disorders", "465. Nicotine Addiction", "466. Cannabis and Cannabis Use Disorder", "467. Opioid-Related Disorders", "468. Cocaine, Other Psychostimulants, and Hallucinogens"]
-        },
-        {
-            unit: "Part 14: Poisoning & Envenomation",
-            chapters: ["469. Heavy Metal Poisoning", "470. Poisoning and Drug Overdose", "471. Disorders Caused by Venomous Snakebites and Marine Animal Exposures", "472. Ectoparasite Infestations and Arthropod Injuries"]
         },
         {
             unit: "Part 15: Environmental Exposures",
@@ -1528,6 +1492,25 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                 </div>
                 
                 <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
+                
+                <!-- PEER DISCUSSION SECTION -->
+                <div style="margin-top: 15px; display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'};">
+                    <button onclick="window.UD_toggleComments('${q.uid}')" style="background:#f8fafc; color:#0f2b52; border:1px solid #e2e8f0; padding:12px 15px; border-radius:8px; font-weight:bold; font-size:0.9rem; cursor:pointer; width:100%; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
+                        <span><i class="fas fa-comments" style="color:#eebb4d; margin-right:8px; font-size:1.1rem;"></i> Peer Discussion & Mnemonics</span>
+                        <i class="fas fa-chevron-down" style="color:#94a3b8;"></i>
+                    </button>
+                    
+                    <div id="ud-comments-box" style="display:none; margin-top:10px; border:1px solid #e2e8f0; border-radius:8px; padding:15px; background:white; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                        <div id="ud-comments-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px;">
+                            <div style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 20px 0;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="ud-comment-input" placeholder="Share a mnemonic or ask a doubt..." style="flex:1; padding:12px; border:1px solid #cbd5e1; border-radius:8px; outline:none; font-family:inherit; font-size:0.9rem;">
+                            <button onclick="window.UD_postComment(event, '${q.uid}')" style="background:#0f2b52; color:white; border:none; padding:0 20px; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
             </div>`;
             
             document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
@@ -1569,6 +1552,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             }
             window.UD_renderCard();
         };
+
 // --- WIPE ENTIRE SUBJECT PROGRESS ---
         window.resetAllProgress = async function() {
             const user = auth.currentUser;
@@ -1605,6 +1589,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                 alert("Failed to reset progress in the database. Please try again.");
             }
         };
+
         window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); window.saveCurrentIndex(); } };
         window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); window.saveCurrentIndex(); } };
 
@@ -1629,9 +1614,94 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); window.saveCurrentIndex(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
+// ==========================================
+        // COMMUNITY DISCUSSION ENGINE
+        // ==========================================
+        window.UD_toggleComments = async function(q_id) {
+            const box = document.getElementById('ud-comments-box');
+            if (box.style.display === 'none') {
+                box.style.display = 'block';
+                const list = document.getElementById('ud-comments-list');
+                
+                // Attach real-time Firebase listener
+                onValue(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}`), (snapshot) => {
+                    const data = snapshot.val();
+                    if (!data) {
+                        list.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.9rem; padding:20px 0;"><i class="fas fa-hands-helping" style="font-size:2rem; opacity:0.3; margin-bottom:10px; display:block;"></i>Be the first to share a mnemonic or start a discussion!</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    // Sort comments chronologically
+                    const comments = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
+                    
+                    comments.forEach(c => {
+                        const dateStr = new Date(c.timestamp).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+                        // Differentiate the current user visually
+                        const isMe = auth.currentUser && c.uid === auth.currentUser.uid;
+                        const badgeHtml = c.author.includes('Admin') ? `<span style="background:#fee2e2; color:#dc2626; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:5px; font-weight:800;">ADMIN</span>` : '';
+                        
+                        html += `
+                        <div style="margin-bottom: 12px; border-radius: 8px; background: ${isMe ? '#f0f9ff' : '#f8fafc'}; padding: 12px; border: 1px solid ${isMe ? '#bae6fd' : '#e2e8f0'};">
+                            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+                                <strong style="color:var(--app-blue); font-size:0.85rem;"><i class="fas fa-user-circle" style="color:#94a3b8; margin-right:4px;"></i> ${isMe ? 'You' : c.author} ${badgeHtml}</strong>
+                                <span style="font-size:0.7rem; color:#94a3b8; font-weight:600;">${dateStr}</span>
+                            </div>
+                            <div style="color:#334155; font-size:0.9rem; line-height:1.5; word-wrap: break-word;">${c.text}</div>
+                        </div>`;
+                    });
+                    
+                    list.innerHTML = html;
+                    list.scrollTop = list.scrollHeight; // Auto-scroll to latest comment
+                });
+            } else {
+                box.style.display = 'none';
+            }
+        };
+
+        window.UD_postComment = async function(event, q_id) {
+            const input = document.getElementById('ud-comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Please log in to participate in the discussion.");
+                return;
+            }
+
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            const commentId = 'C_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            let authorName = user.displayName || user.email.split('@')[0];
+            
+            // Add Admin visual tag securely if an admin posts
+            if (ADMIN_EMAILS.includes(user.email)) authorName += " (Admin)";
+
+            try {
+                // Save comment to Firebase
+                await set(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}/${commentId}`), {
+                    author: authorName,
+                    uid: user.uid,
+                    text: text,
+                    timestamp: Date.now()
+                });
+                input.value = ''; // Clear input field
+            } catch(e) {
+                console.error(e);
+                alert("Failed to post comment. Check your connection.");
+            } finally {
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                btn.disabled = false;
+            }
+        };
+
         // ==========================================
         // UTILITIES (AI, Share, Report)
         // ==========================================
+
         window.UD_askAI_Global = function(item) {
             if(!item) return;
             const optionsText = item.options.map((opt, i) => `${String.fromCharCode(65+i)}. ${opt}`).join('\n');
@@ -1703,6 +1773,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                 setTimeout(() => { iframe.remove(); form.remove(); }, 1000);
             }, 1000);
         };
+
     </script>
 
     <!-- Image Lightbox Overlay -->
