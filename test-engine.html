@@ -780,6 +780,13 @@
             return Date.now() + msPerDay; // Automatically due tomorrow on first save
         };
 
+        // --- ACTIVE RECALL BOOKMARKING (IN REVIEW MODE) ---
+        // Generates the review date interval logic
+        window.calculateNextReviewDate = function() {
+            const msPerDay = 24 * 60 * 60 * 1000;
+            return Date.now() + msPerDay; // Automatically due tomorrow on first save
+        };
+
         window.toggleBookmark = async function() {
             const user = auth.currentUser;
             if (!user) return;
@@ -798,11 +805,21 @@
                     textEl.innerText = 'Save';
                 } else {
                     const nextReview = window.calculateNextReviewDate();
-                    // Store the bookmark. For custom exams, try to extract a subject string or default to "mixed"
+                    
+                    // Safely extract subject
                     let subjectStr = q.subject || "mixed";
                     if (Array.isArray(subjectStr)) subjectStr = subjectStr[0];
                     
-                    await set(ref(db, `users/${user.uid}/bookmarks/${q.uid}`), { exam: config.exam.toLowerCase(), subject: subjectStr.toLowerCase(), current_step: 1, next_review_date: nextReview });
+                    // SAFELY EXTRACT EXAM (This is what caused the crash)
+                    let safeExam = config.exam || window.examType || 'neet-pg';
+                    
+                    await set(ref(db, `users/${user.uid}/bookmarks/${q.uid}`), { 
+                        exam: safeExam.toLowerCase(), 
+                        subject: subjectStr.toLowerCase(), 
+                        current_step: 1, 
+                        next_review_date: nextReview 
+                    });
+                    
                     window.userBookmarks.push(q.uid);
                     btn.classList.add('saved');
                     textEl.innerText = 'Saved';
