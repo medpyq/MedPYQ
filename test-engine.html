@@ -43,7 +43,7 @@
         .opt-row-wrong { border-color: var(--red) !important; background: #fee2e2 !important; color: #991b1b; font-weight: 600; cursor: default; }
         .expl-container { margin-top: 25px; padding: 20px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; line-height: 1.6; font-size: 1rem; color: #92400e; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
 
-/* --- ACTIVE TEST FEATURES --- */
+        /* --- ACTIVE TEST FEATURES --- */
         .medpyq-highlight { background-color: #fef08a; padding: 2px 4px; border-radius: 4px; font-weight: bold; color: #0f172a; }
         .medpyq-strike { text-decoration: line-through; opacity: 0.5; background: #f8fafc; }
         .medpyq-strike span { color: #94a3b8 !important; }
@@ -78,9 +78,9 @@
         .status-notvis { background: #e2e8f0; color: #64748b; }
 
         /* Review Mode Legend */
-        .status-correct { background: var(--green); color: white; }
-        .status-wrong { background: var(--red); color: white; }
-        .status-skipped { background: #94a3b8; color: white; }
+        .status-correct { background: var(--green); color: white; border-color: #166534; }
+        .status-wrong { background: var(--red); color: white; border-color: #b91c1c; }
+        .status-skipped { background: #94a3b8; color: white; border-color: #475569; }
 
         .palette-grid-container { padding: 15px; overflow-y: auto; flex: 1; }
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
@@ -98,7 +98,6 @@
         .inst-card ul { padding-left: 20px; color: #475569; line-height: 1.6; font-size: 0.95rem; }
         
         /* REPORT SCREEN */
-        /* Fixed Notch Padding for Report Header */
         .report-header { background: var(--blue); color: white; padding: max(40px, calc(env(safe-area-inset-top, 0px) + 20px)) 20px 40px 20px; text-align: center; }
         .report-header h1 { margin: 0 0 10px 0; font-size: 2.5rem; }
         .stat-grid { max-width: 900px; margin: -30px auto 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 0 20px; }
@@ -130,6 +129,17 @@
         .deck-card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; min-height: 400px;}
         .deck-scroll-area { padding: 30px; }
 
+        /* NEW: Review Mode Inline Tools */
+        .review-tools { display: flex; gap: 15px; align-items: center; }
+        .save-bookmark-btn { background: transparent; border: none; color: #cbd5e1; font-size: 1.5rem; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; }
+        .save-bookmark-btn.saved { color: var(--gold); }
+        .save-bookmark-btn span { font-size: 0.65rem; font-weight: 800; margin-top: 2px; text-transform: uppercase; color: #94a3b8; }
+        
+        .marks-indicator { font-size: 0.85rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
+        .marks-indicator.positive { background: #dcfce7; color: #166534; }
+        .marks-indicator.negative { background: #fee2e2; color: #991b1b; }
+        .marks-indicator.neutral { background: #f1f5f9; color: #475569; }
+
         @media (max-width: 900px) {
             .cbt-header { padding: max(10px, env(safe-area-inset-top, 10px)) 15px 10px 15px; }
             .cbt-title { font-size: 0.9rem; }
@@ -157,52 +167,26 @@
             .report-header h1 { font-size: 2rem; }
             .deck-scroll-area { padding: 20px; }
         }
+
         /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
-.question-content table,
-.ud-stem table,
-#ud-expl-box table,
-.expl-box table,
-.expl-container table {
-    width: 100%;
-    max-width: 100%;
-    border-collapse: collapse;
-    /* Forces the table to act as a scrollable block on mobile */
-    display: block; 
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 15px;
-}
+        .question-content table, .ud-stem table, #ud-expl-box table, .expl-box table, .expl-container table { width: 100%; max-width: 100%; border-collapse: collapse; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
+        .question-content th, .question-content td, .ud-stem th, .ud-stem td, #ud-expl-box th, #ud-expl-box td, .expl-box th, .expl-box td, .expl-container th, .expl-container td { font-size: clamp(0.75rem, 2.5vw, 1rem); padding: clamp(4px, 1.5vw, 10px); border: 1px solid #cbd5e1; word-break: normal; min-width: 80px; }
+        .question-content th, .ud-stem th, #ud-expl-box th, .expl-box th, .expl-container th { background: #f8fafc; color: #0f2b52; font-weight: 700; }
 
-.question-content th, .question-content td,
-.ud-stem th, .ud-stem td,
-#ud-expl-box th, #ud-expl-box td,
-.expl-box th, .expl-box td,
-.expl-container th, .expl-container td {
-    /* Fluid typography: scales between 0.75rem (mobile) and 1rem (desktop) */
-    font-size: clamp(0.75rem, 2.5vw, 1rem); 
-    /* Fluid padding: scales between 4px and 10px */
-    padding: clamp(4px, 1.5vw, 10px);
-    border: 1px solid #cbd5e1;
-    word-break: normal; 
-    min-width: 80px; 
-}
-
-/* Subtle background for headers */
-.question-content th, 
-.ud-stem th, 
-#ud-expl-box th, 
-.expl-box th, 
-.expl-container th {
-    background: #f8fafc;
-    color: #0f2b52;
-    font-weight: 700;
-}
-/* --- ACCESSIBILITY: TEXT RESIZING --- */
-body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
-body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
-body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
-body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
+        /* --- ACCESSIBILITY: TEXT RESIZING --- */
+        body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
+        body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
+        body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
+        body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
     </style>
+    
+    <!-- BROKEN IMAGE SAFETY NET -->
+    <style> img[src=""], img[src="null"], img[src="undefined"], img:not([src]) { display: none !important; } </style>
+    <script>
+        document.addEventListener('error', function(e) {
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') { e.target.style.display = 'none'; }
+        }, true);
+    </script>
 </head>
 <body>
 
@@ -252,7 +236,6 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             <div class="cbt-title" id="test-header-title">Mock Test</div>
             <div class="cbt-timer" id="test-timer"><i class="fa-regular fa-clock"></i> 00:00:00</div>
             <div class="header-controls">
-                <!-- NEW TEXT SIZE BUTTON -->
                 <button onclick="window.cycleTextSize()" style="background:transparent; border:none; color:white; font-size:1.15rem; cursor:pointer; padding:0 10px; font-weight:800; font-family: serif; transition: 0.2s;" title="Change Text Size">Aa</button>
                 <button class="btn-submit-test" id="btn-top-submit" onclick="submitTest()">Submit</button>
                 <button class="mobile-palette-btn" onclick="togglePalette()"><i class="fas fa-th-large"></i></button>
@@ -261,9 +244,18 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
 
         <div class="cbt-layout">
             <div class="cbt-main">
+                <!-- INJECTED REVIEW TOOLS HERE -->
                 <div class="question-header">
                     <span id="q-no-display">Question 1</span>
                     <span style="font-size:0.85rem; background:#e2e8f0; color:#334155; padding:3px 10px; border-radius:12px;" id="q-mark-display">Marks: +0, -0</span>
+                    
+                    <div class="review-tools" id="review-tools" style="display: none;">
+                        <button class="save-bookmark-btn" id="btn-bookmark" onclick="window.toggleBookmark()">
+                            <i class="fas fa-bookmark"></i>
+                            <span id="bookmark-text">Save</span>
+                        </button>
+                        <div class="marks-indicator" id="marks-display">Marks: 0</div>
+                    </div>
                 </div>
                 
                 <div class="question-content">
@@ -352,6 +344,19 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         </div>
     </div>
 
+    <!-- RESUME PROMPT OVERLAY -->
+    <div id="resume-prompt-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="color:#0f2b52; background:#e0f2fe; border-radius: 50%; width: 60px; height: 60px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; font-size: 24px;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <h3 style="color:#0f172a; font-size:1.4rem; margin:0 0 8px 0; font-weight:800;">Resume Practice?</h3>
+            <p style="color:#64748b; font-size:0.9rem; margin:0 0 25px 0;">You left off at Question <span id="resume-q-num"></span> in your last session. Would you like to resume or start fresh?</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="window.startFresh()">Start Fresh</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="window.resumeSession()">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -372,6 +377,8 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         
         window.isReviewMode = false; 
         window.reviewData = [];
+        window.userBookmarks = [];
+        
         // --- TEXT RESIZING LOGIC ---
         window.currentTextSize = parseInt(localStorage.getItem('medpyq_text_size')) || 0;
         window.applyTextSize = function(level) {
@@ -390,7 +397,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
         const urlParams = new URLSearchParams(window.location.search);
         const testFileName = urlParams.get('testFile'); 
         const reviewId = urlParams.get('reviewId');     
-        window.isCustomTest = urlParams.get('customTest') === 'true'; // DETECT CUSTOM QUIZ
+        window.isCustomTest = urlParams.get('customTest') === 'true'; 
         
         let examType = 'neet-pg';
         if(testFileName && testFileName.includes('inicet')) examType = 'inicet';
@@ -417,6 +424,12 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             if (user) {
                 window.currentUserUid = user.uid; 
                 
+                // Fetch User Bookmarks for Active Recall Integration
+                try {
+                    const bSnap = await get(ref(db, `users/${user.uid}/bookmarks`));
+                    window.userBookmarks = Object.keys(bSnap.val() || {});
+                } catch(e) { console.error("Error fetching bookmarks", e); }
+
                 let localSessionId = localStorage.getItem('medpyq_session_id');
                 if (!localSessionId) {
                     localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -440,11 +453,12 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
 
                     onValue(sessionsRef, (liveSnapshot) => {
                         const activeSessions = liveSnapshot.val() || {};
+                        const conflictEl = document.getElementById('session-conflict-overlay');
                         if (!activeSessions[localSessionId]) {
-                            document.getElementById('session-conflict-overlay').style.display = 'flex';
+                            if (conflictEl) conflictEl.style.display = 'flex';
                             signOut(auth);
                         } else {
-                            document.getElementById('session-conflict-overlay').style.display = 'none';
+                            if (conflictEl) conflictEl.style.display = 'none';
                         }
                     });
 
@@ -549,6 +563,9 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                     }
                 }
 
+                // Ensure UIDs are set
+                questions.forEach((q, i) => { if(!q.uid) q.uid = q.q || ("Q" + i); });
+
                 // Push config UI
                 document.getElementById('inst-exam-title').innerText = config.title;
                 document.getElementById('inst-time').innerText = config.durationMins + " Mins";
@@ -603,23 +620,30 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             const submitBtn = document.getElementById('btn-top-submit');
             if(submitBtn) {
                 submitBtn.innerText = 'Exit Review';
+                submitBtn.style.background = '#22c55e'; // Green exit button
                 submitBtn.onclick = () => { window.location.href = 'index.html'; };
             }
-            document.getElementById('test-header-title').innerHTML = `${config.title} <span style="background:var(--gold); color:var(--blue); padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-left:10px;">REVIEW MODE</span>`;
+            document.getElementById('test-header-title').innerHTML = `${config.title} <span style="background:var(--gold); color:var(--blue); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:900; margin-left:10px; text-transform:uppercase;">Review Mode</span>`;
 
+            // Adjust Footer
             const leftFooter = document.getElementById('cbt-left-footer');
             if(leftFooter) leftFooter.style.display = 'none';
             const rightFooterNextBtn = document.getElementById('btn-save-next');
             if(rightFooterNextBtn) {
-                rightFooterNextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+                rightFooterNextBtn.innerHTML = 'Next Question <i class="fas fa-chevron-right"></i>';
                 rightFooterNextBtn.onclick = () => { moveToNext(); };
             }
 
+            // Adjust Palette Legend
             document.getElementById('palette-legend').innerHTML = `
                 <div class="legend-item"><div class="legend-box status-correct" id="cnt-rev-corr">0</div> Correct</div>
                 <div class="legend-item"><div class="legend-box status-wrong" id="cnt-rev-wrg">0</div> Incorrect</div>
                 <div class="legend-item"><div class="legend-box status-skipped" id="cnt-rev-skp">0</div> Skipped</div>
             `;
+            
+            // Show the Review Mode specific tools in q-meta
+            document.getElementById('q-mark-display').style.display = 'none'; // Hide normal marks
+            document.getElementById('review-tools').style.display = 'flex'; // Show dynamic marks + save bookmark
 
             renderPalette();
             renderQuestion(0);
@@ -672,27 +696,36 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             document.getElementById('q-no-display').innerText = `Question ${idx+1}`;
             document.getElementById('q-stem').innerHTML = q.stem;
             
-            // --- DYNAMIC MARKS DISPLAY ---
-            const markDisplay = document.getElementById('q-mark-display');
+            // --- REVIEW MODE TOOLS INJECTION ---
             if (window.isReviewMode) {
                 const userAns = state[idx].ans;
                 const isAttempted = (userAns !== null && userAns !== undefined && userAns !== "");
                 
+                // 1. Dynamic Marks Indicator
+                const marksEl = document.getElementById('marks-display');
                 if (!isAttempted) {
-                    markDisplay.innerHTML = `Marks: <strong>0</strong>`;
-                    markDisplay.style.color = "#475569"; markDisplay.style.background = "#e2e8f0";
+                    marksEl.className = 'marks-indicator neutral';
+                    marksEl.innerText = 'Marks: 0';
                 } else if (userAns === q.ans_key) {
-                    markDisplay.innerHTML = `Marks: <strong>+${config.marksCorrect}</strong>`;
-                    markDisplay.style.color = "#166534"; markDisplay.style.background = "#dcfce7";
+                    marksEl.className = 'marks-indicator positive';
+                    marksEl.innerText = `Marks: +${config.marksCorrect}`;
                 } else {
-                    markDisplay.innerHTML = `Marks: <strong>-${config.marksWrong}</strong>`;
-                    markDisplay.style.color = "#991b1b"; markDisplay.style.background = "#fee2e2";
+                    marksEl.className = 'marks-indicator negative';
+                    marksEl.innerText = `Marks: -${config.marksWrong}`;
                 }
-            } else {
-                markDisplay.innerText = `Marks: +${config.marksCorrect}, -${config.marksWrong}`;
-                markDisplay.style.color = "#334155"; markDisplay.style.background = "#e2e8f0";
+
+                // 2. Bookmark Engine Status
+                const btnMark = document.getElementById('btn-bookmark');
+                const isSaved = window.userBookmarks.includes(q.uid);
+                if (isSaved) {
+                    btnMark.classList.add('saved');
+                    document.getElementById('bookmark-text').innerText = 'Saved';
+                } else {
+                    btnMark.classList.remove('saved');
+                    document.getElementById('bookmark-text').innerText = 'Save';
+                }
             }
-            // -----------------------------
+            // -----------------------------------
             
             const imgCont = document.getElementById('q-img-container');
             imgCont.innerHTML = q.img ? `<img src="${q.img}" class="q-img">` : '';
@@ -722,8 +755,8 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                         ${isSel && !isCorrectOpt ? '<i class="fas fa-times" style="color:var(--red); font-size:1.2rem;"></i>' : ''}
                         ${isCorrectOpt ? '<i class="fas fa-check" style="color:var(--green); font-size:1.2rem;"></i>' : ''}
                     </label>`;
-           } else {
-                    // Added oncontextmenu for Right-Click/Long-Press Strikethrough
+                } else {
+                    // Test Mode Options (with Strikethrough support)
                     optsHtml += `<label id="opt-lbl-${char}" class="option-lbl ${isSel?'selected':''}" oncontextmenu="window.toggleStrike(event, '${char}')">
                         <input type="radio" name="opt" value="${char}" ${isSel?'checked':''} onchange="window.selectOption('${char}')">
                         <span><strong>${char}.</strong> ${opt}</span>
@@ -739,6 +772,48 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             document.getElementById('q-options').innerHTML = optsHtml + explHtml;
             renderPalette();
         }
+
+        // --- ACTIVE RECALL BOOKMARKING (IN REVIEW MODE) ---
+        // Generates the review date interval logic
+        window.calculateNextReviewDate = function() {
+            const msPerDay = 24 * 60 * 60 * 1000;
+            return Date.now() + msPerDay; // Automatically due tomorrow on first save
+        };
+
+        window.toggleBookmark = async function() {
+            const user = auth.currentUser;
+            if (!user) return;
+            const q = questions[currentQIndex];
+            const btn = document.getElementById('btn-bookmark');
+            const textEl = document.getElementById('bookmark-text');
+            const isSaved = window.userBookmarks.includes(q.uid);
+
+            btn.style.opacity = '0.5';
+
+            try {
+                if (isSaved) {
+                    await set(ref(db, `users/${user.uid}/bookmarks/${q.uid}`), null);
+                    window.userBookmarks = window.userBookmarks.filter(id => id !== q.uid);
+                    btn.classList.remove('saved');
+                    textEl.innerText = 'Save';
+                } else {
+                    const nextReview = window.calculateNextReviewDate();
+                    // Store the bookmark. For custom exams, try to extract a subject string or default to "mixed"
+                    let subjectStr = q.subject || "mixed";
+                    if (Array.isArray(subjectStr)) subjectStr = subjectStr[0];
+                    
+                    await set(ref(db, `users/${user.uid}/bookmarks/${q.uid}`), { exam: config.exam.toLowerCase(), subject: subjectStr.toLowerCase(), current_step: 1, next_review_date: nextReview });
+                    window.userBookmarks.push(q.uid);
+                    btn.classList.add('saved');
+                    textEl.innerText = 'Saved';
+                }
+            } catch (e) {
+                console.error("Bookmark error", e);
+                alert("Failed to save to Active Recall.");
+            } finally {
+                btn.style.opacity = '1';
+            }
+        };
 
         // --- TEST STATE PERSISTENCE ---
         window.testEndTime = null;
@@ -893,10 +968,11 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             if(saveToDatabase && auth.currentUser && !window.isCustomTest) {
                 const now = new Date();
                 const formattedDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                // Use a dynamically generated ID so multiple attempts don't overwrite each other
                 const historyId = "TEST_" + Date.now();
                 
                 const testRecord = {
-                    testFile: testFileName,
+                    testFile: config.testId, // Crucial for analytics matching
                     title: config.title,
                     score: parseFloat(score.toFixed(2)),
                     maxScore: maxScore,
@@ -951,9 +1027,9 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
             btnPrev.disabled = idx === 0;
             btnNext.disabled = idx === window.reviewState.filteredQs.length - 1;
 
-            let badge = q.status === 'correct' ? '<span class="review-badge bg-correct">Correct</span>' 
-                      : q.status === 'wrong' ? '<span class="review-badge bg-wrong">Incorrect</span>' 
-                      : '<span class="review-badge bg-skipped">Skipped</span>';
+            let badge = q.status === 'correct' ? '<span class="status-correct" style="padding:4px 10px; border-radius:6px; font-weight:bold; font-size:0.8rem;">Correct</span>' 
+                      : q.status === 'wrong' ? '<span class="status-wrong" style="padding:4px 10px; border-radius:6px; font-weight:bold; font-size:0.8rem;">Incorrect</span>' 
+                      : '<span class="status-skipped" style="padding:4px 10px; border-radius:6px; font-weight:bold; font-size:0.8rem;">Skipped</span>';
 
             let optsHtml = q.options.map((opt, j) => {
                 const char = String.fromCharCode(65+j);
@@ -980,7 +1056,7 @@ body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1
                     <div style="font-weight:600; font-size:1.15rem; margin-bottom:20px; color:#0f172a; line-height:1.6;">${q.stem}</div>
                     ${q.img ? `<img src="${q.img}" style="max-width:100%; border-radius:8px; margin-bottom:20px; border:1px solid #e2e8f0; cursor:zoom-in;" onclick="window.open(this.src)">` : ''}
                     <div>${optsHtml}</div>
-                    <div class="expl-box" style="margin-top:25px; border-left:4px solid var(--gold); border-radius:0 8px 8px 0; background:#f8fafc; border-top:none; border-right:none; border-bottom:none;">
+                    <div class="expl-container" style="margin-top:25px;">
                         <strong style="color:var(--blue);">Explanation:</strong><br>${q.explanation || 'No detailed explanation provided.'}
                     </div>
                 </div>
