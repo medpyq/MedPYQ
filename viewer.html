@@ -51,6 +51,9 @@
         .badge-unit { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; margin-right: 4px; }
         .badge-chapter { display: inline-block; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; margin-right: 4px;}
 
+        /* BADGE CONTAINERS FOR MULTI-TAG WRAPPING */
+        .multi-badge-container { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; justify-content: center;}
+
         .btn-ask-ai { display: inline-flex; align-items: center; gap: 5px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .btn-ask-ai:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
 
@@ -256,7 +259,7 @@
 
         <div id="table-container" class="post-table-container">
             <table class="post-table" id="cfmTable">
-                <thead><tr><th style="width: 60px;">ID</th><th>Question</th><th style="width: 140px; text-align:center;">Exam & AI</th></tr></thead>
+                <thead><tr><th style="width: 60px;">ID</th><th>Question</th><th style="width: 180px; text-align:center;">Exam & AI</th></tr></thead>
                 <tbody id="tableBody">
                     <tr><td colspan="3" style="text-align:center; padding: 40px;">Loading...</td></tr>
                 </tbody>
@@ -364,7 +367,7 @@
         </div>
     </div>
 
-       <script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
@@ -669,9 +672,57 @@
                     chapters: ["124. Approach to the Patient with an Infectious Disease", "125. Molecular Mechanisms of Microbial Pathogenesis", "126. Microbial Genomics and Infectious Disease", "127. Approach to the Acutely Ill Infected Febrile Patient", "128. Principles of Immunization", "129. Immunization Principles and Vaccine Use", "130. Health Recommendations for International Travel", "131. Pneumonia", "132. Lung Abscess", "133. Infective Endocarditis", "134. Infections of the Skin, Muscles, and Soft Tissues", "135. Infectious Arthritis", "136. Osteomyelitis", "137. Intraabdominal Infections and Abscesses", "138. Acute Infectious Diarrheal Diseases and Bacterial Food Poisoning", "139. Clostridioides difficile Infection", "140. Urinary Tract Infections", "141. Sexually Transmitted Infections", "142. Encephalitis", "143. Acute Meningitis", "144. Chronic and Recurrent Meningitis", "145. Brain Abscess and Empyema", "146. Infectious Complications of Bites", "147. Infections Acquired in Health Care Facilities", "148. Infections in Transplant Recipients", "149. Treatment and Prophylaxis of Bacterial Infections", "150. Bacterial Resistance to Antimicrobial Agents", "151. Pneumococcal Infections", "152. Staphylococcal Infections", "153. Streptococcal Infections", "154. Enterococcal Infections", "155. Diphtheria and Other Corynebacterial Infections", "156. Listeria monocytogenes Infections", "157. Tetanus", "158. Botulism", "159. Gas Gangrene and Other Clostridial Infections", "160. Meningococcal Infections", "161. Gonococcal Infections", "162. Haemophilus and Moraxella Infections", "163. Infections Due to the HACEK Group", "164. Legionella Infections", "165. Pertussis and Other Bordetella Infections", "166. Diseases Caused by Gram-Negative Enteric Bacilli", "167. Acinetobacter Infections", "168. Helicobacter pylori Infections", "169. Infections Due to Campylobacter", "170. Pseudomonas and Related Infections", "171. Salmonellosis", "172. Shigellosis", "173. Cholera and Other Vibrioses", "174. Brucellosis", "175. Tularemia", "176. Plague and Other Yersinia Infections", "177. Bartonella Infections", "178. Donovanosis", "179. Nocardiosis", "180. Actinomycosis", "181. Whipple Disease", "182. Infections Due to Mixed Anaerobic Organisms", "183. Tuberculosis", "184. Leprosy", "185. Nontuberculous Mycobacterial Infections", "186. Antimycobacterial Agents", "187. Syphilis", "188. Endemic Treponematoses", "189. Leptospirosis", "190. Relapsing Fever", "191. Lyme Borreliosis", "192. Rickettsial Diseases", "193. Infections Due to Mycoplasmas", "194. Chlamydial Infections", "195. Principles of Medical Virology", "196. Antiviral Chemotherapy", "197. Herpes Simplex Virus Infections", "198. Varicella-Zoster Virus Infections", "199. Epstein-Barr Virus Infections", "200. Cytomegalovirus and Human Herpesvirus", "201. Monkeypox and Other Poxvirus Infections", "202. Parvovirus Infections", "203. Human Papillomavirus Infections", "204. Common Viral Respiratory Infections", "205. SARS-CoV-2 and COVID-19", "206. Influenza", "207. The Human Retroviruses", "208. HIV Disease: AIDS and Related Disorders", "209. Viral Gastroenteritis", "210. Enterovirus, Parechovirus, and Reovirus Infections", "211. Measles (Rubeola)", "212. Rubella (German Measles)", "213. Mumps", "214. Rabies and Other Rhabdovirus Infections", "215. Arthropod-Borne and Rodent-Borne Virus Infections", "216. The Filovirids", "217. Fungal Infections: Pathogenesis and Treatment", "218. Histoplasmosis", "219. Coccidioidomycosis", "220. Blastomycosis", "221. Cryptococcosis", "222. Candidiasis", "223. Aspergillosis", "224. Mucormycosis", "225. Superficial Fungal Infections", "226. Uncommon Disseminated Fungal Infections", "227. Pneumocystis Infections", "228. Introduction to Parasitic Infections", "229. Agents Used to Treat Parasitic Infections", "230. Amebiasis and Free-Living Amebae", "231. Malaria", "232. Babesiosis", "233. Leishmaniasis", "234. Chagas Disease and African Trypanosomiasis", "235. Toxoplasma Infections", "236. Protozoal Intestinal Infections and Trichomoniasis", "237. Introduction to Helminthic Infections", "238. Trichinellosis and Tissue Nematodes", "239. Intestinal Nematode Infections", "240. Filarial and Related Infections", "241. Schistosomiasis and Other Trematode Infections", "242. Cestode Infections"]
                 },
                 {
-                    unit: "Part 6-14: Systemic Medicine",
+                    unit: "Part 6: Cardiovascular System",
                     chapters: [
-                        "243. Approach to the Patient with Cardiovascular Disease", "244. Basic Biology of the Cardiovascular System", "245. Epidemiology of Cardiovascular Disease", "246. Physical Examination of the Cardiovascular System", "247. Electrocardiography", "248. Noninvasive Cardiac Imaging", "250. Principles of Clinical Cardiac Electrophysiology", "252. The Bradyarrhythmias: Atrioventricular Node", "256. Paroxysmal Supraventricular Tachycardias", "258. Atrial Fibrillation", "259. Approach to Ventricular Arrhythmias", "261. Sustained Ventricular Tachycardia", "264. Heart Failure: Pathophysiology and Diagnosis", "265. Heart Failure: Management", "266. Classification of Cardiomyopathy", "267. Genetic Cardiomyopathies", "269. Dilated Cardiomyopathies", "272. Aortic Stenosis", "273. Aortic Regurgitation", "274. Mitral Stenosis", "275. Mitral Regurgitation", "281. Pericardial Disease", "283. Cardiac Trauma", "284. Ischemic Heart Disease", "286. ST-Segment Elevation Myocardial Infarction", "288. Hypertension", "290. Deep-Venous Thrombosis and Pulmonary Thromboembolism", "291. Diseases of the Aorta", "292. Arterial Diseases of the Extremities", "294. Pulmonary Hypertension", "296. Disturbances of Respiratory Function", "297. Diagnostic Procedures in Respiratory Disease", "298. Asthma", "300. Occupational and Environmental Lung Disease", "301. Bronchiectasis", "303. Chronic Obstructive Pulmonary Disease", "304. Interstitial Lung Disease", "305. Disorders of the Pleura", "306. Disorders of the Mediastinum", "311. Approach to the Patient with Critical Illness", "312. Acute Respiratory Distress Syndrome", "313. Mechanical Ventilatory Support", "314. Approach to the Patient with Shock", "315. Sepsis and Septic Shock", "316. Cardiogenic Shock and Pulmonary Edema", "317. Cardiovascular Collapse, Cardiac Arrest, and Sudden Cardiac Death", "319. Approach to the Patient with Renal Disease", "322. Chronic Kidney Disease", "323. Dialysis in the Treatment of Kidney Failure", "326. Glomerular Diseases", "327. Polycystic Kidney Disease", "328. Tubulointerstitial Diseases of the Kidney", "330. Nephrolithiasis", "333. Gastrointestinal Endoscopy", "334. Diseases of the Esophagus", "335. Peptic Ulcer Disease and Related Disorders", "336. Disorders of Absorption", "337. Inflammatory Bowel Disease", "338. Irritable Bowel Syndrome", "344. Vitamin and Trace Mineral Deficiency", "345. Malnutrition and Nutritional Assessment", "346. Enteral and Parenteral Nutrition", "347. Approach to the Patient with Liver Disease", "348. Evaluation of Liver Function", "349. The Hyperbilirubinemias", "350. Acute Viral Hepatitis", "352. Chronic Hepatitis", "353. Alcohol-Associated Liver Disease", "355. Cirrhosis and Its Complications", "356. Liver Transplantation", "357. Diseases of the Gallbladder and Bile Ducts", "359. Acute and Chronic Pancreatitis", "360. Introduction to the Immune System", "362. Primary Immune Deficiency Diseases", "363. Urticaria, Angioedema, and Allergic Rhinitis", "367. Autoimmunity and Autoimmune Diseases", "368. Systemic Lupus Erythematosus", "370. Rheumatoid Arthritis", "371. Acute Rheumatic Fever", "374. Spondyloarthritis", "375. The Vasculitis Syndromes", "376. Behçet Syndrome", "377. Inflammatory Myopathies", "382. Approach to Articular and Musculoskeletal Disorders", "383. Osteoarthritis", "384. Gout and Other Crystal-Associated Arthropathies", "386. Arthritis Associated with Systemic Disease", "388. Approach to the Patient with Endocrine Disorders", "391. Hypopituitarism", "392. Pituitary Tumor Syndromes", "393. Disorders of the Neurohypophysis", "394. Thyroid Gland Physiology and Testing", "395. Hypothyroidism", "396. Hyperthyroidism", "397. Thyroid Nodular Disease and Thyroid Cancer", "398. Disorders of the Adrenal Cortex", "399. Pheochromocytoma", "400. Multiple Endocrine Neoplasia Syndromes", "402. Sex Development", "404. Disorders of the Female Reproductive System", "405. Menstrual Disorders and Pelvic Pain", "408. Infertility and Contraception", "413. Pathobiology of Obesity", "415. Diabetes Mellitus: Diagnosis, Classification, and Pathophysiology", "417. Diabetes Mellitus: Complications", "418. Hypoglycemia", "419. Disorders of Lipoprotein Metabolism", "420. The Metabolic Syndrome", "422. Disorders of the Parathyroid Gland and Calcium Homeostasis", "425. Heritable Disorders of Connective Tissue", "426. Hemochromatosis", "427. Wilson's Disease", "428. The Porphyrias", "430. Glycogen Storage Diseases", "431. Inherited Disorders of Amino Acid Metabolism", "433. Approach to the Patient with Neurologic Disease", "434. Neuroimaging in Neurologic Disorders", "435. Pathobiology of Neurologic Diseases", "437. Introduction to Cerebrovascular Diseases", "438. Ischemic Stroke", "440. Subarachnoid Hemorrhage", "441. Migraine and Other Primary Headache Disorders", "442. Alzheimer's Disease", "446. Parkinson's Disease", "447. Tremor, Chorea, and Other Movement Disorders", "451. Disorders of the Autonomic Nervous System", "452. Trigeminal Neuralgia, Bell's Palsy, and Other Cranial Nerve Disorders", "453. Diseases of the Spinal Cord", "455. Multiple Sclerosis", "457. Peripheral Neuropathy", "458. Guillain-Barré Syndrome", "459. Myasthenia Gravis", "463. Psychiatric Disorders", "464. Alcohol and Alcohol Use Disorders", "469. Heavy Metal Poisoning", "470. Poisoning and Drug Overdose", "471. Disorders Caused by Venomous Snakebites and Marine Animal Exposures"
+                        "243. Approach to the Patient with Cardiovascular Disease", "244. Basic Biology of the Cardiovascular System", "245. Epidemiology of Cardiovascular Disease", "246. Physical Examination of the Cardiovascular System", "247. Electrocardiography", "248. Noninvasive Cardiac Imaging", "249. Diagnostic Cardiac Catheterization and Coronary Angiography", "250. Principles of Clinical Cardiac Electrophysiology", "251. The Bradyarrhythmias: Sinoatrial Node", "252. The Bradyarrhythmias: Atrioventricular Node", "253. Tachyarrhythmias", "254. Premature Atrial Contractions", "255. Sinus Tachycardia", "256. Paroxysmal Supraventricular Tachycardias", "257. Focal Atrial Tachycardia", "258. Atrial Fibrillation", "259. Approach to Ventricular Arrhythmias", "260. Premature Ventricular Contractions", "261. Sustained Ventricular Tachycardia", "262. Polymorphic Ventricular Tachycardia", "263. Ventricular Fibrillation", "264. Heart Failure: Pathophysiology and Diagnosis", "265. Heart Failure: Management", "266. Classification of Cardiomyopathy", "267. Genetic Cardiomyopathies", "268. Restrictive Cardiomyopathy", "269. Dilated Cardiomyopathies", "270. Cor Pulmonale", "271. Aortic Valve Disease", "272. Aortic Stenosis", "273. Aortic Regurgitation", "274. Mitral Stenosis", "275. Mitral Regurgitation", "276. Mitral Valve Prolapse", "277. Tricuspid Valve Disease", "278. Pulmonic Valve Disease", "279. Multiple and Mixed Valvular Heart Disease", "280. Congenital Heart Disease in the Adult", "281. Pericardial Disease", "282. Atrial Myxoma and Other Cardiac Tumors", "283. Cardiac Trauma", "284. Ischemic Heart Disease", "285. Non-ST-Segment Elevation Acute Coronary Syndrome", "286. ST-Segment Elevation Myocardial Infarction", "287. Percutaneous Coronary Interventions", "288. Hypertension", "289. Renovascular Hypertension", "290. Deep-Venous Thrombosis and Pulmonary Thromboembolism", "291. Diseases of the Aorta", "292. Arterial Diseases of the Extremities", "293. Chronic Venous Disease", "294. Pulmonary Hypertension", "295. Lymphedema"
+                    ]
+                },
+                {
+                    unit: "Part 7: Respiratory System",
+                    chapters: [
+                        "296. Disturbances of Respiratory Function", "297. Diagnostic Procedures in Respiratory Disease", "298. Asthma", "299. Hypersensitivity Pneumonitis", "300. Occupational and Environmental Lung Disease", "301. Bronchiectasis", "302. Cystic Fibrosis", "303. Chronic Obstructive Pulmonary Disease", "304. Interstitial Lung Disease", "305. Disorders of the Pleura", "306. Disorders of the Mediastinum", "307. Sleep Apnea", "308. Lung Transplantation", "309. Pulmonary Embolism", "310. Pulmonary Hypertension"
+                    ]
+                },
+                {
+                    unit: "Part 8: Critical Care Medicine",
+                    chapters: [
+                        "311. Approach to the Patient with Critical Illness", "312. Acute Respiratory Distress Syndrome", "313. Mechanical Ventilatory Support", "314. Approach to the Patient with Shock", "315. Sepsis and Septic Shock", "316. Cardiogenic Shock and Pulmonary Edema", "317. Cardiovascular Collapse, Cardiac Arrest, and Sudden Cardiac Death", "318. Coma"
+                    ]
+                },
+                {
+                    unit: "Part 9: Renal and Genitourinary Tract",
+                    chapters: [
+                        "319. Approach to the Patient with Renal Disease", "320. Acute Kidney Injury", "321. Chronic Kidney Disease", "322. Chronic Kidney Disease", "323. Dialysis in the Treatment of Kidney Failure", "324. Renal Transplantation", "325. Glomerulopathies", "326. Glomerular Diseases", "327. Polycystic Kidney Disease", "328. Tubulointerstitial Diseases of the Kidney", "329. Vascular Injury to the Kidney", "330. Nephrolithiasis", "331. Urinary Tract Infections", "332. Urinary Tract Obstruction"
+                    ]
+                },
+                {
+                    unit: "Part 10: Gastrointestinal System",
+                    chapters: [
+                        "333. Gastrointestinal Endoscopy", "334. Diseases of the Esophagus", "335. Peptic Ulcer Disease and Related Disorders", "336. Disorders of Absorption", "337. Inflammatory Bowel Disease", "338. Irritable Bowel Syndrome", "339. Diverticular Disease", "340. Intestinal Obstruction", "341. Acute Appendicitis", "342. Diseases of the Rectum and Anus", "343. Mesenteric Ischemia", "344. Vitamin and Trace Mineral Deficiency", "345. Malnutrition and Nutritional Assessment", "346. Enteral and Parenteral Nutrition", "347. Approach to the Patient with Liver Disease", "348. Evaluation of Liver Function", "349. The Hyperbilirubinemias", "350. Acute Viral Hepatitis", "351. Toxic and Drug-Induced Hepatitis", "352. Chronic Hepatitis", "353. Alcohol-Associated Liver Disease", "354. Nonalcoholic Fatty Liver Disease", "355. Cirrhosis and Its Complications", "356. Liver Transplantation", "357. Diseases of the Gallbladder and Bile Ducts", "358. Tumors of the Gallbladder and Bile Ducts", "359. Acute and Chronic Pancreatitis"
+                    ]
+                },
+                {
+                    unit: "Part 11: Immune-Mediated, Inflammatory, and Rheumatologic Disorders",
+                    chapters: [
+                        "360. Introduction to the Immune System", "361. The Major Histocompatibility Complex", "362. Primary Immune Deficiency Diseases", "363. Urticaria, Angioedema, and Allergic Rhinitis", "364. Anaphylaxis", "365. Mastocytosis", "366. Eosinophil-Associated Diseases", "367. Autoimmunity and Autoimmune Diseases", "368. Systemic Lupus Erythematosus", "369. Antiphospholipid Syndrome", "370. Rheumatoid Arthritis", "371. Acute Rheumatic Fever", "372. Systemic Sclerosis (Scleroderma)", "373. Sjögren's Syndrome", "374. Spondyloarthritis", "375. The Vasculitis Syndromes", "376. Behçet Syndrome", "377. Inflammatory Myopathies", "378. Relapsing Polychondritis", "379. Sarcoidosis", "380. IgG4-Related Disease", "381. Familial Mediterranean Fever", "382. Approach to Articular and Musculoskeletal Disorders", "383. Osteoarthritis", "384. Gout and Other Crystal-Associated Arthropathies", "385. Fibromyalgia", "386. Arthritis Associated with Systemic Disease", "387. Periarticular Disorders"
+                    ]
+                },
+                {
+                    unit: "Part 12: Endocrinology and Metabolism",
+                    chapters: [
+                        "388. Approach to the Patient with Endocrine Disorders", "389. Mechanisms of Hormone Action", "390. Neuroendocrinology", "391. Hypopituitarism", "392. Pituitary Tumor Syndromes", "393. Disorders of the Neurohypophysis", "394. Thyroid Gland Physiology and Testing", "395. Hypothyroidism", "396. Hyperthyroidism", "397. Thyroid Nodular Disease and Thyroid Cancer", "398. Disorders of the Adrenal Cortex", "399. Pheochromocytoma", "400. Multiple Endocrine Neoplasia Syndromes", "401. Autoimmune Polyendocrine Syndromes", "402. Sex Development", "403. Disorders of the Testes", "404. Disorders of the Female Reproductive System", "405. Menstrual Disorders and Pelvic Pain", "406. Hirsutism and Virilization", "407. Menopause", "408. Infertility and Contraception", "409. Male Sexual Dysfunction", "410. Female Sexual Dysfunction", "411. Gender Identity", "412. Obesity", "413. Pathobiology of Obesity", "414. Evaluation and Management of Obesity", "415. Diabetes Mellitus: Diagnosis, Classification, and Pathophysiology", "416. Diabetes Mellitus: Management", "417. Diabetes Mellitus: Complications", "418. Hypoglycemia", "419. Disorders of Lipoprotein Metabolism", "420. The Metabolic Syndrome", "421. Bone and Mineral Metabolism", "422. Disorders of the Parathyroid Gland and Calcium Homeostasis", "423. Osteoporosis", "424. Paget's Disease of Bone", "425. Heritable Disorders of Connective Tissue", "426. Hemochromatosis", "427. Wilson's Disease", "428. The Porphyrias", "429. Purine and Pyrimidine Metabolism", "430. Glycogen Storage Diseases", "431. Inherited Disorders of Amino Acid Metabolism", "432. Lysosomal Storage Diseases"
+                    ]
+                },
+                {
+                    unit: "Part 13: Neurologic Disorders",
+                    chapters: [
+                        "433. Approach to the Patient with Neurologic Disease", "434. Neuroimaging in Neurologic Disorders", "435. Pathobiology of Neurologic Diseases", "436. Seizures and Epilepsy", "437. Introduction to Cerebrovascular Diseases", "438. Ischemic Stroke", "439. Intracranial Hemorrhage", "440. Subarachnoid Hemorrhage", "441. Migraine and Other Primary Headache Disorders", "442. Alzheimer's Disease", "443. Frontotemporal Dementia", "444. Vascular Dementia", "445. Dementia with Lewy Bodies", "446. Parkinson's Disease", "447. Tremor, Chorea, and Other Movement Disorders", "448. Ataxic Disorders", "449. Amyotrophic Lateral Sclerosis", "450. Prion Diseases", "451. Disorders of the Autonomic Nervous System", "452. Trigeminal Neuralgia, Bell's Palsy, and Other Cranial Nerve Disorders", "453. Diseases of the Spinal Cord", "454. Concussion and Other Traumatic Brain Injuries", "455. Multiple Sclerosis", "456. Neuromyelitis Optica", "457. Peripheral Neuropathy", "458. Guillain-Barré Syndrome", "459. Myasthenia Gravis", "460. Muscular Dystrophies", "461. Polymyositis", "462. Inclusion Body Myositis", "463. Psychiatric Disorders", "464. Alcohol and Alcohol Use Disorders", "465. Opioid Use Disorders", "466. Cocaine and Other Commonly Abused Drugs", "467. Cannabis Use Disorders", "468. Tobacco Use Disorders"
+                    ]
+                },
+                {
+                    unit: "Part 14: Poisoning, Drug Overdose, and Envenomation",
+                    chapters: [
+                        "469. Heavy Metal Poisoning", "470. Poisoning and Drug Overdose", "471. Disorders Caused by Venomous Snakebites and Marine Animal Exposures", "472. Ectoparasite Infestations and Arthropod Bites"
                     ]
                 },
                 {
@@ -1075,6 +1126,7 @@
                 if (activeSubject === "medicine") {
                     // === MASSIVE EXCELLENT TAGGING SYSTEM (MEDICINE ONLY) ===
                     let matchedTopics = [];
+                    let matchedUnits = [];
                     
                     // Safely extract all explicit tags applied to this question
                     let rawTags = [];
@@ -1090,7 +1142,7 @@
                         if (exactMatch && !matchedTopics.includes(exactMatch)) {
                             matchedTopics.push(exactMatch);
                         } else {
-                            // 2. Strict Word-Boundary Regex Match (prevents "Edema" matching "Pulmonary Edema")
+                            // 2. Strict Word-Boundary Regex Match
                             for(let c of flatChapters) {
                                 let coreName = c.includes(".") ? c.split(".")[1].trim() : c;
                                 let escapedCoreName = coreName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1103,10 +1155,20 @@
                         }
                     });
                     
-                    if(matchedTopics.length === 0) {
-                        matchedTopics.push("Uncategorized");
-                    }
+                    if(matchedTopics.length === 0) matchedTopics.push("Uncategorized");
+                    
+                    // Identify the corresponding Units for these matched topics
+                    matchedTopics.forEach(t => {
+                        curriculumForSubject.forEach(u => {
+                            if (u.chapters.includes(t) && !matchedUnits.includes(u.unit)) {
+                                matchedUnits.push(u.unit);
+                            }
+                        });
+                    });
+                    if(matchedUnits.length === 0) matchedUnits.push("Uncategorized");
+
                     chapterMatch = matchedTopics; // Stores as an Array for Medicine
+                    item.units = matchedUnits;    // Stores the Units
                 } else {
                     // === LEGACY LOGIC (ALL OTHER SUBJECTS: SAFE & UNTOUCHED) ===
                     targetText = targetText.toLowerCase();
@@ -1119,6 +1181,16 @@
                     if (chapterMatch === "Uncategorized") {
                         chapterMatch = (topicStr || subjectStr ? (topicStr || subjectStr).split(',')[0].trim() : "General");
                     }
+                    
+                    let unitMatch = "Uncategorized";
+                    if (window.nestedCurriculum) {
+                        for (let u of window.nestedCurriculum) {
+                            if (u.chapters.includes(chapterMatch)) {
+                                unitMatch = u.unit; break;
+                            }
+                        }
+                    }
+                    item.units = [unitMatch]; // Make it an array for consistency
                 }
                 
                 let fullYear = item.exam || "Exam";
@@ -1136,7 +1208,7 @@
                 .filter(y => y && y !== "Unknown")
                 .sort((a, b) => a.localeCompare(b));
 
-            buildSynchronizedFilters(flatChapters, uniqueYears, window.nestedCurriculum);
+            buildSynchronizedFilters(window.nestedCurriculum, flatChapters, uniqueYears);
             
             initUniversalDeck(window.appData);
             window.SYNC_applyFilters();
@@ -1204,12 +1276,13 @@
         // UI & ADVANCED FILTER LOGIC
         // ==========================================
 
-        function buildSynchronizedFilters(chapters, years, nestedCurriculum = null) {
+        function buildSynchronizedFilters(curriculum, chapters, years) {
+            const tableUnitDiv = document.getElementById('table-unit-content');
             const tableChapDiv = document.getElementById('table-chap-content');
             const tableYearDiv = document.getElementById('table-year-content');
             const deckFilterDiv = document.getElementById('deck-dynamic-filters');
 
-            let tableChapHtml = '';
+            // 1. Static Initial Filters (Attempt Status & Saved)
             let deckHtml = `
                 <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#0f2b52; text-transform:uppercase;">Quick Filters</div>
                 
@@ -1223,11 +1296,31 @@
                 </div>
 
                 <label class="ms-label sync-chk-row" style="background:#fffbeb; margin-top:5px;"><input type="checkbox" id="deck-chk-saved" onchange="window.SYNC_toggleSaved()" ${window.filterState.savedOnly ? 'checked' : ''}> <span style="color:#b45309; font-weight:bold;"><i class="fas fa-bookmark" style="color:var(--app-gold);"></i> Saved Questions Only</span></label>
-                <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>
             `;
             
-            if (nestedCurriculum) {
-                nestedCurriculum.forEach(unitObj => {
+            // 2. Units (If Curriculum is Nested)
+            let tableUnitHtml = '';
+            if (curriculum && typeof curriculum[0] === 'object') {
+                document.getElementById('unit-dropdown-container').style.display = 'block';
+                deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Units</div>`;
+                
+                curriculum.forEach(u => {
+                    const cleanVal = u.unit.replace(/"/g, '&quot;');
+                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="unit" value="${cleanVal}" onchange="window.SYNC_updateState('unit', this.value, this.checked)"> <span style="font-weight:bold; color:#0f2b52;">${u.unit}</span></label>`;
+                    tableUnitHtml += row;
+                    deckHtml += row;
+                });
+            } else {
+                document.getElementById('unit-dropdown-container').style.display = 'none';
+            }
+            tableUnitDiv.innerHTML = tableUnitHtml;
+
+            // 3. Chapters
+            let tableChapHtml = '';
+            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>`;
+            
+            if (curriculum && typeof curriculum[0] === 'object') {
+                curriculum.forEach(unitObj => {
                     const unitHeader = `<div style="padding: 8px 15px; font-size:11px; font-weight:800; color:#0f2b52; background:#f1f5f9; text-transform:uppercase; margin-top:5px;">${unitObj.unit}</div>`;
                     tableChapHtml += unitHeader;
                     deckHtml += unitHeader;
@@ -1247,9 +1340,9 @@
                     deckHtml += row;
                 });
             }
-            
             tableChapDiv.innerHTML = tableChapHtml;
 
+            // 4. Exams
             let tableYearHtml = '';
             deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
             
@@ -1275,7 +1368,11 @@
         };
 
         window.SYNC_updateState = function(type, value, isChecked) {
-            if(type === 'chapter') {
+            if (type === 'unit') {
+                if(isChecked) window.filterState.units.push(value);
+                else window.filterState.units = window.filterState.units.filter(u => u !== value);
+            }
+            else if(type === 'chapter') {
                 if(isChecked) window.filterState.chapters.push(value);
                 else window.filterState.chapters = window.filterState.chapters.filter(c => c !== value);
             }
@@ -1287,6 +1384,9 @@
                 window.filterState.search = value.toLowerCase();
             }
 
+            document.querySelectorAll(`input[data-filter-type="unit"]`).forEach(cb => {
+                cb.checked = window.filterState.units.includes(cb.value);
+            });
             document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
                 cb.checked = window.filterState.chapters.includes(cb.value);
             });
@@ -1294,8 +1394,11 @@
                 cb.checked = window.filterState.years.includes(cb.value);
             });
 
+            const unitText = window.filterState.units.length > 0 ? `${window.filterState.units.length} Selected` : "All Units";
             const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
             const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
+            
+            if (document.getElementById('unit-btn-text')) document.getElementById('unit-btn-text').innerText = unitText;
             document.getElementById('chap-btn-text').innerText = chapText;
             document.getElementById('year-btn-text').innerText = yearText;
 
@@ -1343,6 +1446,7 @@
 
             document.getElementById('postSearch').value = "";
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if (document.getElementById('unit-btn-text')) document.getElementById('unit-btn-text').innerText = "All Units";
             document.getElementById('chap-btn-text').innerText = "All Chapters";
             document.getElementById('year-btn-text').innerText = "All Exams";
             window.SYNC_applyFilters();
@@ -1375,7 +1479,10 @@
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
                 
-                // === SMART ARRAY INTERSECTION FILTER (Fixes Vanishing Bug) ===
+                // === SMART ARRAY INTERSECTION FILTERS ===
+                const matchesUnit = window.filterState.units.length === 0 || 
+                    (item.units && window.filterState.units.some(u => item.units.includes(u)));
+
                 const matchesChapter = window.filterState.chapters.length === 0 || 
                     (Array.isArray(item.topic) 
                         ? window.filterState.chapters.some(selectedChap => item.topic.includes(selectedChap))
@@ -1394,7 +1501,7 @@
                     matchesStatus = userAns && userAns === item.ans_key;
                 }
 
-                return matchesSearch && matchesChapter && matchesYear && matchesSaved && matchesStatus;
+                return matchesSearch && matchesUnit && matchesChapter && matchesYear && matchesSaved && matchesStatus;
             });
 
             document.getElementById('q-count').innerText = `${filtered.length} Qs`;
@@ -1441,7 +1548,7 @@
                         <div class="opt-grid">${opts}</div>
                     </td>
                     <td style="text-align:center;">
-                        <div style="margin-bottom:5px;">${displayChapterHtml}</div>
+                        <div class="multi-badge-container">${displayChapterHtml}</div>
                         <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0; display:inline-block;">${item.year}</div>
                         <br>
                         <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
@@ -1855,14 +1962,12 @@
 
     </script>
 
-
     <!-- Image Lightbox Overlay -->
 <div id="lightbox" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; touch-action:none;">
     <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:white; font-size:30px; cursor:pointer;">&times;</button>
     <img id="lightbox-img" style="max-width:90%; max-height:80%; object-fit:contain; cursor:grab;">
 </div>
 
-    <!-- Replace your existing Lightbox script with this -->
 <script>
     const lb = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
