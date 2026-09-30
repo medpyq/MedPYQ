@@ -21,8 +21,9 @@ messaging.onBackgroundMessage((payload) => {
 
     const notificationTitle = payload.notification.title || 'MedPYQ Alert';
     
-    // Safely check if a URL exists; if not, default to your homepage
-const targetUrl = (payload.data && payload.data.url) ? payload.data.url : 'https://medpyq.com/recall-engine.html';
+    // FIXED: Use a relative path so it works on any domain
+    const targetUrl = (payload.data && payload.data.url) ? payload.data.url : '/recall-engine.html';
+    
     const notificationOptions = {
         body: payload.notification.body,
         icon: 'https://cdn-icons-png.flaticon.com/512/2913/2913008.png',
@@ -33,9 +34,25 @@ const targetUrl = (payload.data && payload.data.url) ? payload.data.url : 'https
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
+// FIXED: Advanced click handler to focus existing tabs and navigate correctly
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
+    
+    const urlToOpen = event.notification.data.url || '/recall-engine.html';
+    
     event.waitUntil(
-        clients.openWindow(event.notification.data.url)
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            // If the user already has the app open in a tab, focus it and navigate
+            for (let i = 0; i < clientList.length; i++) {
+                let client = clientList[i];
+                if (client.url.includes('medpyq') && 'focus' in client) {
+                    return client.focus().then(c => c.navigate(urlToOpen));
+                }
+            }
+            // If the app is fully closed, open a new window directly to the recall engine
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
     );
 });
