@@ -59,12 +59,6 @@
         
         .expl-box { background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 20px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 0.95rem; line-height: 1.6; color: #334155; }
 
-        /* TABLE OVERFLOW FIX FOR QUESTION STEMS & EXPLANATIONS */
-        .q-stem, .expl-box { width: 100%; overflow-x: auto; padding-bottom: 5px; }
-        .q-stem table, .expl-box table { width: 100%; border-collapse: collapse; min-width: 450px; margin: 10px 0; }
-        .q-stem th, .q-stem td, .expl-box th, .expl-box td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 0.9rem; }
-        .q-stem th, .expl-box th { background-color: #f8fafc; color: #0f2b52; }
-
         /* NEURO-ADAPTIVE FOOTER */
         .action-footer { padding: 15px 20px max(20px, env(safe-area-inset-bottom, 20px)); background: #0f172a; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         
@@ -223,9 +217,6 @@
             if (!user) { window.location.href = "index.html"; return; }
 
             try {
-                // ADDED: A 600ms buffer to allow Samsung Internet/Safari to establish the DB WebSocket
-                await new Promise(resolve => setTimeout(resolve, 600));
-
                 const snap = await get(ref(db, `users/${user.uid}/bookmarks`));
                 allBookmarksData = snap.val() || {};
                 
@@ -235,21 +226,9 @@
                 await window.buildQueue();
 
             } catch (err) {
-                console.error("Neural Database Connection Error:", err);
-                
-                // FIXED: Do not instantly redirect the user. Show a retry UI instead.
-                document.getElementById('loading-state').style.display = 'none';
-                const doneState = document.getElementById('done-state');
-                doneState.style.display = 'flex';
-                doneState.innerHTML = `
-                    <div style="background: rgba(239, 68, 68, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                        <i class="fas fa-wifi" style="font-size: 30px; color: #ef4444;"></i>
-                    </div>
-                    <h2 style="margin: 0 0 10px 0; color: white;">Connection Timeout</h2>
-                    <p style="color: #94a3b8; max-width: 320px; margin-bottom: 25px; line-height: 1.5;">Your browser paused the database connection. Please try again.</p>
-                    <button onclick="location.reload()" style="background: #0ea5e9; color: white; border: none; padding: 12px 30px; border-radius: 20px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 10px rgba(14,165,233,0.3);">Retry Connection</button>
-                    <a href="index.html" style="display: block; margin-top: 20px; color: #64748b; font-size: 0.9rem; text-decoration: underline;">Return to Dashboard</a>
-                `;
+                console.error(err);
+                alert("Failed to connect to Neural Database.");
+                window.location.href = "index.html";
             }
         });
 
