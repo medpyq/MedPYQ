@@ -21,7 +21,7 @@ messaging.onBackgroundMessage((payload) => {
 
     const notificationTitle = payload.notification.title || 'MedPYQ Alert';
     
-    // FIXED: Use a relative path so it works on any domain
+    // FIXED: Use a relative path so it works perfectly on GitHub Pages or custom domains
     const targetUrl = (payload.data && payload.data.url) ? payload.data.url : '/recall-engine.html';
     
     const notificationOptions = {
