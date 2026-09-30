@@ -59,6 +59,12 @@
         
         .expl-box { background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 20px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 0.95rem; line-height: 1.6; color: #334155; }
 
+        /* TABLE OVERFLOW FIX */
+        .q-stem, .expl-box { width: 100%; overflow-x: auto; padding-bottom: 5px; }
+        .q-stem table, .expl-box table { width: 100%; border-collapse: collapse; min-width: 450px; margin: 10px 0; }
+        .q-stem th, .q-stem td, .expl-box th, .expl-box td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 0.9rem; }
+        .q-stem th, .expl-box th { background-color: #f8fafc; color: #0f2b52; }
+
         /* NEURO-ADAPTIVE FOOTER */
         .action-footer { padding: 15px 20px max(20px, env(safe-area-inset-bottom, 20px)); background: #0f172a; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         
@@ -81,7 +87,6 @@
         }
     </style>
     <script>
-        /* Globally catch any image that tries to load a dead link (404) and hide it */
         document.addEventListener('error', function(e) {
             if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
                 e.target.style.display = 'none';
@@ -91,7 +96,6 @@
 </head>
 <body>
 
-    <!-- ALWAYS VISIBLE HEADER & MODE TOGGLE (FLUTTER OPTIMIZED) -->
     <header class="recall-header">
         <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
             <i class="fas fa-network-wired" style="color: #0ea5e9;"></i> Neuro-Recall
@@ -117,7 +121,7 @@
         <p style="color: #94a3b8;">Fetching your targeted recall deck.</p>
     </div>
 
-    <!-- STATE 2: DONE / EMPTY QUEUE (FLUTTER OPTIMIZED) -->
+    <!-- STATE 2: DONE / EMPTY QUEUE -->
     <div id="done-state" class="state-container center-msg" style="display: none;">
         <div style="background: rgba(16, 185, 129, 0.2); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid #10b981;">
             <i class="fas fa-bolt" style="font-size: 45px; color: #10b981;"></i>
@@ -138,15 +142,8 @@
 
         <div class="card-container">
             <div class="flipper" id="fc-flipper">
-                <!-- FRONT (Retrieval Practice) -->
-                <div class="card-face" id="card-front">
-                    <div id="front-content"></div>
-                </div>
-                
-                <!-- BACK (Metacognition & Feedback) -->
-                <div class="card-face card-back" id="card-back">
-                    <div id="back-content"></div>
-                </div>
+                <div class="card-face" id="card-front"><div id="front-content"></div></div>
+                <div class="card-face card-back" id="card-back"><div id="back-content"></div></div>
             </div>
         </div>
 
@@ -154,7 +151,6 @@
             <div class="btn-state active" id="state-front" style="color: #64748b; font-weight: 600; font-size: 0.9rem; text-align: center; display: block;">
                 Select an option above to test your recall.
             </div>
-            
             <div class="btn-state" id="state-wrong">
                 <button class="neuro-btn btn-wrong" onclick="window.gradeNeuro(0)">
                     <i class="fas fa-rotate-left" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
@@ -162,7 +158,6 @@
                     <div class="btn-subtext">Synaptic strength reset</div>
                 </button>
             </div>
-
             <div class="btn-state" id="state-correct">
                 <button class="neuro-btn btn-guess" onclick="window.gradeNeuro(1)">
                     <i class="fas fa-question-circle" style="margin-bottom: 5px; font-size: 1.2rem;"></i>
@@ -194,7 +189,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Global State Variables
         let allBookmarksData = {};
         let dueQueue = [];
         let totalDue = 0;
@@ -205,36 +199,43 @@
         window.isCramMode = false;
         window.sessionAnswered = [];
 
-        // Calculate Exam Compression for Optimal LTP 
         const targetDateStr = localStorage.getItem('medpyq_target_date');
         if (targetDateStr) {
             const targetTime = new Date(targetDateStr).getTime();
             daysToExam = Math.max(1, (targetTime - Date.now()) / (1000 * 60 * 60 * 24));
         }
 
-        // Auth & Initial Fetch
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = "index.html"; return; }
 
             try {
+                // Fetch the tiny bookmarks payload over normal WebSocket
                 const snap = await get(ref(db, `users/${user.uid}/bookmarks`));
                 allBookmarksData = snap.val() || {};
                 
-                // Set initial counts
                 document.getElementById('all-count').innerText = Object.keys(allBookmarksData).length;
                 
-                await window.buildQueue();
+                // Do not 'await' this so any internal timeouts don't trigger the catch block below
+                window.buildQueue();
 
             } catch (err) {
                 console.error(err);
-                alert("Failed to connect to Neural Database.");
-                window.location.href = "index.html";
+                document.getElementById('loading-state').style.display = 'none';
+                const doneState = document.getElementById('done-state');
+                doneState.style.display = 'flex';
+                doneState.innerHTML = `
+                    <div style="background: rgba(239, 68, 68, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                        <i class="fas fa-wifi" style="font-size: 30px; color: #ef4444;"></i>
+                    </div>
+                    <h2 style="margin: 0 0 10px 0; color: #0f172a;">Connection Timeout</h2>
+                    <p style="color: #94a3b8; max-width: 320px; margin-bottom: 25px; line-height: 1.5;">Your browser paused the database connection. Please try again.</p>
+                    <button onclick="location.reload()" style="background: #0ea5e9; color: white; border: none; padding: 12px 30px; border-radius: 20px; font-weight: 800; cursor: pointer;">Retry Connection</button>
+                `;
             }
         });
 
-        // The Engine that builds the queue based on the selected mode
+        // THE ULTRA-FAST QUEUE BUILDER
         window.buildQueue = async function() {
-            // UI State: Show Loading
             document.getElementById('loading-state').style.display = 'flex';
             document.getElementById('done-state').style.display = 'none';
             document.getElementById('active-review-state').style.display = 'none';
@@ -245,15 +246,10 @@
             let filteredItems = [];
             let strictlyDue = 0;
 
-            // 1. Filter logic based on Mode
             for (const [qid, data] of Object.entries(allBookmarksData)) {
-                // Legacy check: Ignore broken bookmarks missing exam/subject data
                 if (!data.exam || !data.subject) continue;
-
                 let isDue = now >= data.next_review_date;
                 if (isDue) strictlyDue++;
-
-                // Skip cards they have already answered *this session*
                 if (window.sessionAnswered.includes(qid)) continue;
 
                 if (window.isCramMode) {
@@ -265,14 +261,12 @@
 
             document.getElementById('due-count').innerText = strictlyDue;
 
-            // 2. Sorting Logic (Cram Mode = Weakest First | Due Mode = Most Overdue First)
             if (window.isCramMode) {
                 filteredItems.sort((a, b) => a[1].current_step - b[1].current_step);
             } else {
                 filteredItems.sort((a, b) => a[1].next_review_date - b[1].next_review_date);
             }
 
-            // 3. Handle Empty Queue
             if (filteredItems.length === 0) {
                 document.getElementById('loading-state').style.display = 'none';
                 document.getElementById('done-state').style.display = 'flex';
@@ -284,17 +278,41 @@
 
             totalDue = filteredItems.length;
 
-            // 4. HIGH SPEED CACHE OPTIMIZATION: Fetch entire subjects instead of individual questions
+            // ULTRA-FAST PARALLEL REST API FETCHING (Bypasses WebSocket limits)
             let subjectCache = {};
+            let uniqueSubjects = new Set();
+            
+            for (const [qid, data] of filteredItems) {
+                uniqueSubjects.add(`${data.exam}_${data.subject}`);
+            }
+
+            const user = auth.currentUser;
+            let idToken = "";
+            if (user) {
+                try { idToken = await user.getIdToken(); } catch(e) {}
+            }
+
+            const fetchPromises = Array.from(uniqueSubjects).map(async (combo) => {
+                const [exam, subject] = combo.split('_');
+                // Uses standard HTTP fetch which supports native parallel connections and gzip
+                const url = `https://medpyq-elearning-default-rtdb.firebaseio.com/question_banks/${exam}/${subject}.json` + (idToken ? `?auth=${idToken}` : "");
+                
+                try {
+                    const res = await fetch(url);
+                    subjectCache[combo] = await res.json() || [];
+                } catch (err) {
+                    console.error("HTTP Fetch failed for", combo, err);
+                    subjectCache[combo] = [];
+                }
+            });
+
+            await Promise.all(fetchPromises);
+
+            // Assemble Queue
             for (const [qid, data] of filteredItems) {
                 const cacheKey = `${data.exam}_${data.subject}`;
-                
-                if (!subjectCache[cacheKey]) {
-                    const qSnap = await get(ref(db, `question_banks/${data.exam}/${data.subject}`));
-                    subjectCache[cacheKey] = qSnap.val() || [];
-                }
-                
                 const qDataArray = subjectCache[cacheKey];
+                
                 let qData = null;
                 if (Array.isArray(qDataArray)) {
                     qData = qDataArray.find(q => q && q.q === qid);
@@ -307,13 +325,11 @@
                 }
             }
 
-            // Show active review area, hide loading
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('active-review-state').style.display = 'flex';
             loadNextCard();
         };
 
-        // UI Toggle Function
         window.setMode = function(mode) {
             window.isCramMode = (mode === 'all');
             const btnDue = document.getElementById('mode-due');
@@ -327,7 +343,6 @@
                 btnAll.className = 'mode-btn mode-inactive';
             }
             
-            // Clear their session memory so they can re-review things if they switch modes
             window.sessionAnswered = []; 
             window.buildQueue();
         };
@@ -344,17 +359,14 @@
 
             document.getElementById('fc-flipper').style.transform = 'rotateY(0deg)';
             
-            // Progress Bar Physics
             const completed = totalDue - dueQueue.length;
             document.getElementById('prog-text').innerText = `${completed} / ${totalDue} Synapses Fired`;
             document.getElementById('prog-fill').style.width = `${(completed / totalDue) * 100}%`;
             
-            // Brain glow effect on load
             const brain = document.getElementById('brain-glow');
             brain.classList.add('glow');
             setTimeout(() => brain.classList.remove('glow'), 500);
 
-            // Set Footer State
             document.querySelectorAll('.btn-state').forEach(el => el.classList.remove('active'));
             document.getElementById('state-front').classList.add('active');
 
@@ -362,7 +374,6 @@
             currentQData = currentItem.question;
             currentBookmark = currentItem.bookmark;
 
-            // Render Front
             let optsHtml = '';
             currentQData.options.forEach((opt, index) => {
                 const letter = String.fromCharCode(65 + index);
@@ -383,7 +394,6 @@
                 <div>${optsHtml}</div>
             `;
 
-            // Calculate Dynamic Neuro-Intervals
             let step = currentBookmark.current_step;
             window.calcGuessDays = Math.max(1, Math.round(step * 1.5));
             window.calcMasteredDays = Math.max(3, Math.round((daysToExam * 0.15) * step));
@@ -391,7 +401,6 @@
             document.getElementById('time-guess').innerText = `+${window.calcGuessDays}d`;
             document.getElementById('time-mastered').innerText = `+${window.calcMasteredDays}d`;
 
-            // Pre-render Back 
             document.getElementById('card-back').scrollTop = 0;
             document.getElementById('card-front').scrollTop = 0;
         }
@@ -401,7 +410,6 @@
             const ansIndex = currentQData.ans_key.charCodeAt(0) - 65;
             const correctText = currentQData.options[ansIndex];
 
-            // Render Back Content 
             let bannerHtml = isCorrect 
                 ? `<div class="result-banner result-correct"><i class="fas fa-check-circle" style="font-size:1.5rem;"></i> Correct! Excellent retrieval.</div>`
                 : `<div class="result-banner result-wrong"><i class="fas fa-times-circle" style="font-size:1.5rem;"></i> Incorrect. The correct answer was ${currentQData.ans_key}.</div>`;
@@ -434,13 +442,13 @@
             let step = currentBookmark.current_step;
             let nextIntervalDays = 0;
 
-            if (gradeCode === 0) { // WRONG
+            if (gradeCode === 0) { 
                 step = 1; 
                 nextIntervalDays = 0; 
-            } else if (gradeCode === 1) { // GUESSED 
+            } else if (gradeCode === 1) { 
                 step = step + 1;
                 nextIntervalDays = window.calcGuessDays;
-            } else if (gradeCode === 2) { // MASTERED
+            } else if (gradeCode === 2) { 
                 step = step + 2;
                 nextIntervalDays = window.calcMasteredDays;
             }
@@ -448,19 +456,15 @@
             const nextReview = Date.now() + (nextIntervalDays * 24 * 60 * 60 * 1000);
             const item = dueQueue.shift(); 
             
-            // Mark as answered in this session so we don't load it again if we switch modes
             window.sessionAnswered.push(currentBookmark.q_id);
 
             if (gradeCode === 0) {
-                // If wrong, push to the back of the queue so they see it again TODAY
                 item.bookmark.current_step = step;
                 dueQueue.push(item);
             } else {
-                // Update local memory so changing tabs doesn't reset it
                 allBookmarksData[currentBookmark.q_id].current_step = step;
                 allBookmarksData[currentBookmark.q_id].next_review_date = nextReview;
 
-                // Sync to Firebase Database
                 try {
                     await set(ref(db, `users/${user.uid}/bookmarks/${currentBookmark.q_id}/current_step`), step);
                     await set(ref(db, `users/${user.uid}/bookmarks/${currentBookmark.q_id}/next_review_date`), nextReview);
