@@ -218,10 +218,10 @@
     .admin-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e2e8f0; font-family: inherit; font-size: 1rem; margin-bottom: 15px; outline: none;}
 
     /* TABLE OVERFLOW FIX FOR QUESTION STEMS & EXPLANATIONS */
-    #qotd-stem, .q-stem, .expl-box { width: 100%; overflow-x: auto; padding-bottom: 5px; }
-    #qotd-stem table, .q-stem table, .expl-box table { width: 100%; border-collapse: collapse; min-width: 450px; margin: 10px 0; }
-    #qotd-stem th, #qotd-stem td, .q-stem th, .q-stem td, .expl-box th, .expl-box td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 0.9rem; }
-    #qotd-stem th, .q-stem th, .expl-box th { background-color: #f8fafc; color: #0f2b52; }
+    .q-stem, .expl-box { width: 100%; overflow-x: auto; padding-bottom: 5px; }
+    .q-stem table, .expl-box table { width: 100%; border-collapse: collapse; min-width: 450px; margin: 10px 0; }
+    .q-stem th, .q-stem td, .expl-box th, .expl-box td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 0.9rem; }
+    .q-stem th, .expl-box th { background-color: #f8fafc; color: #0f2b52; }
     </style>
 
     <!-- Google tag (gtag.js) -->
@@ -343,7 +343,7 @@
                     <div id="qotd-loading" style="text-align: center; color: #94a3b8; padding: 20px 0;"><i class="fas fa-spinner fa-spin"></i> Loading today's question...</div>
                     
                     <div id="qotd-content" style="display: none;">
-                        <div id="qotd-stem" style="font-size: 1.05rem; font-weight: 600; color: #0f172a; margin-bottom: 15px; line-height: 1.5;"></div>
+                        <div id="qotd-stem" class="q-stem" style="font-size: 1.05rem; font-weight: 600; color: #0f172a; margin-bottom: 15px; line-height: 1.5;"></div>
                         <div id="qotd-img-container" style="margin-bottom:15px; display:none; text-align: center;"><img id="qotd-img" style="max-width:100%; max-height:200px; border-radius:8px; border:1px solid #e2e8f0;"></div>
                         <div id="qotd-options"></div>
                         <button id="qotd-btn-expl" onclick="document.getElementById('qotd-flipper').style.transform='rotateY(180deg)'" style="display: none; width: 100%; margin-top: 15px; padding: 12px; background: #0f2b52; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 43, 82, 0.2); transition: 0.2s;">View Explanation <i class="fas fa-sync-alt" style="margin-left:5px;"></i></button>
@@ -356,7 +356,7 @@
                         <span><i class="fas fa-book-open" style="color: var(--app-gold); margin-right: 5px;"></i> Explanation</span>
                         <i class="fas fa-times" style="color:#94a3b8; cursor:pointer; font-size: 1.2rem; padding: 5px;" onclick="document.getElementById('qotd-flipper').style.transform='rotateY(0deg)'"></i>
                     </div>
-                    <div id="qotd-expl-text" style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin-bottom: 20px; flex: 1;"></div>
+                    <div id="qotd-expl-text" class="expl-box" style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin-bottom: 20px; flex: 1;"></div>
                     <button onclick="document.getElementById('qotd-flipper').style.transform='rotateY(0deg)'" style="width: 100%; padding: 12px; background: #f1f5f9; color: #475569; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Back to Question</button>
                 </div>
 
@@ -850,9 +850,8 @@
     <script>
         let selectedExam = localStorage.getItem('selectedExam') || 'NEET-PG';
         window.isUserPro = null; 
-        // Central List of Available Tests
+        
         const AVAILABLE_TESTS = [
-            
             { id: 'neet-pg', title: 'NEET PG 2025', file: 'neet-pg-2025-test.json', time: 210, qs: 200, exam: 'NEET-PG' },
             { id: 'neet-pg', title: 'NEET PG 2024 Shift 1', file: 'neetpg-2024-shift1-test.json', time: 210, qs: 200, exam: 'NEET-PG' },
             { id: 'neet-pg', title: 'NEET PG 2024 Shift 2', file: 'neetpg-2024-shift2-test.json', time: 210, qs: 200, exam: 'NEET-PG' },
@@ -880,11 +879,9 @@
             { id: 'upsc-cms', title: 'UPSC CMS 2024 Paper II', file: 'cms-2024-part2-test.json', time: 120, qs: 120, exam: 'UPSC-CMS' },
             { id: 'upsc-cms', title: 'UPSC CMS 2023 Paper I', file: 'cms-2023-part1-test.json', time: 120, qs: 120, exam: 'UPSC-CMS' },
             { id: 'upsc-cms', title: 'UPSC CMS 2023 Paper II', file: 'cms-2023-part2-test.json', time: 120, qs: 120, exam: 'UPSC-CMS' },
-            
-           
         ];
+        
         window.openSecureCheckout = function(checkoutUrl) {
-            // 1. Build and inject the dynamic loader
             const loaderHtml = `
                 <div id="secure-checkout-loader" style="position:fixed;inset:0;background:rgba(15,23,42,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;backdrop-filter:blur(5px);transition:opacity 0.5s;">
                     <div id="loader-spinner" style="border:4px solid #334155;border-top:4px solid #eebb4d;border-radius:50%;width:50px;height:50px;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
@@ -898,23 +895,18 @@
                 </div>
             `;
             
-            // Remove existing overlay if any
             const existing = document.getElementById('secure-checkout-loader');
             if (existing) existing.remove();
             
             document.body.insertAdjacentHTML('beforeend', loaderHtml);
-            
-            // 2. Attempt to open checkout in a new tab
             const newWindow = window.open(checkoutUrl, "_blank");
             
-            // 3. Adblocker / Popup Blocker Detection
             if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                 document.getElementById('loader-spinner').style.display = 'none';
-                document.getElementById('loader-title').innerHTML = '孱ｸAdblocker Detected';
+                document.getElementById('loader-title').innerHTML = '孱 Adblocker Detected';
                 document.getElementById('loader-msg').innerText = 'Your browser or adblocker prevented the secure checkout from opening. Please disable your adblocker or popup blocker for this site and try again.';
                 document.getElementById('loader-actions').style.display = 'flex';
             } else {
-                // 4. Success: Fade out and remove after 2.5 seconds
                 setTimeout(() => {
                     const loader = document.getElementById('secure-checkout-loader');
                     if (loader) {
@@ -924,7 +916,7 @@
                 }, 2500);
             }
         };
-        // --- CUSTOM DROPDOWN LOGIC ---
+
         function toggleHeaderDropdown() {
             document.getElementById('header-dropdown-options').classList.toggle('show');
         }
@@ -932,7 +924,7 @@
             document.getElementById('header-dropdown-options').classList.remove('show');
             filterExam(examName);
         }
-        // Close dropdown if user clicks outside of it
+        
         document.addEventListener('click', function(e) {
             const dropdown = document.getElementById('header-dropdown-options');
             const trigger = document.querySelector('.dropdown-selected');
@@ -940,8 +932,10 @@
                 dropdown.classList.remove('show');
             }
         });
+        
         function openSidebar() { document.getElementById('app-sidebar').classList.add('active'); document.getElementById('sidebar-overlay').classList.add('active'); updateExamUI(); }
         function closeSidebar() { document.getElementById('app-sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active'); }
+        
         window.showSyllabus = function(examName) {
             filterExam(examName);
             document.querySelectorAll('.exam-info-block').forEach(b => b.style.display = 'none');
@@ -951,6 +945,7 @@
                 setTimeout(() => { document.getElementById('exam-info-container').scrollIntoView({behavior: 'smooth'}); }, 100);
             }
         };
+        
         function filterExam(examName) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
             selectedExam = examName;
@@ -968,6 +963,7 @@
                 window.renderTestsTab([]);
             }
         }
+        
         function updateExamUI() {
             document.querySelectorAll('.exam-option').forEach(opt => opt.classList.toggle('active', opt.innerText === selectedExam));
             
@@ -976,6 +972,7 @@
             
             updateSubjectGridVisibility(selectedExam);
         }
+        
         function updateSubjectGridVisibility(examName) {
             const allowedSubjects = { 'UPSC-CMS': ['Medicine', 'Pediatrics', 'Surgery', 'OBG', 'CFM'] };
             document.querySelectorAll('.subject-card').forEach(card => {
@@ -1008,6 +1005,7 @@
                 }
             });
         }
+        
         window.navigateToSubject = function(subject) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
             if (window.isUserPro === false) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
@@ -1015,6 +1013,7 @@
             const formattedSubject = subject.toLowerCase().replace(/\s+/g, '-');
             window.location.href = `viewer.html?exam=${currentExam}&subject=${formattedSubject}`;
         }
+        
         window.navigateToTest = function(testFile, reviewId = null) {
             if (!navigator.onLine) { showOfflineScreen(); return; }
             if (window.isUserPro === false) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
@@ -1023,6 +1022,7 @@
             if(reviewId) url += `&reviewId=${reviewId}`;
             window.location.href = url;
         }
+        
         function switchTab(screenName, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('view-' + screenName).classList.add('active');
@@ -1035,11 +1035,13 @@
                if(nav) nav.classList.add('active');
             }
         }
+        
         function showOfflineScreen() { document.getElementById('offline-overlay').style.display = 'flex'; }
         function hideOfflineScreen() { document.getElementById('offline-overlay').style.display = 'none'; }
         function checkConnection() { if (navigator.onLine) hideOfflineScreen(); else alert("Still offline."); }
         window.addEventListener('online', hideOfflineScreen);
         window.addEventListener('offline', showOfflineScreen);
+        
         function updateSidebarDisplay(email, statusText, isExpired, validityDays) {
             const userTitle = document.querySelector('.user-info h3');
             const userSub = document.querySelector('.user-info p');
@@ -1066,10 +1068,12 @@
         }
         document.addEventListener('DOMContentLoaded', updateExamUI);
     </script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        
         const firebaseConfig = { 
             apiKey: "AIzaSyAp8tKgVyc6PC-yt0Nv4nOOtH8B8jCaSYE", 
             authDomain: "medpyq-elearning.firebaseapp.com", 
@@ -1080,20 +1084,17 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        // Dynamically import Analytics so ad blockers won't crash the entire app
+        
         import("https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js")
             .then((analyticsModule) => {
                 analyticsModule.isSupported().then((supported) => {
-                    if (supported) {
-                        const analytics = analyticsModule.getAnalytics(app);
-                    }
+                    if (supported) { const analytics = analyticsModule.getAnalytics(app); }
                 });
-            })
-            .catch((error) => {
-                console.warn("Analytics blocked by browser or extension, continuing without it.");
-            });
+            }).catch((error) => { console.warn("Analytics blocked by browser or extension"); });
+            
         const ADMIN_EMAILS = ["educateindiainstitute@gmail.com", "pankajkumarmahto1009@gmail.com"];
         const SUB_DB = { 'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31' };
+        
         window.authApp = {
             mode: 'signup',
             open: function() { document.getElementById('auth-overlay').style.display = 'flex'; this.renderUI(); },
@@ -1183,7 +1184,7 @@
                 }
             }
         };
-        // --- RENDER DYNAMIC TEST TAB ---
+        
         window.renderTestsTab = function(historyArr) {
             const container = document.getElementById('dynamic-test-list');
             let html = '';
@@ -1264,7 +1265,7 @@
                     scoreLabels.push(t.title.substring(0, 10));
                     scoreData.push(t.accuracy);
                 });
-                // --- FETCH QBANK SUBJECT MASTERY ---
+                
                 const solvedSnap = await get(ref(db, `users/${uid}/solved/${selectedExam.toLowerCase()}`));
                 const solvedData = solvedSnap.val() || {};
                 
@@ -1274,18 +1275,16 @@
                 if(subjects.length === 0) {
                     subjectHtml += `<div style="color:#64748b; font-size:0.9rem; grid-column: 1 / -1; background: white; padding: 20px; border-radius: 12px; text-align: center; border: 1px dashed #cbd5e1;">No QBank data available yet. Start practicing to generate your mastery profile!</div>`;
                 } else {
-                    // Sort subjects alphabetically
                     subjects.sort().forEach(sub => {
                         const qList = Object.values(solvedData[sub]);
                         const total = qList.length;
                         const correct = qList.filter(q => q.correct).length;
                         const acc = Math.round((correct / total) * 100) || 0;
                         
-                        // Dynamic Color Logic: Red (<50), Gold (50-74), Green (75+)
                         let color = '#ef4444'; let bgLight = '#fef2f2';
                         if(acc >= 75) { color = '#22c55e'; bgLight = '#f0fdf4'; }
                         else if(acc >= 50) { color = '#eebb4d'; bgLight = '#fffbeb'; }
-                        const formattedSub = sub.replace(/-/g, ' '); // Clean up "neet-pg" hyphens if any
+                        const formattedSub = sub.replace(/-/g, ' ');
                         subjectHtml += `
                         <div style="background:white; border-radius:12px; padding:15px; border:1px solid #e2e8f0; box-shadow:0 4px 15px rgba(0,0,0,0.02); transition: 0.2s;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -1370,10 +1369,8 @@
             }
         };
 
-        // --- HIGH-SPEED DUE QUESTION COUNTER ---
         window.loadDueFlashcards = async function() {
             if (!window.currentUserUid) return;
-            
             try {
                 const snap = await get(ref(db, `users/${window.currentUserUid}/bookmarks`));
                 const bookmarks = snap.val() || {};
@@ -1384,7 +1381,6 @@
                     if (now >= bookmarks[key].next_review_date) strictlyDueCount++;
                 }
                 
-                // Update the inline text under the Start button
                 const inlineBadge = document.getElementById('inline-due-badge');
                 if (inlineBadge) {
                     if (strictlyDueCount > 0) {
@@ -1394,7 +1390,6 @@
                         inlineBadge.style.display = 'none';
                     }
                 }
-                
             } catch(e) {
                 console.error("Error fetching due count", e);
             }
@@ -1413,14 +1408,10 @@
                     localStorage.setItem('medpyq_session_id', localSessionId);
                 }
                 const sessionsRef = ref(db, `users/${user.uid}/active_sessions`);
-                // 1. Fetch the current active sessions
                 get(sessionsRef).then((snapshot) => {
                     let sessions = snapshot.val() || {};
-                    
-                    // Add or update this device's session timestamp
                     sessions[localSessionId] = Date.now(); 
                     
-                    // Sort and enforce the 2-device limit
                     let keys = Object.keys(sessions);
                     if (keys.length > 2) {
                         keys.sort((a, b) => sessions[a] - sessions[b]);
@@ -1429,17 +1420,11 @@
                         }
                     }
                     
-                    // 2. IMPORTANT: Save the sessions tto Firebase FIRST
                     set(sessionsRef, sessions).then(() => {
-                        
-                        // 3. ONLY start listening for kickouts AFTER the save is complete
                         onValue(sessionsRef, (liveSnapshot) => {
                             const activeSessions = liveSnapshot.val() || {};
-                            
-                            // If this device's token was removed by a 3rd device logging in
                             if (!activeSessions[localSessionId]) {
                                 signOut(auth);
-                                
                                 document.body.innerHTML = `
                                     <div style="position:fixed;inset:0;background:#0f172a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;">
                                         <div style="font-size:50px;margin-bottom:20px;">白</div>
@@ -1452,6 +1437,7 @@
                         });
                     });
                 });
+                
                 const email = user.email.toLowerCase();
                 const displayName = user.displayName || email.split('@')[0];
                 
@@ -1459,25 +1445,16 @@
                 
                 window.renderPerformance(user.uid);
                 if(window.loadDueFlashcards) window.loadDueFlashcards();
-                
-                // TRIGGER THE STREAK ENGINE
                 if(window.calculateDailyStreak) window.calculateDailyStreak(user.uid);
-
-                // TRIGGER THE INLINE QUESTION OF THE DAY
                 if(window.loadInlineQOTD) window.loadInlineQOTD();
                 
-                // --- TRUE WEB PUSH SETUP (FIREBASE CLOUD MESSAGING) ---
                 if ('Notification' in window && 'serviceWorker' in navigator) {
                     Notification.requestPermission().then(async permission => {
                         if (permission === 'granted') {
                             try {
-                                // Register the background worker
                                 const reg = await navigator.serviceWorker.register('sw.js');
-                                
-                                // Import FCM dynamically
                                 const { getMessaging, getToken } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging.js");
                                 
-                                // Temporarily update your config just for messaging
                                 const msgApp = initializeApp({
                                     ...firebaseConfig,
                                     messagingSenderId: "851775924721",
@@ -1485,16 +1462,12 @@
                                 }, "MessagingApp");
                                 
                                 const messaging = getMessaging(msgApp);
-                                
-                                // Generate the unique device token using your VAPID Key
                                 const currentToken = await getToken(messaging, { 
                                     vapidKey: "BFFowQl4w-S3bvhcDPgpC-ISpgS7VtRHqtYjU9XzKLzYR9nFToNvEpJKd3_x4SOkKxkEbIn5QFhlITWsaz5QhkU",
                                     serviceWorkerRegistration: reg 
                                 });
                                 
                                 if (currentToken) {
-                                    console.log("FCM Token Generated Successfully!");
-                                    // Save this token to the user's profile in the database
                                     await set(ref(db, `users/${window.currentUserUid}/fcmToken`), currentToken);
                                 }
                             } catch (err) {
@@ -1503,7 +1476,6 @@
                         }
                     });
                 }
-                // --------------------------------------------------------
                 
                 if (ADMIN_EMAILS.includes(email)) {
                     isPro = true; validityText = "Lifetime Access";
@@ -1514,6 +1486,7 @@
                     if (daysLeft >= 0) { isPro = true; validityText = `${daysLeft} Days Left`; }
                     if(adminFab) adminFab.style.display = "none";
                 }
+                
                 if (!isPro && !ADMIN_EMAILS.includes(email)) {
                     if(adminFab) adminFab.style.display = "none";
                     try {
@@ -1550,13 +1523,14 @@
                 if(loginBtn) loginBtn.style.display = 'block'; if(payBtn) payBtn.style.display = 'none';
             }
         });
-        // --- ADMIN TEST GENERATOR ---
+        
         const EXAM_WEIGHTAGE = {
             'neet-pg': { 'anatomy': 0.08, 'physiology': 0.08, 'biochemistry': 0.08, 'pharmacology': 0.10, 'microbiology': 0.10, 'pathology': 0.12, 'fmt': 0.05, 'cfm': 0.12, 'ent': 0.05, 'ophthalmology': 0.05, 'medicine': 0.20, 'surgery': 0.20, 'obg': 0.15, 'pediatrics': 0.05, 'orthopaedics': 0.05, 'psychiatry': 0.05, 'dermatology': 0.05, 'anesthesiology': 0.05, 'radiology': 0.05 },
             'inicet': { 'anatomy': 0.10, 'physiology': 0.10, 'biochemistry': 0.10, 'pharmacology': 0.10, 'microbiology': 0.10, 'pathology': 0.10, 'fmt': 0.05, 'cfm': 0.10, 'ent': 0.05, 'ophthalmology': 0.05, 'medicine': 0.15, 'surgery': 0.15, 'obg': 0.10, 'pediatrics': 0.05, 'orthopaedics': 0.02, 'psychiatry': 0.02, 'dermatology': 0.02, 'anesthesiology': 0.02, 'radiology': 0.02 },
             'fmge': { 'anatomy': 0.05, 'physiology': 0.05, 'biochemistry': 0.05, 'pharmacology': 0.10, 'microbiology': 0.10, 'pathology': 0.10, 'fmt': 0.05, 'cfm': 0.10, 'ent': 0.05, 'ophthalmology': 0.05, 'medicine': 0.25, 'surgery': 0.25, 'obg': 0.15, 'pediatrics': 0.05, 'orthopaedics': 0.05, 'psychiatry': 0.05, 'dermatology': 0.05, 'anesthesiology': 0.05, 'radiology': 0.05 },
             'upsc-cms': { 'medicine': 0.40, 'pediatrics': 0.10, 'surgery': 0.166, 'obg': 0.166, 'cfm': 0.168 }
         };
+        
         window.generateTestJSON = async function() {
             const btn = document.getElementById('btn-generate-test');
             btn.innerText = "Fetching Database..."; btn.disabled = true;
@@ -1591,7 +1565,6 @@
             finally { btn.innerText = "Generate & Download"; btn.disabled = false; document.getElementById('admin-modal-overlay').style.display = 'none'; }
         };
 
-// --- CUSTOM QUIZ BUILDER ENGINE ---
         window.openCustomQuizModal = function() {
             if (window.isUserPro === false) { document.getElementById('pro-paywall-overlay').style.display = 'flex'; return; }
             
@@ -1606,6 +1579,7 @@
             document.getElementById('cq-subjects-container').innerHTML = subHtml;
             document.getElementById('custom-quiz-overlay').style.display = 'flex';
         };
+        
         window.generateCustomQuiz = async function() {
             const btn = document.getElementById('btn-start-custom');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assembling Quiz...';
@@ -1623,12 +1597,10 @@
                 const user = auth.currentUser;
                 let userSolved = {};
                 
-                // Fetch the user's solved history to filter out attempted/correct questions
                 if(user) {
                     const solvedSnap = await get(ref(db, `users/${user.uid}/solved/${selectedExam.toLowerCase()}`));
                     userSolved = solvedSnap.val() || {};
                 }
-                // Loop through selected subjects and grab questions
                 for(let sub of selectedSubs) {
                     const snap = await get(ref(db, `question_banks/${selectedExam.toLowerCase()}/${sub}`));
                     const data = snap.val();
@@ -1636,16 +1608,13 @@
                     if(data) {
                         let qs = Array.isArray(data) ? data : Object.values(data);
                         qs = qs.filter(q => q !== null);
-                        
-                        // Ensure UIDs are mapped
                         qs = qs.map((q, i) => ({ ...q, uid: q.q || ("Q"+i) }));
-                        // Apply the Mode Filter (Incorrect / Unattempted / All)
                         const subSolved = userSolved[sub] || {};
                         qs = qs.filter(q => {
                             const attempt = subSolved[q.uid];
                             if(mode === 'unattempted') return !attempt;
                             if(mode === 'incorrect') return attempt && attempt.correct === false;
-                            return true; // 'all' mode
+                            return true; 
                         });
                         pool.push(...qs);
                     }
@@ -1654,16 +1623,13 @@
                     alert(`We couldn't find any questions matching your criteria (${mode}) in the selected subjects. Try selecting more subjects or changing the mode.`);
                     btn.innerHTML = 'Generate & Start Test'; btn.disabled = false; return;
                 }
-                // Shuffle the pool and slice to the requested length
                 pool.sort(() => 0.5 - Math.random());
                 const finalQuiz = pool.slice(0, count);
-                // Save securely to LocalStorage to instantly pass to the Test Engine
                 localStorage.setItem('medpyq_custom_quiz', JSON.stringify(finalQuiz));
                 localStorage.setItem('medpyq_custom_config', JSON.stringify({
                     title: `Custom ${selectedExam} Quiz`,
-                    time: finalQuiz.length // 1 minute per question
+                    time: finalQuiz.length 
                 }));
-                // Redirect to test engine with the custom flag
                 window.location.href = `test-engine.html?customTest=true`;
             } catch(e) {
                 console.error(e);
@@ -1673,56 +1639,44 @@
             }
         };
 
-        // --- DAILY HABIT ENGINE (STREAK & QOTD) ---
-        
-        // 1. Calculate and Display the Streak
         window.calculateDailyStreak = async function(uid) {
             try {
-                // Fetch the user's login history
                 const streakRef = ref(db, `users/${uid}/habit_tracker`);
                 const snap = await get(streakRef);
                 let tracker = snap.val() || { currentStreak: 0, lastLoginDate: null };
                 
-                // Get today's date string in local timezone (e.g., "2026-09-25")
                 const today = new Date().toLocaleDateString('en-CA'); 
                 
                 if (tracker.lastLoginDate !== today) {
-                    // Check if they logged in yesterday
                     const yesterday = new Date();
                     yesterday.setDate(yesterday.getDate() - 1);
                     const yesterdayStr = yesterday.toLocaleDateString('en-CA');
                     
                     if (tracker.lastLoginDate === yesterdayStr) {
-                        tracker.currentStreak += 1; // Streak continues!
+                        tracker.currentStreak += 1; 
                     } else {
-                        tracker.currentStreak = 1; // Streak broken, restart at 1
+                        tracker.currentStreak = 1; 
                     }
                     tracker.lastLoginDate = today;
-                    
-                    // Save updated streak to Firebase
                     await set(streakRef, tracker);
                 }
                 
-                // Display the Badge
                 const badge = document.getElementById('user-streak-badge');
                 const text = document.getElementById('streak-count-text');
                 if (badge && text && tracker.currentStreak > 0) {
                     text.innerText = tracker.currentStreak;
                     badge.style.display = 'flex';
                 }
-                
             } catch (err) {
                 console.error("Streak tracker error:", err);
             }
         };
 
-        // 2. Load and Render Inline QOTD
         window.qotdData = null;
         window.qotdAnswered = false;
 
         window.loadInlineQOTD = async function() {
             try {
-                // Fetch a high-yield subject
                 const snap = await get(ref(db, `question_banks/${selectedExam.toLowerCase()}/medicine`));
                 const data = snap.val();
                 
@@ -1730,13 +1684,11 @@
                     let qs = Array.isArray(data) ? data : Object.values(data);
                     qs = qs.filter(q => q !== null);
                     
-                    // Pick 1 random question based on today's date
                     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
                     const qotdIndex = dayOfYear % qs.length;
                     window.qotdData = qs[qotdIndex];
                     window.qotdData.uid = window.qotdData.q || ("QOTD" + dayOfYear);
                     
-                    // Render Front
                     document.getElementById('qotd-stem').innerHTML = window.qotdData.stem;
                     if(window.qotdData.img) {
                         document.getElementById('qotd-img').src = window.qotdData.img;
@@ -1754,16 +1706,14 @@
                     });
                     document.getElementById('qotd-options').innerHTML = optsHtml;
                     
-                    // Pre-render Back (Explanation)
                     document.getElementById('qotd-expl-text').innerHTML = window.qotdData.explanation || "No explanation provided for this question.";
                     
-                    // Switch UI State
                     document.getElementById('qotd-loading').style.display = 'none';
                     document.getElementById('qotd-content').style.display = 'block';
                 }
             } catch (err) {
                 console.error(err);
-                document.getElementById('qotd-loading').innerHTML = "Could not load today's question. Check connection.";
+                document.getElementById('qotd-loading').innerHTML = "Could not load today's question. Check connection and retry.";
             }
         };
 
