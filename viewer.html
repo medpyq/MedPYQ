@@ -364,7 +364,7 @@
         </div>
     </div>
 
-    <script type="module">
+       <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
@@ -406,10 +406,6 @@
             "educateindiainstitute@gmail.com",
             "pankajkumarmahto1009@gmail.com"
         ];
-        
-        const SUB_DB = {
-            'pankajmahto109@gmail.com': '2025-12-31', 'pankajkumarmahto1009@gmail.com': '2026-12-31', 'educateindiainstitute@gmail.com': '2029-01-31', 'indrajeet91434@gmail.com': '2026-04-19', 'roberto374890@gmail.com': '2026-03-13', 'yashvikumari1257@gmail.com':'2027-03-13', 'abhijakrishnan20@gmail.com':'2025-04-21','ami4achu@gmail.com':'2026-03-21','irpakmavihs2k@gmail.com':'2025-06-21','jivanhitesh2002@gmail.com':'2025-04-21','kummarapalleblessyemerald@gmail.com':'2026-03-21','shamtri1312@gmail.com':'2025-04-21','shrutisharma13967@gmail.com':'2025-04-21','surjeetkk99@gmail.com':'2025-04-21'
-        };
 
         // --- ALIAS SPELLING MAP ---
         const urlParams = new URLSearchParams(window.location.search);
@@ -652,39 +648,45 @@
                 { unit: "Systemic Radiology", chapters: ["12. CXR Interpretation", "13. Silhouette Sign : Basics", "14. Silhouette Sign : Applications", "15. Pleural Abnormalities", "16. Mediastinum and Lung Tumours", "17. Congenital Heart Disease", "18. Acquired Cardiac Disease", "19. Structural Anatomy of Brain", "20. Basics of Neuroimaging", "21. Stroke Imaging", "22. Head Trauma Imaging", "23. Brain Tumors", "24. CNS Infections and Miscellaneous", "25. Conventional Procedures in GUT", "26. GUT Imaging", "27. Conventional Procedures in GIT", "28. GIT Imaging", "29. Hepatobiliary Imaging", "30. Obstetrics and Gynaecology Imaging", "31. Breast Imaging", "32. Arthritis and Bone Infections", "33. Systemic Bone Disorders", "34. Bone Tumors", "35. Musculoskeletal Trauma Imaging"] }
             ],
             "medicine":[
-        {
-            unit: "Part 1: The Profession of Medicine",
-            chapters: ["1. The Practice of Medicine", "2. Promoting Good Health", "3. Vaccine Opposition and Hesitancy", "4. Decision-Making in Clinical Medicine", "5. Precision Medicine and Clinical Care", "6. Screening and Prevention of Disease", "7. The Safety and Quality of Health Care", "8. The Value of the Physical Examination", "9. Physician Well-Being", "10. Diagnosis: Reducing Errors and Improving Quality", "11. Racial and Ethnic Disparities in Health Care", "12. Ethical Issues in Clinical Medicine", "13. Palliative and End-of-Life Care"]
-        },
-        {
-            unit: "Part 2: Cardinal Manifestations of Diseases",
-            chapters: ["14. Pain: Pathophysiology and Management", "15. Chest Discomfort", "16. Abdominal Pain", "17. Headache", "18. Low Back Pain", "19. Neck Pain", "20. Fever", "21. Fever and Rash", "22. Fever of Unknown Origin", "23. Syncope", "24. Dizziness and Vertigo", "25. Fatigue", "26. Neurologic Causes of Weakness and Paralysis", "27. Numbness, Tingling, and Sensory Loss", "28. Gait Disorders, Imbalance, and Falls", "29. Confusion and Delirium", "30. Coma", "31. Dementia", "32. Aphasia, Memory Loss, and Other Cognitive Disorders", "33. Sleep Disorders", "34. Disorders of the Eye", "35. Disorders of Smell and Taste", "36. Disorders of Hearing", "37. Upper Respiratory Symptoms", "38. Oral Manifestations of Disease", "39. Dyspnea", "40. Cough", "41. Hemoptysis", "42. Hypoxia and Cyanosis", "43. Edema", "44. Approach to the Patient with a Heart Murmur", "45. Palpitations", "46. Exercise Intolerance", "47. Dysphagia", "48. Nausea, Vomiting, and Indigestion", "49. Diarrhea and Constipation", "50. Unintentional Weight Loss", "51. Gastrointestinal Bleeding", "52. Jaundice", "53. Abdominal Swelling and Ascites", "54. Interstitial Cystitis/Bladder Pain Syndrome", "55. Azotemia and Urinary Abnormalities", "56. Fluid and Electrolyte Disturbances", "57. Hypercalcemia and Hypocalcemia", "58. Acidosis and Alkalosis", "59. Approach to the Patient with a Skin Disorder", "60. Common Skin Disorders", "61. Skin Manifestations of Internal Disease", "62. Immunologically Mediated Skin Diseases", "63. Cutaneous Drug Reactions", "64. Photosensitivity", "65. Interpreting Peripheral Blood Smears", "66. Anemia and Polycythemia", "67. Disorders of Granulocytes and Monocytes", "68. Hemophagocytic Lymphohistiocytosis", "69. Bleeding and Thrombosis", "70. Enlargement of Lymph Nodes and Spleen"]
-        },
-        {
-            unit: "Part 3: Pharmacology",
-            chapters: ["71. Principles of Clinical Pharmacology", "72. Pharmacogenomics"]
-        },
-        {
-            unit: "Part 4: Oncology and Hematology",
-            chapters: ["73. Approach to the Patient with Cancer", "74. Symptom Control in Patients with Cancer", "75. Prevention and Early Detection of Cancer", "76. Cancer Genetics", "77. Cancer Cell Biology", "78. Principles of Cancer Treatment", "79. Infections in Patients with Cancer", "80. Oncologic Emergencies", "81. Cancer of the Skin", "82. Head and Neck Cancer", "83. Neoplasms of the Lung", "84. Breast Cancer", "85. Upper Gastrointestinal Tract Cancers", "86. Colorectal Cancer", "87. Tumors of the Liver and Biliary Tree", "88. Pancreatic Cancer", "89. Gastrointestinal Neuroendocrine Tumors", "90. Renal Cell Carcinoma", "91. Cancer of the Bladder and Urinary Tract", "92. Benign and Malignant Diseases of the Prostate", "93. Testicular Cancer", "94. Gynecologic Malignancies", "95. Primary and Metastatic Tumors of the Nervous System", "96. Soft Tissue and Bone Sarcomas and Bone Metastases", "97. Carcinoma of Unknown Primary", "98. Paraneoplastic Syndromes", "99. Paraneoplastic Neurologic Syndromes and Autoimmune Encephalitis", "100. Cancer Survivorship", "101. Hematopoietic Stem Cells", "102. Iron Deficiency and Other Acquired Anemias", "103. Disorders of Hemoglobin", "104. Megaloblastic Anemias", "105. Hemolytic Anemias", "106. Anemia Due to Acute Blood Loss", "107. Bone Marrow Failure Syndromes", "108. Polycythemia Vera and Other Myeloproliferative Neoplasms", "109. Acute Myeloid Leukemia", "110. Chronic Myeloid Leukemia", "111. Acute Lymphoid Leukemia", "112. Chronic Lymphocytic Leukemia", "113. Non-Hodgkin's Lymphoma", "114. Hodgkin's Lymphoma", "115. Less Common Lymphoid and Myeloid Malignancies", "116. Plasma Cell Disorders", "117. Amyloidosis", "118. Transfusion Therapy and Biology", "119. Hematopoietic Cell Transplantation", "120. Disorders of Platelets and Vessel Wall", "121. Coagulation Disorders", "122. Arterial and Venous Thrombosis", "123. Antiplatelet, Anticoagulant, and Fibrinolytic Drugs"]
-        },
-        {
-            unit: "Part 5: Infectious Diseases",
-            chapters: ["124. Approach to the Patient with an Infectious Disease", "125. Molecular Mechanisms of Microbial Pathogenesis", "126. Microbial Genomics and Infectious Disease", "127. Approach to the Acutely Ill Infected Febrile Patient", "128. Principles of Immunization", "129. Immunization Principles and Vaccine Use", "130. Health Recommendations for International Travel", "131. Pneumonia", "132. Lung Abscess", "133. Infective Endocarditis", "134. Infections of the Skin, Muscles, and Soft Tissues", "135. Infectious Arthritis", "136. Osteomyelitis", "137. Intraabdominal Infections and Abscesses", "138. Acute Infectious Diarrheal Diseases and Bacterial Food Poisoning", "139. Clostridioides difficile Infection", "140. Urinary Tract Infections", "141. Sexually Transmitted Infections", "142. Encephalitis", "143. Acute Meningitis", "144. Chronic and Recurrent Meningitis", "145. Brain Abscess and Empyema", "146. Infectious Complications of Bites", "147. Infections Acquired in Health Care Facilities", "148. Infections in Transplant Recipients", "149. Treatment and Prophylaxis of Bacterial Infections", "150. Bacterial Resistance to Antimicrobial Agents", "151. Pneumococcal Infections", "152. Staphylococcal Infections", "153. Streptococcal Infections", "154. Enterococcal Infections", "155. Diphtheria and Other Corynebacterial Infections", "156. Listeria monocytogenes Infections", "157. Tetanus", "158. Botulism", "159. Gas Gangrene and Other Clostridial Infections", "160. Meningococcal Infections", "161. Gonococcal Infections", "162. Haemophilus and Moraxella Infections", "163. Infections Due to the HACEK Group", "164. Legionella Infections", "165. Pertussis and Other Bordetella Infections", "166. Diseases Caused by Gram-Negative Enteric Bacilli", "167. Acinetobacter Infections", "168. Helicobacter pylori Infections", "169. Infections Due to Campylobacter", "170. Pseudomonas and Related Infections", "171. Salmonellosis", "172. Shigellosis", "173. Cholera and Other Vibrioses", "174. Brucellosis", "175. Tularemia", "176. Plague and Other Yersinia Infections", "177. Bartonella Infections", "178. Donovanosis", "179. Nocardiosis", "180. Actinomycosis", "181. Whipple Disease", "182. Infections Due to Mixed Anaerobic Organisms", "183. Tuberculosis", "184. Leprosy", "185. Nontuberculous Mycobacterial Infections", "186. Antimycobacterial Agents", "187. Syphilis", "188. Endemic Treponematoses", "189. Leptospirosis", "190. Relapsing Fever", "191. Lyme Borreliosis", "192. Rickettsial Diseases", "193. Infections Due to Mycoplasmas", "194. Chlamydial Infections", "195. Principles of Medical Virology", "196. Antiviral Chemotherapy", "197. Herpes Simplex Virus Infections", "198. Varicella-Zoster Virus Infections", "199. Epstein-Barr Virus Infections", "200. Cytomegalovirus and Human Herpesvirus", "201. Monkeypox and Other Poxvirus Infections", "202. Parvovirus Infections", "203. Human Papillomavirus Infections", "204. Common Viral Respiratory Infections", "205. SARS-CoV-2 and COVID-19", "206. Influenza", "207. The Human Retroviruses", "208. HIV Disease: AIDS and Related Disorders", "209. Viral Gastroenteritis", "210. Enterovirus, Parechovirus, and Reovirus Infections", "211. Measles (Rubeola)", "212. Rubella (German Measles)", "213. Mumps", "214. Rabies and Other Rhabdovirus Infections", "215. Arthropod-Borne and Rodent-Borne Virus Infections", "216. The Filovirids", "217. Fungal Infections: Pathogenesis and Treatment", "218. Histoplasmosis", "219. Coccidioidomycosis", "220. Blastomycosis", "221. Cryptococcosis", "222. Candidiasis", "223. Aspergillosis", "224. Mucormycosis", "225. Superficial Fungal Infections", "226. Uncommon Disseminated Fungal Infections", "227. Pneumocystis Infections", "228. Introduction to Parasitic Infections", "229. Agents Used to Treat Parasitic Infections", "230. Amebiasis and Free-Living Amebae", "231. Malaria", "232. Babesiosis", "233. Leishmaniasis", "234. Chagas Disease and African Trypanosomiasis", "235. Toxoplasma Infections", "236. Protozoal Intestinal Infections and Trichomoniasis", "237. Introduction to Helminthic Infections", "238. Trichinellosis and Tissue Nematodes", "239. Intestinal Nematode Infections", "240. Filarial and Related Infections", "241. Schistosomiasis and Other Trematode Infections", "242. Cestode Infections"]
-        },
-        {
-            unit: "Part 15: Environmental Exposures",
-            chapters: ["473. Health Effects of Climate Change", "474. Climate Change and Infectious Disease", "475. Altitude Illness", "476. Hyperbaric and Diving Medicine", "477. Hypothermia and Peripheral Cold Injuries", "478. Heat-Related Illnesses"]
-        },
-        {
-            unit: "Part 16: Genes and Environment",
-            chapters: ["479. Principles of Human Genetics", "480. The Integration of Inherited Genetics into Clinical Practice", "481. Mitochondrial DNA and Heritable Traits and Diseases", "482. Telomere Disease", "483. Gene and Cell-Based Therapy in Clinical Medicine", "484. The Human Microbiome in Health and Disease"]
-        },
-        {
-            unit: "Part 17-20: Global, Aging & Emerging Topics",
-            chapters: ["485. Global Issues in Medicine", "486. Emerging and Re-Emerging Infectious Diseases", "487. Primary Care and Global Health", "488. Biology of Aging", "489. Caring for the Geriatric Patient", "490. Approach to Medical Consultation", "491. Medical Disorders During Pregnancy", "492. Medical Evaluation of the Patient Undergoing Noncardiac Surgery", "493. Point-of-Care Ultrasound", "494. Improving Health and Health Care Using Behavioral Economics", "495. Complementary and Integrative Therapies", "496. Placebo and Nocebo Effects", "497. The Role of Epigenetics", "498. The Role of Circadian Biology", "499. Network Medicine", "500. Emerging Neurotherapeutic Technologies", "501. Machine Learning and Augmented Intelligence", "502. Metabolomics", "503. Circulating Nucleic Acids as Liquid Biopsies", "504. Protein Folding Disorders", "505. Novel Approaches to Diseases of Unknown Etiology"]
-        }
-    ],
+                {
+                    unit: "Part 1: The Profession of Medicine",
+                    chapters: ["1. The Practice of Medicine", "2. Promoting Good Health", "3. Vaccine Opposition and Hesitancy", "4. Decision-Making in Clinical Medicine", "5. Precision Medicine and Clinical Care", "6. Screening and Prevention of Disease", "7. The Safety and Quality of Health Care", "8. The Value of the Physical Examination", "9. Physician Well-Being", "10. Diagnosis: Reducing Errors and Improving Quality", "11. Racial and Ethnic Disparities in Health Care", "12. Ethical Issues in Clinical Medicine", "13. Palliative and End-of-Life Care"]
+                },
+                {
+                    unit: "Part 2: Cardinal Manifestations of Diseases",
+                    chapters: ["14. Pain: Pathophysiology and Management", "15. Chest Discomfort", "16. Abdominal Pain", "17. Headache", "18. Low Back Pain", "19. Neck Pain", "20. Fever", "21. Fever and Rash", "22. Fever of Unknown Origin", "23. Syncope", "24. Dizziness and Vertigo", "25. Fatigue", "26. Neurologic Causes of Weakness and Paralysis", "27. Numbness, Tingling, and Sensory Loss", "28. Gait Disorders, Imbalance, and Falls", "29. Confusion and Delirium", "30. Coma", "31. Dementia", "32. Aphasia, Memory Loss, and Other Cognitive Disorders", "33. Sleep Disorders", "34. Disorders of the Eye", "35. Disorders of Smell and Taste", "36. Disorders of Hearing", "37. Upper Respiratory Symptoms", "38. Oral Manifestations of Disease", "39. Dyspnea", "40. Cough", "41. Hemoptysis", "42. Hypoxia and Cyanosis", "43. Edema", "44. Approach to the Patient with a Heart Murmur", "45. Palpitations", "46. Exercise Intolerance", "47. Dysphagia", "48. Nausea, Vomiting, and Indigestion", "49. Diarrhea and Constipation", "50. Unintentional Weight Loss", "51. Gastrointestinal Bleeding", "52. Jaundice", "53. Abdominal Swelling and Ascites", "54. Interstitial Cystitis/Bladder Pain Syndrome", "55. Azotemia and Urinary Abnormalities", "56. Fluid and Electrolyte Disturbances", "57. Hypercalcemia and Hypocalcemia", "58. Acidosis and Alkalosis", "59. Approach to the Patient with a Skin Disorder", "60. Common Skin Disorders", "61. Skin Manifestations of Internal Disease", "62. Immunologically Mediated Skin Diseases", "63. Cutaneous Drug Reactions", "64. Photosensitivity", "65. Interpreting Peripheral Blood Smears", "66. Anemia and Polycythemia", "67. Disorders of Granulocytes and Monocytes", "68. Hemophagocytic Lymphohistiocytosis", "69. Bleeding and Thrombosis", "70. Enlargement of Lymph Nodes and Spleen"]
+                },
+                {
+                    unit: "Part 3: Pharmacology",
+                    chapters: ["71. Principles of Clinical Pharmacology", "72. Pharmacogenomics"]
+                },
+                {
+                    unit: "Part 4: Oncology and Hematology",
+                    chapters: ["73. Approach to the Patient with Cancer", "74. Symptom Control in Patients with Cancer", "75. Prevention and Early Detection of Cancer", "76. Cancer Genetics", "77. Cancer Cell Biology", "78. Principles of Cancer Treatment", "79. Infections in Patients with Cancer", "80. Oncologic Emergencies", "81. Cancer of the Skin", "82. Head and Neck Cancer", "83. Neoplasms of the Lung", "84. Breast Cancer", "85. Upper Gastrointestinal Tract Cancers", "86. Colorectal Cancer", "87. Tumors of the Liver and Biliary Tree", "88. Pancreatic Cancer", "89. Gastrointestinal Neuroendocrine Tumors", "90. Renal Cell Carcinoma", "91. Cancer of the Bladder and Urinary Tract", "92. Benign and Malignant Diseases of the Prostate", "93. Testicular Cancer", "94. Gynecologic Malignancies", "95. Primary and Metastatic Tumors of the Nervous System", "96. Soft Tissue and Bone Sarcomas and Bone Metastases", "97. Carcinoma of Unknown Primary", "98. Paraneoplastic Syndromes", "99. Paraneoplastic Neurologic Syndromes and Autoimmune Encephalitis", "100. Cancer Survivorship", "101. Hematopoietic Stem Cells", "102. Iron Deficiency and Other Acquired Anemias", "103. Disorders of Hemoglobin", "104. Megaloblastic Anemias", "105. Hemolytic Anemias", "106. Anemia Due to Acute Blood Loss", "107. Bone Marrow Failure Syndromes", "108. Polycythemia Vera and Other Myeloproliferative Neoplasms", "109. Acute Myeloid Leukemia", "110. Chronic Myeloid Leukemia", "111. Acute Lymphoid Leukemia", "112. Chronic Lymphocytic Leukemia", "113. Non-Hodgkin's Lymphoma", "114. Hodgkin's Lymphoma", "115. Less Common Lymphoid and Myeloid Malignancies", "116. Plasma Cell Disorders", "117. Amyloidosis", "118. Transfusion Therapy and Biology", "119. Hematopoietic Cell Transplantation", "120. Disorders of Platelets and Vessel Wall", "121. Coagulation Disorders", "122. Arterial and Venous Thrombosis", "123. Antiplatelet, Anticoagulant, and Fibrinolytic Drugs"]
+                },
+                {
+                    unit: "Part 5: Infectious Diseases",
+                    chapters: ["124. Approach to the Patient with an Infectious Disease", "125. Molecular Mechanisms of Microbial Pathogenesis", "126. Microbial Genomics and Infectious Disease", "127. Approach to the Acutely Ill Infected Febrile Patient", "128. Principles of Immunization", "129. Immunization Principles and Vaccine Use", "130. Health Recommendations for International Travel", "131. Pneumonia", "132. Lung Abscess", "133. Infective Endocarditis", "134. Infections of the Skin, Muscles, and Soft Tissues", "135. Infectious Arthritis", "136. Osteomyelitis", "137. Intraabdominal Infections and Abscesses", "138. Acute Infectious Diarrheal Diseases and Bacterial Food Poisoning", "139. Clostridioides difficile Infection", "140. Urinary Tract Infections", "141. Sexually Transmitted Infections", "142. Encephalitis", "143. Acute Meningitis", "144. Chronic and Recurrent Meningitis", "145. Brain Abscess and Empyema", "146. Infectious Complications of Bites", "147. Infections Acquired in Health Care Facilities", "148. Infections in Transplant Recipients", "149. Treatment and Prophylaxis of Bacterial Infections", "150. Bacterial Resistance to Antimicrobial Agents", "151. Pneumococcal Infections", "152. Staphylococcal Infections", "153. Streptococcal Infections", "154. Enterococcal Infections", "155. Diphtheria and Other Corynebacterial Infections", "156. Listeria monocytogenes Infections", "157. Tetanus", "158. Botulism", "159. Gas Gangrene and Other Clostridial Infections", "160. Meningococcal Infections", "161. Gonococcal Infections", "162. Haemophilus and Moraxella Infections", "163. Infections Due to the HACEK Group", "164. Legionella Infections", "165. Pertussis and Other Bordetella Infections", "166. Diseases Caused by Gram-Negative Enteric Bacilli", "167. Acinetobacter Infections", "168. Helicobacter pylori Infections", "169. Infections Due to Campylobacter", "170. Pseudomonas and Related Infections", "171. Salmonellosis", "172. Shigellosis", "173. Cholera and Other Vibrioses", "174. Brucellosis", "175. Tularemia", "176. Plague and Other Yersinia Infections", "177. Bartonella Infections", "178. Donovanosis", "179. Nocardiosis", "180. Actinomycosis", "181. Whipple Disease", "182. Infections Due to Mixed Anaerobic Organisms", "183. Tuberculosis", "184. Leprosy", "185. Nontuberculous Mycobacterial Infections", "186. Antimycobacterial Agents", "187. Syphilis", "188. Endemic Treponematoses", "189. Leptospirosis", "190. Relapsing Fever", "191. Lyme Borreliosis", "192. Rickettsial Diseases", "193. Infections Due to Mycoplasmas", "194. Chlamydial Infections", "195. Principles of Medical Virology", "196. Antiviral Chemotherapy", "197. Herpes Simplex Virus Infections", "198. Varicella-Zoster Virus Infections", "199. Epstein-Barr Virus Infections", "200. Cytomegalovirus and Human Herpesvirus", "201. Monkeypox and Other Poxvirus Infections", "202. Parvovirus Infections", "203. Human Papillomavirus Infections", "204. Common Viral Respiratory Infections", "205. SARS-CoV-2 and COVID-19", "206. Influenza", "207. The Human Retroviruses", "208. HIV Disease: AIDS and Related Disorders", "209. Viral Gastroenteritis", "210. Enterovirus, Parechovirus, and Reovirus Infections", "211. Measles (Rubeola)", "212. Rubella (German Measles)", "213. Mumps", "214. Rabies and Other Rhabdovirus Infections", "215. Arthropod-Borne and Rodent-Borne Virus Infections", "216. The Filovirids", "217. Fungal Infections: Pathogenesis and Treatment", "218. Histoplasmosis", "219. Coccidioidomycosis", "220. Blastomycosis", "221. Cryptococcosis", "222. Candidiasis", "223. Aspergillosis", "224. Mucormycosis", "225. Superficial Fungal Infections", "226. Uncommon Disseminated Fungal Infections", "227. Pneumocystis Infections", "228. Introduction to Parasitic Infections", "229. Agents Used to Treat Parasitic Infections", "230. Amebiasis and Free-Living Amebae", "231. Malaria", "232. Babesiosis", "233. Leishmaniasis", "234. Chagas Disease and African Trypanosomiasis", "235. Toxoplasma Infections", "236. Protozoal Intestinal Infections and Trichomoniasis", "237. Introduction to Helminthic Infections", "238. Trichinellosis and Tissue Nematodes", "239. Intestinal Nematode Infections", "240. Filarial and Related Infections", "241. Schistosomiasis and Other Trematode Infections", "242. Cestode Infections"]
+                },
+                {
+                    unit: "Part 6-14: Systemic Medicine",
+                    chapters: [
+                        "243. Approach to the Patient with Cardiovascular Disease", "244. Basic Biology of the Cardiovascular System", "245. Epidemiology of Cardiovascular Disease", "246. Physical Examination of the Cardiovascular System", "247. Electrocardiography", "248. Noninvasive Cardiac Imaging", "250. Principles of Clinical Cardiac Electrophysiology", "252. The Bradyarrhythmias: Atrioventricular Node", "256. Paroxysmal Supraventricular Tachycardias", "258. Atrial Fibrillation", "259. Approach to Ventricular Arrhythmias", "261. Sustained Ventricular Tachycardia", "264. Heart Failure: Pathophysiology and Diagnosis", "265. Heart Failure: Management", "266. Classification of Cardiomyopathy", "267. Genetic Cardiomyopathies", "269. Dilated Cardiomyopathies", "272. Aortic Stenosis", "273. Aortic Regurgitation", "274. Mitral Stenosis", "275. Mitral Regurgitation", "281. Pericardial Disease", "283. Cardiac Trauma", "284. Ischemic Heart Disease", "286. ST-Segment Elevation Myocardial Infarction", "288. Hypertension", "290. Deep-Venous Thrombosis and Pulmonary Thromboembolism", "291. Diseases of the Aorta", "292. Arterial Diseases of the Extremities", "294. Pulmonary Hypertension", "296. Disturbances of Respiratory Function", "297. Diagnostic Procedures in Respiratory Disease", "298. Asthma", "300. Occupational and Environmental Lung Disease", "301. Bronchiectasis", "303. Chronic Obstructive Pulmonary Disease", "304. Interstitial Lung Disease", "305. Disorders of the Pleura", "306. Disorders of the Mediastinum", "311. Approach to the Patient with Critical Illness", "312. Acute Respiratory Distress Syndrome", "313. Mechanical Ventilatory Support", "314. Approach to the Patient with Shock", "315. Sepsis and Septic Shock", "316. Cardiogenic Shock and Pulmonary Edema", "317. Cardiovascular Collapse, Cardiac Arrest, and Sudden Cardiac Death", "319. Approach to the Patient with Renal Disease", "322. Chronic Kidney Disease", "323. Dialysis in the Treatment of Kidney Failure", "326. Glomerular Diseases", "327. Polycystic Kidney Disease", "328. Tubulointerstitial Diseases of the Kidney", "330. Nephrolithiasis", "333. Gastrointestinal Endoscopy", "334. Diseases of the Esophagus", "335. Peptic Ulcer Disease and Related Disorders", "336. Disorders of Absorption", "337. Inflammatory Bowel Disease", "338. Irritable Bowel Syndrome", "344. Vitamin and Trace Mineral Deficiency", "345. Malnutrition and Nutritional Assessment", "346. Enteral and Parenteral Nutrition", "347. Approach to the Patient with Liver Disease", "348. Evaluation of Liver Function", "349. The Hyperbilirubinemias", "350. Acute Viral Hepatitis", "352. Chronic Hepatitis", "353. Alcohol-Associated Liver Disease", "355. Cirrhosis and Its Complications", "356. Liver Transplantation", "357. Diseases of the Gallbladder and Bile Ducts", "359. Acute and Chronic Pancreatitis", "360. Introduction to the Immune System", "362. Primary Immune Deficiency Diseases", "363. Urticaria, Angioedema, and Allergic Rhinitis", "367. Autoimmunity and Autoimmune Diseases", "368. Systemic Lupus Erythematosus", "370. Rheumatoid Arthritis", "371. Acute Rheumatic Fever", "374. Spondyloarthritis", "375. The Vasculitis Syndromes", "376. Behçet Syndrome", "377. Inflammatory Myopathies", "382. Approach to Articular and Musculoskeletal Disorders", "383. Osteoarthritis", "384. Gout and Other Crystal-Associated Arthropathies", "386. Arthritis Associated with Systemic Disease", "388. Approach to the Patient with Endocrine Disorders", "391. Hypopituitarism", "392. Pituitary Tumor Syndromes", "393. Disorders of the Neurohypophysis", "394. Thyroid Gland Physiology and Testing", "395. Hypothyroidism", "396. Hyperthyroidism", "397. Thyroid Nodular Disease and Thyroid Cancer", "398. Disorders of the Adrenal Cortex", "399. Pheochromocytoma", "400. Multiple Endocrine Neoplasia Syndromes", "402. Sex Development", "404. Disorders of the Female Reproductive System", "405. Menstrual Disorders and Pelvic Pain", "408. Infertility and Contraception", "413. Pathobiology of Obesity", "415. Diabetes Mellitus: Diagnosis, Classification, and Pathophysiology", "417. Diabetes Mellitus: Complications", "418. Hypoglycemia", "419. Disorders of Lipoprotein Metabolism", "420. The Metabolic Syndrome", "422. Disorders of the Parathyroid Gland and Calcium Homeostasis", "425. Heritable Disorders of Connective Tissue", "426. Hemochromatosis", "427. Wilson's Disease", "428. The Porphyrias", "430. Glycogen Storage Diseases", "431. Inherited Disorders of Amino Acid Metabolism", "433. Approach to the Patient with Neurologic Disease", "434. Neuroimaging in Neurologic Disorders", "435. Pathobiology of Neurologic Diseases", "437. Introduction to Cerebrovascular Diseases", "438. Ischemic Stroke", "440. Subarachnoid Hemorrhage", "441. Migraine and Other Primary Headache Disorders", "442. Alzheimer's Disease", "446. Parkinson's Disease", "447. Tremor, Chorea, and Other Movement Disorders", "451. Disorders of the Autonomic Nervous System", "452. Trigeminal Neuralgia, Bell's Palsy, and Other Cranial Nerve Disorders", "453. Diseases of the Spinal Cord", "455. Multiple Sclerosis", "457. Peripheral Neuropathy", "458. Guillain-Barré Syndrome", "459. Myasthenia Gravis", "463. Psychiatric Disorders", "464. Alcohol and Alcohol Use Disorders", "469. Heavy Metal Poisoning", "470. Poisoning and Drug Overdose", "471. Disorders Caused by Venomous Snakebites and Marine Animal Exposures"
+                    ]
+                },
+                {
+                    unit: "Part 15: Environmental Exposures",
+                    chapters: ["473. Health Effects of Climate Change", "474. Climate Change and Infectious Disease", "475. Altitude Illness", "476. Hyperbaric and Diving Medicine", "477. Hypothermia and Peripheral Cold Injuries", "478. Heat-Related Illnesses"]
+                },
+                {
+                    unit: "Part 16: Genes and Environment",
+                    chapters: ["479. Principles of Human Genetics", "480. The Integration of Inherited Genetics into Clinical Practice", "481. Mitochondrial DNA and Heritable Traits and Diseases", "482. Telomere Disease", "483. Gene and Cell-Based Therapy in Clinical Medicine", "484. The Human Microbiome in Health and Disease"]
+                },
+                {
+                    unit: "Part 17-20: Global, Aging & Emerging Topics",
+                    chapters: ["485. Global Issues in Medicine", "486. Emerging and Re-Emerging Infectious Diseases", "487. Primary Care and Global Health", "488. Biology of Aging", "489. Caring for the Geriatric Patient", "490. Approach to Medical Consultation", "491. Medical Disorders During Pregnancy", "492. Medical Evaluation of the Patient Undergoing Noncardiac Surgery", "493. Point-of-Care Ultrasound", "494. Improving Health and Health Care Using Behavioral Economics", "495. Complementary and Integrative Therapies", "496. Placebo and Nocebo Effects", "497. The Role of Epigenetics", "498. The Role of Circadian Biology", "499. Network Medicine", "500. Emerging Neurotherapeutic Technologies", "501. Machine Learning and Augmented Intelligence", "502. Metabolomics", "503. Circulating Nucleic Acids as Liquid Biopsies", "504. Protein Folding Disorders", "505. Novel Approaches to Diseases of Unknown Etiology"]
+                }
+            ],
             "surgery": [
                 { 
                     unit: "Unit A. General Surgery & Embryology", 
@@ -1003,18 +1005,15 @@
             try {
                 const user = auth.currentUser;
                 if(user) {
-                    // 1. Fetch user bookmarks
                     const bSnap = await get(ref(db, `users/${user.uid}/bookmarks`));
                     window.userBookmarks = Object.keys(bSnap.val() || {});
 
-                    // 2. Load cached attempts from LocalStorage for instant rendering
                     const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
                     const localCache = localStorage.getItem(cacheKey);
                     if (localCache) {
                         try { window.deckState.userStatus = JSON.parse(localCache) || {}; } catch(e){}
                     }
 
-                    // 3. Fetch confirmed attempts from Firebase Cloud
                     const solvedSnap = await get(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}`));
                     const cloudSolved = solvedSnap.val() || {};
                     for (let qid in cloudSolved) {
@@ -1029,21 +1028,19 @@
                 if (snapshot.exists()) {
                     processData(snapshot.val());
                     
-                    // CHECK FOR SAVED RESUME STATE
                     if (user) {
                         const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
                         const savedIndex = parseInt(localStorage.getItem(indexKey));
                         
-                        // If they have a saved index > 0, ask to resume
                         if (!isNaN(savedIndex) && savedIndex > 0 && savedIndex < window.deckState.activeDb.length) {
                             window.tempSavedIndex = savedIndex;
                             document.getElementById('resume-q-num').innerText = savedIndex + 1;
                             document.getElementById('resume-prompt-overlay').style.display = 'flex';
                         } else {
-                            if (!window.deckState.isOpen) window.UD_toggleMode(); // Start fresh
+                            if (!window.deckState.isOpen) window.UD_toggleMode();
                         }
                     } else {
-                        if (!window.deckState.isOpen) window.UD_toggleMode(); // Start fresh for guests
+                        if (!window.deckState.isOpen) window.UD_toggleMode();
                     }
 
                 } else {
@@ -1071,15 +1068,56 @@
             window.appData = rawData.filter(item => item !== null).map((item, i) => {
                 let chapterMatch = "Uncategorized";
                 
-                // SAFELY HANDLE ARRAYS: Convert arrays to strings if necessary
                 let topicStr = Array.isArray(item.topic) ? item.topic.join(', ') : (item.topic || "");
                 let subjectStr = Array.isArray(item.subject) ? item.subject.join(', ') : (item.subject || "");
-                
-                for(let c of flatChapters) {
-                    let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
-                    let targetText = (topicStr + " " + subjectStr).toLowerCase();
-                    if(targetText.includes(coreName)) {
-                        chapterMatch = c; break;
+                let targetText = (topicStr + " " + subjectStr);
+
+                if (activeSubject === "medicine") {
+                    // === MASSIVE EXCELLENT TAGGING SYSTEM (MEDICINE ONLY) ===
+                    let matchedTopics = [];
+                    
+                    // Safely extract all explicit tags applied to this question
+                    let rawTags = [];
+                    if (Array.isArray(item.subject)) rawTags.push(...item.subject);
+                    else if (typeof item.subject === 'string' && item.subject) rawTags.push(...item.subject.split(',').map(s=>s.trim()));
+                    
+                    if (Array.isArray(item.topic)) rawTags.push(...item.topic);
+                    else if (typeof item.topic === 'string' && item.topic) rawTags.push(...item.topic.split(',').map(s=>s.trim()));
+
+                    rawTags.forEach(tag => {
+                        // 1. Direct exact match
+                        let exactMatch = flatChapters.find(c => c.toLowerCase() === tag.toLowerCase());
+                        if (exactMatch && !matchedTopics.includes(exactMatch)) {
+                            matchedTopics.push(exactMatch);
+                        } else {
+                            // 2. Strict Word-Boundary Regex Match (prevents "Edema" matching "Pulmonary Edema")
+                            for(let c of flatChapters) {
+                                let coreName = c.includes(".") ? c.split(".")[1].trim() : c;
+                                let escapedCoreName = coreName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                let regex = new RegExp(`\\b${escapedCoreName}\\b`, "i");
+                                
+                                if(regex.test(tag)) {
+                                    if(!matchedTopics.includes(c)) matchedTopics.push(c);
+                                }
+                            }
+                        }
+                    });
+                    
+                    if(matchedTopics.length === 0) {
+                        matchedTopics.push("Uncategorized");
+                    }
+                    chapterMatch = matchedTopics; // Stores as an Array for Medicine
+                } else {
+                    // === LEGACY LOGIC (ALL OTHER SUBJECTS: SAFE & UNTOUCHED) ===
+                    targetText = targetText.toLowerCase();
+                    for(let c of flatChapters) {
+                        let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
+                        if(targetText.includes(coreName)) {
+                            chapterMatch = c; break;
+                        }
+                    }
+                    if (chapterMatch === "Uncategorized") {
+                        chapterMatch = (topicStr || subjectStr ? (topicStr || subjectStr).split(',')[0].trim() : "General");
                     }
                 }
                 
@@ -1088,17 +1126,15 @@
 
                 return { 
                     ...item, 
-                    topic: chapterMatch !== "Uncategorized" ? chapterMatch : (topicStr || subjectStr ? (topicStr || subjectStr).split(',')[0].trim() : "General"), 
+                    topic: chapterMatch, 
                     year: fullYear,
                     uid: item.q || ("Q" + i)
                 };
             });
 
-            // --- UPDATED ALPHABETICAL SORTING LOGIC ---
             const uniqueYears = [...new Set(window.appData.map(i => i.year))]
                 .filter(y => y && y !== "Unknown")
                 .sort((a, b) => a.localeCompare(b));
-            // ------------------------------------------
 
             buildSynchronizedFilters(flatChapters, uniqueYears, window.nestedCurriculum);
             
@@ -1106,64 +1142,62 @@
             window.SYNC_applyFilters();
 
             // --- INDEPENDENT SPACED REPETITION ENGINE ---
-        window.calculateNextReviewDate = function(currentStep) {
-            const targetDateStr = localStorage.getItem('medpyq_target_date');
-            const now = Date.now();
-            const msPerDay = 24 * 60 * 60 * 1000;
-            let daysRemaining = 90; 
-            if (targetDateStr) {
-                const targetTime = new Date(targetDateStr).getTime();
-                daysRemaining = Math.max(1, (targetTime - now) / msPerDay);
-            }
-            let nextIntervalDays = 1;
-            if (currentStep === 1) nextIntervalDays = 1; 
-            else if (currentStep === 2) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.10)); 
-            else if (currentStep === 3) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.20)); 
-            else if (currentStep >= 4) nextIntervalDays = 21; 
-            return now + (nextIntervalDays * msPerDay);
-        };
+            window.calculateNextReviewDate = function(currentStep) {
+                const targetDateStr = localStorage.getItem('medpyq_target_date');
+                const now = Date.now();
+                const msPerDay = 24 * 60 * 60 * 1000;
+                let daysRemaining = 90; 
+                if (targetDateStr) {
+                    const targetTime = new Date(targetDateStr).getTime();
+                    daysRemaining = Math.max(1, (targetTime - now) / msPerDay);
+                }
+                let nextIntervalDays = 1;
+                if (currentStep === 1) nextIntervalDays = 1; 
+                else if (currentStep === 2) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.10)); 
+                else if (currentStep === 3) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.20)); 
+                else if (currentStep >= 4) nextIntervalDays = 21; 
+                return now + (nextIntervalDays * msPerDay);
+            };
 
-      window.toggleBookmark = async function(btn, q_id, exam, subject) {
-            const user = auth.currentUser;
-            if (!user) { alert("Session lost. Please log in again."); return; }
+            window.toggleBookmark = async function(btn, q_id, exam, subject) {
+                const user = auth.currentUser;
+                if (!user) { alert("Session lost. Please log in again."); return; }
 
-            const isSaved = window.userBookmarks.includes(q_id);
+                const isSaved = window.userBookmarks.includes(q_id);
 
-            if (isSaved) {
-                if(confirm("Remove this question from your Active Recall deck?")) {
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+                if (isSaved) {
+                    if(confirm("Remove this question from your Active Recall deck?")) {
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+                        try {
+                            await set(ref(db, `users/${user.uid}/bookmarks/${q_id}`), null);
+                            window.userBookmarks = window.userBookmarks.filter(id => id !== q_id); 
+                            
+                            btn.innerHTML = '<i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs';
+                            btn.style.color = '#0f2b52';
+                            btn.style.borderColor = '#cbd5e1';
+                            btn.style.background = 'transparent';
+                        } catch (e) {
+                            console.error(e); alert("Error removing bookmark.");
+                        }
+                    }
+                } else {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                     try {
-                        await set(ref(db, `users/${user.uid}/bookmarks/${q_id}`), null);
-                        window.userBookmarks = window.userBookmarks.filter(id => id !== q_id); // Remove from local memory
+                        const bookmarkRef = ref(db, `users/${user.uid}/bookmarks/${q_id}`);
+                        const nextReview = window.calculateNextReviewDate(1);
+                        await set(bookmarkRef, { exam: exam, subject: subject, current_step: 1, next_review_date: nextReview });
                         
-                        // Revert Button UI
-                        btn.innerHTML = '<i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs';
-                        btn.style.color = '#0f2b52';
-                        btn.style.borderColor = '#cbd5e1';
-                        btn.style.background = 'transparent';
-                    } catch (e) {
-                        console.error(e); alert("Error removing bookmark.");
+                        window.userBookmarks.push(q_id); 
+                        
+                        btn.innerHTML = '<i class="fas fa-check" style="color:#16a34a;"></i> Saved';
+                        btn.style.color = '#16a34a';
+                        btn.style.borderColor = '#bbf7d0';
+                        btn.style.background = '#f0fdf4';
+                    } catch (error) {
+                        console.error(error); alert("Error saving.");
                     }
                 }
-            } else {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                try {
-                    const bookmarkRef = ref(db, `users/${user.uid}/bookmarks/${q_id}`);
-                    const nextReview = window.calculateNextReviewDate(1);
-                    await set(bookmarkRef, { exam: exam, subject: subject, current_step: 1, next_review_date: nextReview });
-                    
-                    window.userBookmarks.push(q_id); // Add to local memory
-                    
-                    // Upgrade Button UI to Green
-                    btn.innerHTML = '<i class="fas fa-check" style="color:#16a34a;"></i> Saved';
-                    btn.style.color = '#16a34a';
-                    btn.style.borderColor = '#bbf7d0';
-                    btn.style.background = '#f0fdf4';
-                } catch (error) {
-                    console.error(error); alert("Error saving.");
-                }
-            }
-        };
+            };
         }
 
         // ==========================================
@@ -1271,7 +1305,6 @@
         window.SYNC_toggleSaved = function() {
             window.filterState.savedOnly = !window.filterState.savedOnly;
             
-            // Update Table Button UI
             const btn = document.getElementById('btn-filter-saved');
             if(btn) {
                 if(window.filterState.savedOnly) {
@@ -1281,7 +1314,6 @@
                 }
             }
             
-            // Update Deck Checkbox UI
             const chk = document.getElementById('deck-chk-saved');
             if(chk) chk.checked = window.filterState.savedOnly;
 
@@ -1291,7 +1323,6 @@
         window.SYNC_setAttemptFilter = function(status) {
             window.filterState.attemptStatus = status;
             
-            // Sync both dropdowns (Table View and Deck Drawer)
             const mainSelect = document.getElementById('filter-attempt-status');
             const deckSelect = document.getElementById('deck-filter-attempt-status');
             if (mainSelect) mainSelect.value = status;
@@ -1317,11 +1348,8 @@
             window.SYNC_applyFilters();
         };
 
-        // --- RESUME SESSION LOGIC ---
         window.saveCurrentIndex = function() {
             const user = auth.currentUser;
-            // Only save the index if the user is looking at the FULL list (no filters applied).
-            // Otherwise, an index of '5' on a filtered list would load the wrong question when they return.
             if (user && window.deckState.activeDb.length === window.appData.length) {
                 const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
                 localStorage.setItem(indexKey, window.deckState.currentIndex);
@@ -1346,11 +1374,16 @@
         window.SYNC_applyFilters = function() {
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
-                const matchesChapter = window.filterState.chapters.length === 0 || window.filterState.chapters.includes(item.topic);
+                
+                // === SMART ARRAY INTERSECTION FILTER (Fixes Vanishing Bug) ===
+                const matchesChapter = window.filterState.chapters.length === 0 || 
+                    (Array.isArray(item.topic) 
+                        ? window.filterState.chapters.some(selectedChap => item.topic.includes(selectedChap))
+                        : window.filterState.chapters.includes(item.topic));
+
                 const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
                 const matchesSaved = !window.filterState.savedOnly || window.userBookmarks.includes(item.uid);
                 
-                // Status Attempt Filter
                 let matchesStatus = true;
                 const userAns = window.deckState.userStatus[item.uid];
                 if (window.filterState.attemptStatus === 'unattempted') {
@@ -1387,7 +1420,18 @@
                 }).join('');
 
                 const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                let displayChapter = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
+                
+                // === SMART MULTI-BADGE GENERATOR FOR TABLE ===
+                let displayChapterHtml = "";
+                if (Array.isArray(item.topic)) {
+                    displayChapterHtml = item.topic.map(t => {
+                        let name = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
+                        return `<span style="display:inline-block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; margin-right:4px; font-weight:bold; text-transform:uppercase;">${name}</span>`;
+                    }).join('');
+                } else {
+                    let name = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
+                    displayChapterHtml = `<span style="display:inline-block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${name}</span>`;
+                }
 
                 html += `<tr>
                     <td><strong style="color:#64748b;">${item.uid}</strong></td>
@@ -1397,8 +1441,9 @@
                         <div class="opt-grid">${opts}</div>
                     </td>
                     <td style="text-align:center;">
-                        <span style="display:block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${displayChapter}</span>
-                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0;">${item.year}</div>
+                        <div style="margin-bottom:5px;">${displayChapterHtml}</div>
+                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0; display:inline-block;">${item.year}</div>
+                        <br>
                         <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
                         ${window.userBookmarks.includes(item.uid) 
                             ? `<button class="btn-ask-ai" onclick="window.toggleBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; margin-top: 5px;"><i class="fas fa-check" style="color: #16a34a;"></i> Saved</button>`
@@ -1422,7 +1467,6 @@
         function initUniversalDeck(data) {
             window.deckState.activeDb = [...data];
             window.deckState.currentIndex = 0;
-            // Preserves existing userStatus loaded during fetchData()
         }
 
         window.UD_toggleMode = function() {
@@ -1475,12 +1519,21 @@
                 return `<div class="ud-option ${statusClass}" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
             }).join('');
             
-            let displayChapter = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
+            // === SMART MULTI-BADGE GENERATOR FOR DECK ===
+            let displayChapterHtml = "";
+            if (Array.isArray(q.topic)) {
+                displayChapterHtml = q.topic.map(t => {
+                    let name = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
+                    return `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; margin-bottom:5px; margin-right:5px; display:inline-block;">${name}</span>`;
+                }).join('');
+            } else {
+                let name = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
+                displayChapterHtml = `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; display:inline-block;">${name}</span>`;
+            }
 
             area.innerHTML = `
             <div class="ud-card">
                 <div class="ud-card-top">
-                   <!-- CHANGED: Top left now shows the dynamic Question Number -->
                    <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
                    
                    <div style="display:flex; gap:8px;">
@@ -1496,11 +1549,10 @@
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
                 <div id="ud-opts">${optsHtml}</div>
                 
-            <!-- Badges and Reset Option -->
                 <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <span class="ud-label" style="background:white; border: 1px solid #0f2b52; color:#0f2b52;">${q.uid}</span>
-                        <span class="ud-label" style="background:#e0f2fe;color:#0369a1">${displayChapter}</span>
+                        ${displayChapterHtml}
                         <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
                     </div>
                     ${window.deckState.userStatus[q.uid] ? `<button onclick="window.UD_resetAnswer('${q.uid}')" style="background:none; border:none; color:#ef4444; font-size:0.8rem; font-weight:bold; cursor:pointer; text-decoration:underline;"><i class="fas fa-rotate-left"></i> Reset Question</button>` : ''}
@@ -1508,7 +1560,6 @@
                 
                 <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
                 
-                <!-- PEER DISCUSSION SECTION -->
                 <div style="margin-top: 15px; display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'};">
                     <button onclick="window.UD_toggleComments('${q.uid}')" style="background:#f8fafc; color:#0f2b52; border:1px solid #e2e8f0; padding:12px 15px; border-radius:8px; font-weight:bold; font-size:0.9rem; cursor:pointer; width:100%; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
                         <span><i class="fas fa-comments" style="color:#eebb4d; margin-right:8px; font-size:1.1rem;"></i> Peer Discussion & Mnemonics</span>
@@ -1525,7 +1576,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>`;
             
             document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
@@ -1533,18 +1583,15 @@
         };
 
         window.UD_checkAns = function(el, selectedOption, correctOption, id) {
-            if (window.deckState.userStatus[id]) return; // Already answered
+            if (window.deckState.userStatus[id]) return; 
             
-            // 1. Update in-memory state
             window.deckState.userStatus[id] = selectedOption;
 
-            // 2. Persist to LocalStorage for zero-latency instant offline access
             const user = auth.currentUser;
             if (user) {
                 const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
                 localStorage.setItem(cacheKey, JSON.stringify(window.deckState.userStatus));
 
-                // 3. Write attempt to Firebase Database in background
                 const isCorrect = (selectedOption === correctOption);
                 set(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}/${id}`), {
                     ans: selectedOption,
@@ -1556,7 +1603,6 @@
             window.UD_renderCard();
         };
 
-        // Reset option so students can retry incorrectly answered questions
         window.UD_resetAnswer = function(id) {
             delete window.deckState.userStatus[id];
             const user = auth.currentUser;
@@ -1568,7 +1614,6 @@
             window.UD_renderCard();
         };
 
-// --- WIPE ENTIRE SUBJECT PROGRESS ---
         window.resetAllProgress = async function() {
             const user = auth.currentUser;
             if (!user) {
@@ -1576,28 +1621,21 @@
                 return;
             }
 
-            // 1. Confirm with the user (this is a destructive action)
             const confirmReset = confirm(`Are you sure you want to delete all your answers for ${window.medpyqSubject}? This cannot be undone.`);
             if (!confirmReset) return;
 
-            // 2. Clear the In-Memory State
             window.deckState.userStatus = {};
 
-            // 3. Clear LocalStorage for this specific subject
             const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
             localStorage.removeItem(cacheKey);
 
-            // 4. Wipe the saved index so the "Resume" modal doesn't trigger
             const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
             localStorage.removeItem(indexKey);
             window.deckState.currentIndex = 0;
 
-            // 5. Delete the entire node from Firebase Database
             try {
                 await set(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}`), null);
                 alert("Progress successfully reset!");
-                
-                // 6. Reset Filters and Re-render the UI
                 window.SYNC_resetFilters();
             } catch (err) {
                 console.error("Error resetting progress:", err);
@@ -1629,16 +1667,12 @@
         window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); window.saveCurrentIndex(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
-// ==========================================
-        // COMMUNITY DISCUSSION ENGINE
-        // ==========================================
         window.UD_toggleComments = async function(q_id) {
             const box = document.getElementById('ud-comments-box');
             if (box.style.display === 'none') {
                 box.style.display = 'block';
                 const list = document.getElementById('ud-comments-list');
                 
-                // Attach real-time Firebase listener
                 onValue(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}`), (snapshot) => {
                     const data = snapshot.val();
                     if (!data) {
@@ -1650,21 +1684,17 @@
                     const currentUser = auth.currentUser;
                     const isAdmin = currentUser && ADMIN_EMAILS.includes(currentUser.email);
                     
-                    // Map keys to preserve the unique Comment ID so we can edit/delete them later
                     const comments = Object.keys(data).map(key => ({ ...data[key], id: key })).sort((a,b) => a.timestamp - b.timestamp);
                     
                     comments.forEach(c => {
                         const dateStr = new Date(c.timestamp).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-                        // Differentiate the current user visually
                         const isMe = currentUser && c.uid === currentUser.uid;
                         const badgeHtml = c.author.includes('Admin') ? `<span style="background:#fee2e2; color:#dc2626; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:5px; font-weight:800;">ADMIN</span>` : '';
                         
-                        // Action buttons (Edit for author only; Delete for author OR admin)
                         let actionsHtml = '';
                         if (isMe || isAdmin) {
                             actionsHtml += `<div style="display:flex; gap:12px; margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1;">`;
                             if (isMe) {
-                                // Escape quotes safely for the inline function
                                 const safeText = c.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                                 actionsHtml += `<button onclick="window.UD_editComment('${q_id}', '${c.id}', '${safeText}')" style="background:none; border:none; color:#0ea5e9; font-size:0.75rem; font-weight:bold; cursor:pointer; padding:0; transition:0.2s;"><i class="fas fa-edit"></i> Edit</button>`;
                             }
@@ -1684,7 +1714,7 @@
                     });
                     
                     list.innerHTML = html;
-                    list.scrollTop = list.scrollHeight; // Auto-scroll to latest comment
+                    list.scrollTop = list.scrollHeight;
                 });
             } else {
                 box.style.display = 'none';
@@ -1709,18 +1739,16 @@
             const commentId = 'C_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             let authorName = user.displayName || user.email.split('@')[0];
             
-            // Add Admin visual tag securely if an admin posts
             if (ADMIN_EMAILS.includes(user.email)) authorName += " (Admin)";
 
             try {
-                // Save comment to Firebase
                 await set(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}/${commentId}`), {
                     author: authorName,
                     uid: user.uid,
                     text: text,
                     timestamp: Date.now()
                 });
-                input.value = ''; // Clear input field
+                input.value = ''; 
             } catch(e) {
                 console.error(e);
                 alert("Failed to post comment. Check your connection.");
@@ -1730,14 +1758,10 @@
             }
         };
 
-// --- EDIT COMMENT ---
         window.UD_editComment = async function(q_id, commentId, oldText) {
             const newText = prompt("Edit your comment:", oldText);
-            
-            // Validate: Only update if text is changed and not empty
             if (newText !== null && newText.trim() !== "" && newText.trim() !== oldText) {
                 try {
-                    // Update only the text field in Firebase (preserves author/timestamp)
                     await set(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}/${commentId}/text`), newText.trim());
                 } catch (e) {
                     console.error(e);
@@ -1746,11 +1770,9 @@
             }
         };
 
-        // --- DELETE COMMENT ---
         window.UD_deleteComment = async function(q_id, commentId) {
             if (confirm("Are you sure you want to delete this comment?")) {
                 try {
-                    // Setting a Firebase node to null deletes it entirely
                     await set(ref(db, `comments/${activeExam}/${activeSubject}/${q_id}/${commentId}`), null);
                 } catch (e) {
                     console.error(e);
@@ -1758,9 +1780,6 @@
                 }
             }
         };
-        // ==========================================
-        // UTILITIES (AI, Share, Report)
-        // ==========================================
 
         window.UD_askAI_Global = function(item) {
             if(!item) return;
@@ -1835,6 +1854,7 @@
         };
 
     </script>
+
 
     <!-- Image Lightbox Overlay -->
 <div id="lightbox" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; touch-action:none;">
