@@ -172,7 +172,8 @@
         body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
         body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
   /* --- IMAGE PROTECTION FOR NON-ADMINS --- */
-        body:not(.admin-mode) img {
+        body:not(.admin-mode) img,
+        body:not(.admin-mode) a.img-link {
             -webkit-touch-callout: none; /* Disables mobile long-press context menu */
             -webkit-user-drag: none;     /* Disables desktop click-and-drag */
             user-select: none;           /* Disables highlighting */
@@ -1556,7 +1557,7 @@
                     <td><strong style="color:#64748b;">${item.uid}</strong></td>
                     <td>
                         <div style="font-weight:600; margin-bottom:10px; font-size: 1rem; color:#1e293b;">${item.stem}</div>
-                        ${item.img ? `<img src="${item.img}" class="q-img" onclick="openLightbox(this.src)">` : ''}
+                        ${item.img ? `<a href="${item.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${item.img}')"><img src="${item.img}" class="q-img"></a>` : ''}
                         <div class="opt-grid">${opts}</div>
                     </td>
                     <td style="text-align:center;">
@@ -1624,7 +1625,7 @@
             const q = window.deckState.activeDb[window.deckState.currentIndex];
             window.currentQIDForReport = q.uid;
 
-            let imgHtml = q.img ? `<img src="${q.img}" class="ud-img" onclick="openLightbox(this.src)">` : '';
+            let imgHtml = q.img ? `<a href="${q.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${q.img}')"><img src="${q.img}" class="ud-img"></a>` : '';
             let optsHtml = q.options.map((o,i) => {
                 let c = String.fromCharCode(65+i);
                 let statusClass = '';
@@ -1973,7 +1974,7 @@
         };
 // --- BLOCK NATIVE BROWSER IMAGE OPTIONS FOR NON-ADMINS ---
         document.addEventListener('contextmenu', function(e) {
-            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+            if (e.target && (e.target.tagName.toLowerCase() === 'img' || e.target.classList.contains('img-link'))) {
                 if (!window.isAdminUser) {
                     e.preventDefault(); // Blocks right-click menu for users
                 }
@@ -1981,7 +1982,7 @@
         }, false);
 
         document.addEventListener('dragstart', function(e) {
-            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+            if (e.target && (e.target.tagName.toLowerCase() === 'img' || e.target.classList.contains('img-link'))) {
                 if (!window.isAdminUser) {
                     e.preventDefault(); // Blocks click-and-drag to desktop for users
                 }
