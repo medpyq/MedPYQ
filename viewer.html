@@ -171,6 +171,12 @@
         body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
         body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
         body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
+  /* --- IMAGE PROTECTION FOR NON-ADMINS --- */
+        body:not(.admin-mode) img {
+            -webkit-touch-callout: none; /* Disables mobile long-press context menu */
+            -webkit-user-drag: none;     /* Disables desktop click-and-drag */
+            user-select: none;           /* Disables highlighting */
+        }                                    
     </style>
     <!-- BROKEN IMAGE SAFETY NET -->
     <style>
@@ -378,7 +384,7 @@
         window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false, attemptStatus: "all" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
         window.nestedCurriculum = null;
-        
+        window.isAdminUser = false; 
         // --- TEXT RESIZING LOGIC ---
         window.currentTextSize = parseInt(localStorage.getItem('medpyq_text_size')) || 0;
         window.applyTextSize = function(level) {
@@ -1012,6 +1018,12 @@
                 }
 
                 const isAdmin = ADMIN_EMAILS.includes(user.email);
+                
+                // Track admin status globally for image protection
+                window.isAdminUser = isAdmin;
+                if (isAdmin) document.body.classList.add('admin-mode');
+                else document.body.classList.remove('admin-mode');
+
                 if (isAdmin) {
                     grantAccess();
                 } else {
@@ -1959,7 +1971,22 @@
                 setTimeout(() => { iframe.remove(); form.remove(); }, 1000);
             }, 1000);
         };
+// --- BLOCK NATIVE BROWSER IMAGE OPTIONS FOR NON-ADMINS ---
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+                if (!window.isAdminUser) {
+                    e.preventDefault(); // Blocks right-click menu for users
+                }
+            }
+        }, false);
 
+        document.addEventListener('dragstart', function(e) {
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+                if (!window.isAdminUser) {
+                    e.preventDefault(); // Blocks click-and-drag to desktop for users
+                }
+            }
+        }, false);
     </script>
 
     <!-- Image Lightbox Overlay -->
