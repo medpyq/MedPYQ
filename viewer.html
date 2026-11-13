@@ -1317,3 +1317,739 @@
                 "21. Cardiopulmonary Resuscitation"
             ]
         };
+// --- CROSS-EXAM HELPERS & ADMIN 4-EXAM PRELOADER ---
+        window.examBanks = {
+            'neet-pg': [],
+            'inicet': [],
+            'upsc-cms': [],
+            'fmge': []
+        };
+
+        window.inferExamFromQid = function(qid) {
+            if (!qid) return activeExam;
+            const s = String(qid).trim().toUpperCase();
+            if (window.allExamLookup[s] && window.allExamLookup[s].examKey) {
+                return window.allExamLookup[s].examKey;
+            }
+            if (s.startsWith('INI') || s.startsWith('IN')) return 'inicet';
+            if (s.startsWith('CMS') || s.startsWith('UPSC')) return 'upsc-cms';
+            if (s.startsWith('FMGE') || s.startsWith('F')) return 'fmge';
+            if (s.startsWith('N')) return 'neet-pg';
+            return activeExam;
+        };
+
+        window.normalizeQuestionItem = function(item, i, examKey) {
+            let fullYear = item.exam || examKey.toUpperCase();
+            if (item.year_paper) fullYear += " " + item.year_paper;
+            const uid = String(item.q || ("Q" + i)).trim();
+            let topicVal = item.topic || item.subject || "General";
+            return {
+                ...item,
+                uid: uid,
+                examKey: examKey,
+                topic: topicVal,
+                year: item.year || fullYear,
+                options: Array.isArray(item.options) ? item.options : ["Option A", "Option B", "Option C", "Option D"]
+            };
+        };
+
+        window.resolveQuestionByQid = function(qid) {
+            if (!qid) return null;
+            const cleanId = String(qid).trim();
+            const upperId = cleanId.toUpperCase();
+
+            // 1. Check current active appData first
+            const localMatch = window.appData.find(item => String(item.uid).trim().toUpperCase() === upperId);
+            if (localMatch) return localMatch;
+
+            // 2. Check preloaded cross-exam lookup
+            if (window.allExamLookup[upperId]) return window.allExamLookup[upperId];
+
+            // 3. Fallback placeholder so UI never breaks if a linked QID is in another unindexed bank
+            const guessedExam = window.inferExamFromQid(cleanId);
+            return {
+                uid: cleanId,
+                q: cleanId,
+                examKey: guessedExam,
+                stem: `Linked Question (${cleanId})`,
+                options: ["Option A", "Option B", "Option C", "Option D"],
+                ans_key: "A",
+                topic: "Linked Sub-Topic",
+                year: guessedExam.toUpperCase(),
+                explanation: "Detailed explanation for " + cleanId
+            };
+        };
+
+        window.subscribeCrossLinks = function() {
+            const linksRef = ref(db, `cross_links/${activeSubject}`);
+            onValue(linksRef, (snapshot) => {
+                const val = snapshot.val() || {};
+                const rawNodes = val.nodes || {};
+                const normalizedNodes = {};
+                Object.keys(rawNodes).forEach(k => {
+                    const arr = Array.isArray(rawNodes[k]) ? rawNodes[k] : Object.values(rawNodes[k] || {});
+                    normalizedNodes[String(k).trim().toUpperCase()] = arr.map(x => String(x).trim()).filter(Boolean);
+                });
+                window.crossLinksMap = normalizedNodes;
+
+                const rawHist = val.history || [];
+                const histArr = Array.isArray(rawHist) ? rawHist : Object.values(rawHist);
+                window.crossLinksHistory = histArr.filter(Boolean).slice(0, 10);
+
+                if (document.getElementById('admin-link-modal').style.display === 'flex') {
+                    window.ADMIN_renderHistory();
+                }
+                if (window.deckState.isOpen) {
+                    if (window.deckState.fanViewOpen) {
+                        window.TP_renderFanView();
+                    } else {
+                        window.UD_renderCard(false);
+                    }
+                }
+            });
+        };
+
+        window.preloadAdminExamBanks = async function() {
+            const exams = ['neet-pg', 'inicet', 'upsc-cms', 'fmge'];
+            await Promise.all(exams.map(async (ex) => {
+                try {
+                    const snap = await get(ref(db, `question_banks/${ex}/${activeSubject}`));
+                    if (snap.exists()) {
+                        const raw = snap.val();
+                        const arr = (Array.isArray(raw) ? raw : Object.values(raw)).filter(Boolean);
+                        const normalized = arr.map((item, idx) => window.normalizeQuestionItem(item, idx, ex));
+                        window.examBanks[ex] = normalized;
+                        normalized.forEach(qObj => {
+                            const key = String(qObj.uid).trim().toUpperCase();
+                            if (!window.allExamLookup[key] || ex === activeExam) {
+                                window.allExamLookup[key] = qObj;
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.warn(`Admin preload failed for ${ex}:`, e);
+                }
+            }));
+            if (window.deckState.isOpen && window.deckState.fanViewOpen) {
+                window.TP_renderFanView();
+            }
+        };
+
+        // --- SECURITY CHECK & AUTHENTICATION (2-DEVICE POOL) ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                window.currentUserUid = user.uid;
+                let localSessionId = localStorage.getItem('medpyq_session_id');
+                if (!localSessionId) {
+                    localSessionId = 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('medpyq_session_id', localSessionId);
+                }
+                
+                const sessionsRef = ref(db, `users/${user.uid}/active_sessions`);
+
+                try {
+                    const snap = await get(sessionsRef);
+                    let sessions = snap.val() || {};
+                    sessions[localSessionId] = Date.now();
+
+                    // Maintain max 2 concurrent devices
+                    let keys = Object.keys(sessions);
+                    if (keys.length > 2) {
+                        keys.sort((a, b) => sessions[a] - sessions[b]);
+                        while (keys.length > 2) {
+                            delete sessions[keys.shift()];
+                        }
+                    }
+
+                    await set(sessionsRef, sessions);
+
+                    onValue(sessionsRef, (liveSnapshot) => {
+                        const activeSessions = liveSnapshot.val() || {};
+                        const conflictEl = document.getElementById('session-conflict-overlay');
+                        if (!activeSessions[localSessionId]) {
+                            if (conflictEl) conflictEl.style.display = 'flex';
+                            signOut(auth);
+                        } else {
+                            if (conflictEl) conflictEl.style.display = 'none';
+                        }
+                    });
+
+                    window.forceLogout = function() {
+                        sessions[localSessionId] = Date.now();
+                        set(sessionsRef, sessions).then(() => location.reload());
+                    };
+                } catch (err) {
+                    console.error("Session sync error:", err);
+                }
+
+                const isAdmin = ADMIN_EMAILS.includes(user.email);
+                
+                // Track admin status globally for image protection & extended Teen Patti decks
+                window.isAdminUser = isAdmin;
+                if (isAdmin) document.body.classList.add('admin-mode');
+                else document.body.classList.remove('admin-mode');
+
+                if (isAdmin) {
+                    grantAccess();
+                } else {
+                    try {
+                        const snapshot = await get(ref(db, `users/${user.uid}`));
+                        const userData = snapshot.val();
+                        const now = Date.now();
+                        
+                        if (userData && userData.accessLevel === 'pro' && userData.planExpiry > now) {
+                            grantAccess();
+                        } else {
+                            denyAccess("Subscription Expired", "Your Pro subscription is not active. Please renew from the homepage.");
+                        }
+                    } catch (error) {
+                        console.error("Error verifying subscription:", error);
+                        denyAccess("Verification Error", "Error verifying subscription. Please refresh the page.");
+                    }
+                }
+            } else {
+                denyAccess("Pro Access Required", "Please log in from the homepage to access this Question Bank.");
+            }
+        });
+
+        function grantAccess() {
+            document.getElementById('paywall-overlay').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('view-toggle-btn').style.display = 'flex';
+            window.subscribeCrossLinks();
+            if (window.isAdminUser) {
+                window.preloadAdminExamBanks();
+            }
+            fetchData();
+        }
+
+        function denyAccess(title, message) {
+            document.getElementById('paywall-overlay').style.display = 'flex';
+            document.getElementById('paywall-title').innerText = title;
+            document.getElementById('paywall-text').innerText = message;
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('view-toggle-btn').style.display = 'none';
+        }
+
+        window.userBookmarks = [];
+
+        async function fetchData() {
+            try {
+                const user = auth.currentUser;
+                if(user) {
+                    const bSnap = await get(ref(db, `users/${user.uid}/bookmarks`));
+                    window.userBookmarks = Object.keys(bSnap.val() || {});
+
+                    const cacheKey = `medpyq_solved_${user.uid}_${activeExam}_${activeSubject}`;
+                    const localCache = localStorage.getItem(cacheKey);
+                    if (localCache) {
+                        try { window.deckState.userStatus = JSON.parse(localCache) || {}; } catch(e){}
+                    }
+
+                    const solvedSnap = await get(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}`));
+                    const cloudSolved = solvedSnap.val() || {};
+                    for (let qid in cloudSolved) {
+                        window.deckState.userStatus[qid] = cloudSolved[qid].ans;
+                    }
+                    localStorage.setItem(cacheKey, JSON.stringify(window.deckState.userStatus));
+                }
+
+                const dbPath = `question_banks/${activeExam}/${activeSubject}`;
+                const snapshot = await get(ref(db, dbPath));
+                
+                if (snapshot.exists()) {
+                    processData(snapshot.val());
+                    
+                    if (user) {
+                        const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
+                        const savedIndex = parseInt(localStorage.getItem(indexKey));
+                        
+                        if (!isNaN(savedIndex) && savedIndex > 0 && savedIndex < window.deckState.activeDb.length) {
+                            window.tempSavedIndex = savedIndex;
+                            document.getElementById('resume-q-num').innerText = savedIndex + 1;
+                            document.getElementById('resume-prompt-overlay').style.display = 'flex';
+                        } else {
+                            if (!window.deckState.isOpen) window.UD_toggleMode();
+                        }
+                    } else {
+                        if (!window.deckState.isOpen) window.UD_toggleMode();
+                    }
+
+                } else {
+                    document.getElementById('tableBody').innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px;'>No questions uploaded yet for this subject.</td></tr>";
+                    document.getElementById('ud-card-area').innerHTML = "<div style='text-align:center; padding:40px; color:#64748b; font-weight:bold;'>No questions available.</div>";
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+       function processData(rawData) {
+            const curriculumForSubject = masterCurriculum[activeSubject] || [];
+            
+            let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
+            window.nestedCurriculum = isNested ? curriculumForSubject : null;
+            
+            let flatChapters = [];
+            if (isNested) {
+                curriculumForSubject.forEach(u => flatChapters.push(...u.chapters));
+            } else {
+                flatChapters = curriculumForSubject;
+            }
+            
+            const rawArr = Array.isArray(rawData) ? rawData : Object.values(rawData);
+            window.appData = rawArr.filter(item => item !== null).map((item, i) => {
+                let chapterMatch = "Uncategorized";
+                
+                let topicStr = Array.isArray(item.topic) ? item.topic.join(', ') : (item.topic || "");
+                let subjectStr = Array.isArray(item.subject) ? item.subject.join(', ') : (item.subject || "");
+                let targetText = (topicStr + " " + subjectStr);
+
+                if (activeSubject === "medicine") {
+                    // === MASSIVE EXCELLENT TAGGING SYSTEM (MEDICINE ONLY) ===
+                    let matchedTopics = [];
+                    let matchedUnits = [];
+                    
+                    let rawTags = [];
+                    if (Array.isArray(item.subject)) rawTags.push(...item.subject);
+                    else if (typeof item.subject === 'string' && item.subject) rawTags.push(...item.subject.split(',').map(s=>s.trim()));
+                    
+                    if (Array.isArray(item.topic)) rawTags.push(...item.topic);
+                    else if (typeof item.topic === 'string' && item.topic) rawTags.push(...item.topic.split(',').map(s=>s.trim()));
+
+                    rawTags.forEach(tag => {
+                        let exactMatch = flatChapters.find(c => c.toLowerCase() === tag.toLowerCase());
+                        if (exactMatch && !matchedTopics.includes(exactMatch)) {
+                            matchedTopics.push(exactMatch);
+                        } else {
+                            for(let c of flatChapters) {
+                                let coreName = c.includes(".") ? c.split(".")[1].trim() : c;
+                                let escapedCoreName = coreName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                let regex = new RegExp(`\\b${escapedCoreName}\\b`, "i");
+                                
+                                if(regex.test(tag)) {
+                                    if(!matchedTopics.includes(c)) matchedTopics.push(c);
+                                }
+                            }
+                        }
+                    });
+                    
+                    if(matchedTopics.length === 0) matchedTopics.push("Uncategorized");
+                    
+                    matchedTopics.forEach(t => {
+                        curriculumForSubject.forEach(u => {
+                            if (u.chapters.includes(t) && !matchedUnits.includes(u.unit)) {
+                                matchedUnits.push(u.unit);
+                            }
+                        });
+                    });
+                    if(matchedUnits.length === 0) matchedUnits.push("Uncategorized");
+
+                    chapterMatch = matchedTopics;
+                    item.units = matchedUnits;
+                } else {
+                    // === LEGACY LOGIC (ALL OTHER SUBJECTS: SAFE & UNTOUCHED) ===
+                    targetText = targetText.toLowerCase();
+                    for(let c of flatChapters) {
+                        let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
+                        if(targetText.includes(coreName)) {
+                            chapterMatch = c; break;
+                        }
+                    }
+                    if (chapterMatch === "Uncategorized") {
+                        chapterMatch = (topicStr || subjectStr ? (topicStr || subjectStr).split(',')[0].trim() : "General");
+                    }
+                    
+                    let unitMatch = "Uncategorized";
+                    if (window.nestedCurriculum) {
+                        for (let u of window.nestedCurriculum) {
+                            if (u.chapters.includes(chapterMatch)) {
+                                unitMatch = u.unit; break;
+                            }
+                        }
+                    }
+                    item.units = [unitMatch];
+                }
+                
+                let fullYear = item.exam || "Exam";
+                if(item.year_paper) fullYear += " " + item.year_paper;
+
+                const processedItem = { 
+                    ...item, 
+                    topic: chapterMatch, 
+                    year: fullYear,
+                    uid: String(item.q || ("Q" + i)).trim(),
+                    examKey: activeExam
+                };
+                window.allExamLookup[processedItem.uid.toUpperCase()] = processedItem;
+                return processedItem;
+            });
+
+            window.examBanks[activeExam] = window.appData;
+
+            const uniqueYears = [...new Set(window.appData.map(i => i.year))]
+                .filter(y => y && y !== "Unknown")
+                .sort((a, b) => a.localeCompare(b));
+
+            buildSynchronizedFilters(window.nestedCurriculum, flatChapters, uniqueYears);
+            
+            initUniversalDeck(window.appData);
+            window.SYNC_applyFilters();
+
+            // --- INDEPENDENT SPACED REPETITION ENGINE ---
+            window.calculateNextReviewDate = function(currentStep) {
+                const targetDateStr = localStorage.getItem('medpyq_target_date');
+                const now = Date.now();
+                const msPerDay = 24 * 60 * 60 * 1000;
+                let daysRemaining = 90; 
+                if (targetDateStr) {
+                    const targetTime = new Date(targetDateStr).getTime();
+                    daysRemaining = Math.max(1, (targetTime - now) / msPerDay);
+                }
+                let nextIntervalDays = 1;
+                if (currentStep === 1) nextIntervalDays = 1; 
+                else if (currentStep === 2) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.10)); 
+                else if (currentStep === 3) nextIntervalDays = Math.max(1, Math.round(daysRemaining * 0.20)); 
+                else if (currentStep >= 4) nextIntervalDays = 21; 
+                return now + (nextIntervalDays * msPerDay);
+            };
+
+            window.toggleBookmark = async function(btn, q_id, exam, subject) {
+                const user = auth.currentUser;
+                if (!user) { alert("Session lost. Please log in again."); return; }
+
+                const isSaved = window.userBookmarks.includes(q_id);
+
+                if (isSaved) {
+                    if(confirm("Remove this question from your Active Recall deck?")) {
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+                        try {
+                            await set(ref(db, `users/${user.uid}/bookmarks/${q_id}`), null);
+                            window.userBookmarks = window.userBookmarks.filter(id => id !== q_id); 
+                            
+                            btn.innerHTML = '<i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save';
+                            btn.style.color = '#0f2b52';
+                            btn.style.borderColor = '#e0f2fe';
+                            btn.style.background = 'transparent';
+                        } catch (e) {
+                            console.error(e); alert("Error removing bookmark.");
+                        }
+                    }
+                } else {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    try {
+                        const bookmarkRef = ref(db, `users/${user.uid}/bookmarks/${q_id}`);
+                        const nextReview = window.calculateNextReviewDate(1);
+                        await set(bookmarkRef, { exam: exam, subject: subject, current_step: 1, next_review_date: nextReview });
+                        
+                        window.userBookmarks.push(q_id); 
+                        
+                        btn.innerHTML = '<i class="fas fa-check" style="color:#16a34a;"></i> Saved';
+                        btn.style.color = '#16a34a';
+                        btn.style.borderColor = '#bbf7d0';
+                        btn.style.background = '#f0fdf4';
+                    } catch (error) {
+                        console.error(error); alert("Error saving.");
+                    }
+                }
+            };
+        }
+
+        // ==========================================
+        // UI & ADVANCED FILTER LOGIC
+        // ==========================================
+
+        function buildSynchronizedFilters(curriculum, chapters, years) {
+            const tableUnitDiv = document.getElementById('table-unit-content');
+            const tableChapDiv = document.getElementById('table-chap-content');
+            const tableYearDiv = document.getElementById('table-year-content');
+            const deckFilterDiv = document.getElementById('deck-dynamic-filters');
+
+            // 1. Static Initial Filters (Attempt Status & Saved)
+            let deckHtml = `
+                <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#0f2b52; text-transform:uppercase;">Quick Filters</div>
+                
+                <div style="padding: 10px 20px;">
+                    <select id="deck-filter-attempt-status" onchange="window.SYNC_setAttemptFilter(this.value)" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #0f2b52; font-size: 0.9rem; font-weight: bold; font-family: inherit; outline: none; cursor: pointer;">
+                        <option value="all">All Questions</option>
+                        <option value="unattempted">Unattempted Only</option>
+                        <option value="incorrect">Incorrect Only</option>
+                        <option value="correct">Correct Only</option>
+                    </select>
+                </div>
+
+                <label class="ms-label sync-chk-row" style="background:#fffbeb; margin-top:5px;"><input type="checkbox" id="deck-chk-saved" onchange="window.SYNC_toggleSaved()" ${window.filterState.savedOnly ? 'checked' : ''}> <span style="color:#b45309; font-weight:bold;"><i class="fas fa-bookmark" style="color:var(--app-gold);"></i> Saved Questions Only</span></label>
+            `;
+            
+            // 2. Units (If Curriculum is Nested)
+            let tableUnitHtml = '';
+            if (curriculum && typeof curriculum[0] === 'object') {
+                document.getElementById('unit-dropdown-container').style.display = 'block';
+                deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Units</div>`;
+                
+                curriculum.forEach(u => {
+                    const cleanVal = u.unit.replace(/"/g, '&quot;');
+                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="unit" value="${cleanVal}" onchange="window.SYNC_updateState('unit', this.value, this.checked)"> <span style="font-weight:bold; color:#0f2b52;">${u.unit}</span></label>`;
+                    tableUnitHtml += row;
+                    deckHtml += row;
+                });
+            } else {
+                document.getElementById('unit-dropdown-container').style.display = 'none';
+            }
+            tableUnitDiv.innerHTML = tableUnitHtml;
+
+            // 3. Chapters
+            let tableChapHtml = '';
+            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>`;
+            
+            if (curriculum && typeof curriculum[0] === 'object') {
+                curriculum.forEach(unitObj => {
+                    const unitHeader = `<div style="padding: 8px 15px; font-size:11px; font-weight:800; color:#0f2b52; background:#f1f5f9; text-transform:uppercase; margin-top:5px;">${unitObj.unit}</div>`;
+                    tableChapHtml += unitHeader;
+                    deckHtml += unitHeader;
+
+                    unitObj.chapters.forEach(c => {
+                        const cleanVal = c.replace(/"/g, '&quot;');
+                        const row = `<label class="ms-label sync-chk-row" style="padding-left: 25px;"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                        tableChapHtml += row;
+                        deckHtml += row;
+                    });
+                });
+            } else {
+                chapters.forEach(c => {
+                    const cleanVal = c.replace(/"/g, '&quot;');
+                    const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="chapter" value="${cleanVal}" onchange="window.SYNC_updateState('chapter', this.value, this.checked)"> <span>${c}</span></label>`;
+                    tableChapHtml += row;
+                    deckHtml += row;
+                });
+            }
+            tableChapDiv.innerHTML = tableChapHtml;
+
+            // 4. Exams
+            let tableYearHtml = '';
+            deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
+            
+            years.forEach(y => {
+                const cleanVal = y.replace(/"/g, '&quot;');
+                const row = `<label class="ms-label sync-chk-row"><input type="checkbox" data-filter-type="year" value="${cleanVal}" onchange="window.SYNC_updateState('year', this.value, this.checked)"> <span>${y}</span></label>`;
+                tableYearHtml += row;
+                deckHtml += row;
+            });
+            tableYearDiv.innerHTML = tableYearHtml;
+            deckFilterDiv.innerHTML = deckHtml;
+        }
+
+        window.toggleDropdown = function(id) {
+            document.querySelectorAll('.ms-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); });
+            document.getElementById(id).classList.toggle('show');
+        };
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.ms-btn') && !event.target.closest('.ms-content')) {
+                document.querySelectorAll('.ms-content').forEach(el => el.classList.remove('show'));
+            }
+        };
+
+        window.SYNC_updateState = function(type, value, isChecked) {
+            if (type === 'unit') {
+                if(isChecked) window.filterState.units.push(value);
+                else window.filterState.units = window.filterState.units.filter(u => u !== value);
+            }
+            else if(type === 'chapter') {
+                if(isChecked) window.filterState.chapters.push(value);
+                else window.filterState.chapters = window.filterState.chapters.filter(c => c !== value);
+            }
+            else if(type === 'year') {
+                if(isChecked) window.filterState.years.push(value);
+                else window.filterState.years = window.filterState.years.filter(y => y !== value);
+            }
+            else if(type === 'search') {
+                window.filterState.search = value.toLowerCase();
+            }
+
+            document.querySelectorAll(`input[data-filter-type="unit"]`).forEach(cb => {
+                cb.checked = window.filterState.units.includes(cb.value);
+            });
+            document.querySelectorAll(`input[data-filter-type="chapter"]`).forEach(cb => {
+                cb.checked = window.filterState.chapters.includes(cb.value);
+            });
+            document.querySelectorAll(`input[data-filter-type="year"]`).forEach(cb => {
+                cb.checked = window.filterState.years.includes(cb.value);
+            });
+
+            const unitText = window.filterState.units.length > 0 ? `${window.filterState.units.length} Selected` : "All Units";
+            const chapText = window.filterState.chapters.length > 0 ? `${window.filterState.chapters.length} Selected` : "All Chapters";
+            const yearText = window.filterState.years.length > 0 ? `${window.filterState.years.length} Selected` : "All Exams";
+            
+            if (document.getElementById('unit-btn-text')) document.getElementById('unit-btn-text').innerText = unitText;
+            document.getElementById('chap-btn-text').innerText = chapText;
+            document.getElementById('year-btn-text').innerText = yearText;
+
+            window.SYNC_applyFilters();
+        };
+
+        window.SYNC_toggleSaved = function() {
+            window.filterState.savedOnly = !window.filterState.savedOnly;
+            
+            const btn = document.getElementById('btn-filter-saved');
+            if(btn) {
+                if(window.filterState.savedOnly) {
+                    btn.style.background = '#fef3c7'; btn.style.color = '#b45309'; btn.style.borderColor = '#f59e0b';
+                } else {
+                    btn.style.background = 'white'; btn.style.color = '#64748b'; btn.style.borderColor = '#cbd5e1';
+                }
+            }
+            
+            const chk = document.getElementById('deck-chk-saved');
+            if(chk) chk.checked = window.filterState.savedOnly;
+
+            window.SYNC_applyFilters();
+        };
+
+        window.SYNC_setAttemptFilter = function(status) {
+            window.filterState.attemptStatus = status;
+            
+            const mainSelect = document.getElementById('filter-attempt-status');
+            const deckSelect = document.getElementById('deck-filter-attempt-status');
+            if (mainSelect) mainSelect.value = status;
+            if (deckSelect) deckSelect.value = status;
+
+            window.SYNC_applyFilters();
+        };
+
+        window.SYNC_resetFilters = function() {
+            window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false, attemptStatus: "all" };
+            const btnSaved = document.getElementById('btn-filter-saved');
+            if(btnSaved) { btnSaved.style.background = 'white'; btnSaved.style.color = '#64748b'; btnSaved.style.borderColor = '#cbd5e1'; }
+            
+            const mainSelect = document.getElementById('filter-attempt-status');
+            const deckSelect = document.getElementById('deck-filter-attempt-status');
+            if(mainSelect) mainSelect.value = "all";
+            if(deckSelect) deckSelect.value = "all";
+
+            document.getElementById('postSearch').value = "";
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if (document.getElementById('unit-btn-text')) document.getElementById('unit-btn-text').innerText = "All Units";
+            document.getElementById('chap-btn-text').innerText = "All Chapters";
+            document.getElementById('year-btn-text').innerText = "All Exams";
+            window.SYNC_applyFilters();
+        };
+
+        window.saveCurrentIndex = function() {
+            const user = auth.currentUser;
+            if (user && window.deckState.activeDb.length === window.appData.length) {
+                const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
+                localStorage.setItem(indexKey, window.deckState.currentIndex);
+            }
+        };
+
+        window.startFresh = function() {
+            document.getElementById('resume-prompt-overlay').style.display = 'none';
+            window.deckState.currentIndex = 0;
+            window.deckState.overrideQid = null;
+            window.deckState.fanViewOpen = false;
+            window.saveCurrentIndex();
+            window.UD_renderCard();
+            if (!window.deckState.isOpen) window.UD_toggleMode();
+        };
+
+        window.resumeSession = function() {
+            document.getElementById('resume-prompt-overlay').style.display = 'none';
+            window.deckState.currentIndex = window.tempSavedIndex;
+            window.deckState.overrideQid = null;
+            window.deckState.fanViewOpen = false;
+            window.UD_renderCard();
+            if (!window.deckState.isOpen) window.UD_toggleMode();
+        };
+
+        window.SYNC_applyFilters = function() {
+            const filtered = window.appData.filter(item => {
+                const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
+                
+                const matchesUnit = window.filterState.units.length === 0 || 
+                    (item.units && window.filterState.units.some(u => item.units.includes(u)));
+
+                const matchesChapter = window.filterState.chapters.length === 0 || 
+                    (Array.isArray(item.topic) 
+                        ? window.filterState.chapters.some(selectedChap => item.topic.includes(selectedChap))
+                        : window.filterState.chapters.includes(item.topic));
+
+                const matchesYear = window.filterState.years.length === 0 || window.filterState.years.includes(item.year);
+                const matchesSaved = !window.filterState.savedOnly || window.userBookmarks.includes(item.uid);
+                
+                let matchesStatus = true;
+                const userAns = window.deckState.userStatus[item.uid];
+                if (window.filterState.attemptStatus === 'unattempted') {
+                    matchesStatus = !userAns;
+                } else if (window.filterState.attemptStatus === 'incorrect') {
+                    matchesStatus = userAns && userAns !== item.ans_key;
+                } else if (window.filterState.attemptStatus === 'correct') {
+                    matchesStatus = userAns && userAns === item.ans_key;
+                }
+
+                return matchesSearch && matchesUnit && matchesChapter && matchesYear && matchesSaved && matchesStatus;
+            });
+
+            document.getElementById('q-count').innerText = `${filtered.length} Qs`;
+            
+            window.renderTable(filtered);
+
+            window.deckState.activeDb = filtered;
+            window.deckState.currentIndex = 0;
+            window.deckState.overrideQid = null;
+            window.deckState.fanViewOpen = false;
+            if(window.deckState.isOpen) {
+                window.UD_renderCard();
+            }
+        };
+
+        window.renderTable = function(data) {
+            const tbody = document.getElementById('tableBody');
+            if(data.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:40px; color:#94a3b8;'>No questions match your filters.</td></tr>"; return; }
+            
+            let html = '';
+            data.forEach((item, index) => {
+                let opts = item.options.map((opt, i) => {
+                    const char = String.fromCharCode(65 + i);
+                    return `<div class="opt-row ${char === item.ans_key ? 'is-correct' : ''}"><strong>${char}.</strong> ${opt}</div>`;
+                }).join('');
+
+                const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                
+                let displayChapterHtml = "";
+                if (Array.isArray(item.topic)) {
+                    displayChapterHtml = item.topic.map(t => {
+                        let name = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
+                        return `<span style="display:inline-block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; margin-right:4px; font-weight:bold; text-transform:uppercase;">${name}</span>`;
+                    }).join('');
+                } else {
+                    let name = item.topic.includes(":") ? item.topic.split(":")[1].trim() : (item.topic.includes(".") ? item.topic.split(".")[1].trim() : item.topic);
+                    displayChapterHtml = `<span style="display:inline-block; font-size:0.7rem; color:#0369a1; background:#e0f2fe; padding:3px; border-radius:4px; margin-bottom:5px; font-weight:bold; text-transform:uppercase;">${name}</span>`;
+                }
+
+                html += `<tr>
+                    <td><strong style="color:#64748b;">${item.uid}</strong></td>
+                    <td>
+                        <div style="font-weight:600; margin-bottom:10px; font-size: 1rem; color:#1e293b;">${item.stem}</div>
+                        ${item.img ? `<a href="${item.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${item.img}')"><img src="${item.img}" class="q-img"></a>` : ''}
+                        <div class="opt-grid">${opts}</div>
+                    </td>
+                    <td style="text-align:center;">
+                        <div class="multi-badge-container">${displayChapterHtml}</div>
+                        <div style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold; color:#475569; margin-bottom:10px; border:1px solid #e2e8f0; display:inline-block;">${item.year}</div>
+                        <br>
+                        <button class="btn-ask-ai" onclick='window.UD_askAI_Global(${cleanItem})'>Ask AI <i class="fas fa-robot"></i></button>
+                        ${window.userBookmarks.includes(item.uid) 
+                            ? `<button class="btn-ask-ai" onclick="window.toggleBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; margin-top: 5px;"><i class="fas fa-check" style="color: #16a34a;"></i> Saved</button>`
+                            : `<button class="btn-ask-ai" onclick="window.toggleBookmark(this, '${item.uid}', '${activeExam}', '${activeSubject}')" style="color: #0f2b52; border-color: #cbd5e1; background: transparent; margin-top: 5px;"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save Qs</button>`
+                        }
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        };
+
+        window.toggleTableAnswers = function() {
+            document.getElementById('cfmTable').classList.toggle('reveal-active');
+            document.getElementById('float-eye-btn').classList.toggle('active');
+        };
