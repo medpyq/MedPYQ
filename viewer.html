@@ -2094,7 +2094,6 @@
                 const overrides = val.overrides || {};
                 window.questionEditsMap = overrides;
 
-                // Apply all active real-time overrides to memory
                 Object.keys(overrides).forEach(upKey => {
                     window.applyQuestionOverrideToMemory(upKey, overrides[upKey]);
                 });
@@ -2104,7 +2103,6 @@
                 window.adminEditUndoStack = (Array.isArray(rawUndo) ? rawUndo : Object.values(rawUndo)).filter(Boolean).slice(0, 10);
                 window.adminEditRedoStack = (Array.isArray(rawRedo) ? rawRedo : Object.values(rawRedo)).filter(Boolean).slice(0, 10);
 
-                // Refresh UI in real time without losing scroll/state
                 if (window.deckState.activeDb && window.deckState.activeDb.length > 0) {
                     window.renderTable(window.deckState.activeDb);
                 }
@@ -2120,7 +2118,6 @@
             });
         };
 
-        // Helper to also update the raw question_banks node in Firebase when possible
         window.ADMIN_syncToQuestionBankNode = async function(qid, examKey, newAnsKey, newExpl) {
             try {
                 const targetExam = examKey || window.inferExamFromQid(qid) || activeExam;
@@ -2204,7 +2201,7 @@
             };
 
             const newUndoStack = [actionRecord, ...(window.adminEditUndoStack || [])].slice(0, 10);
-            const newRedoStack = []; // Clear redo stack on fresh edit
+            const newRedoStack = [];
 
             const overridePayload = {
                 ans_key: newAnsKey,
@@ -2308,13 +2305,14 @@
             }
         };
 
-        // Start listening to real-time question edits immediately
         window.subscribeQuestionEdits();
 
         // ==========================================
-        // SUB-TOPIC < 1/16 > PILL & TEEN PATTI ENGINE
+        // MULTI-DIMENSIONAL SUB-TOPIC + TEEN PATTI ENGINE
         // ==========================================
 
+        window.crossClustersMap = {}; // { [slug]: { slug, title, qids: [...] } }
+        window.nodeTopicsMap = {};    // { [UPPER_QID]: [slug1, slug2, ...] }
         window.adminLongPressTimer = null;
         window.adminLongPressTriggered = false;
         window.adminEditingAnchorQid = null;
@@ -2328,34 +2326,190 @@
             return '#2563eb';                        // Royal Blue (NEET-PG)
         };
 
-        // Strictly preserves Admin's exact entered QID order (NO sorting, NO moving current QID to index 0)
-        window.UD_getClusterSequence = function(baseQid, examFilterOverride = null) {
-            if (!baseQid) return [];
-            const cleanBase = String(baseQid).trim();
-            const upperBase = cleanBase.toUpperCase();
+        // Creates a normalized slug so "Tuberculosis " and "tuberculosis" map to the exact same cluster
+        window.makeTopicSlug = function(rawTitle, fallbackSeedQid) {
+            const clean = String(rawTitle || '').trim();
+            if (!clean || clean.toLowerCase() === 'linked concept') {
+                const seed = String(fallbackSeedQid || 'general').trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+                return 'cluster-' + (seed || 'default');
+            }
+            return 'topic-' + clean.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        };
 
-            let rawSeq = window.crossLinksMap[upperBase];
+        // Override subscribeCrossLinks to support multi-dimensional clusters + backward-compatible nodes
+        window.subscribeCrossLinks = function() {
+            const linksRef = ref(db, `cross_links/${activeSubject}`);
+            onValue(linksRef, (snapshot) => {
+                const val = snapshot.val() || {};
+
+                // 1. Legacy nodes map
+                const rawNodes = val.nodes || {};
+                const normalizedNodes = {};
+                Object.keys(rawNodes).forEach(k => {
+                    const arr = Array.isArray(rawNodes[k]) ? rawNodes[k] : Object.values(rawNodes[k] || {});
+                    normalizedNodes[String(k).trim().toUpperCase()] = arr.map(x => String(x).trim()).filter(Boolean);
+                });
+                window.crossLinksMap = normalizedNodes;
+
+                // 2. Multi-dimensional clusters map
+                const rawClusters = val.clusters || {};
+                const normClusters = {};
+                Object.keys(rawClusters).forEach(slug => {
+                    const cObj = rawClusters[slug];
+                    if (cObj && cObj.qids) {
+                        const qArr = (Array.isArray(cObj.qids) ? cObj.qids : Object.values(cObj.qids)).map(x => String(x).trim()).filter(Boolean);
+                        if (qArr.length > 0) {
+                            normClusters[slug] = {
+                                slug: slug,
+                                title: String(cObj.title || 'Linked Concept').trim(),
+                                qids: qArr
+                            };
+                        }
+                    }
+                });
+
+                // 3. Node -> Topic Slugs map
+                const rawNodeTopics = val.node_topics || {};
+                const normNodeTopics = {};
+                Object.keys(rawNodeTopics).forEach(upKey => {
+                    const sArr = (Array.isArray(rawNodeTopics[upKey]) ? rawNodeTopics[upKey] : Object.values(rawNodeTopics[upKey] || {}))
+                        .map(s => String(s).trim())
+                        .filter(s => Boolean(s) && Boolean(normClusters[s]));
+                    if (sArr.length > 0) {
+                        normNodeTopics[String(upKey).trim().toUpperCase()] = sArr;
+                    }
+                });
+
+                // 4. Auto-migrate any legacy 1D nodes that aren't in clusters yet
+                Object.keys(normalizedNodes).forEach(upKey => {
+                    if (!normNodeTopics[upKey] || normNodeTopics[upKey].length === 0) {
+                        const seq = normalizedNodes[upKey];
+                        if (seq && seq.length > 1) {
+                            const seedSlug = window.makeTopicSlug('Linked Concept', seq[0]);
+                            if (!normClusters[seedSlug]) {
+                                normClusters[seedSlug] = {
+                                    slug: seedSlug,
+                                    title: 'Linked Concept',
+                                    qids: seq
+                                };
+                            }
+                            normNodeTopics[upKey] = [seedSlug];
+                        }
+                    }
+                });
+
+                window.crossClustersMap = normClusters;
+                window.nodeTopicsMap = normNodeTopics;
+
+                const rawHist = val.history || [];
+                const histArr = Array.isArray(rawHist) ? rawHist : Object.values(rawHist);
+                window.crossLinksHistory = histArr.filter(Boolean).slice(0, 10);
+
+                if (document.getElementById('admin-link-modal').style.display === 'flex') {
+                    window.ADMIN_renderTopicChips();
+                    window.ADMIN_renderHistory();
+                }
+                if (window.deckState.isOpen) {
+                    window.UD_renderCard(false);
+                }
+            });
+        };
+
+        // Filters a raw QID sequence for Normal Users vs Admins while strictly preserving Admin's sequence
+        window.UD_filterSequenceByRole = function(rawSeq, fallbackQid, examFilterOverride = null) {
+            const cleanFallback = String(fallbackQid || '').trim();
             if (!Array.isArray(rawSeq) || rawSeq.length === 0) {
-                rawSeq = [cleanBase];
-            } else {
-                rawSeq = [...rawSeq];
-                if (!rawSeq.some(id => String(id).trim().toUpperCase() === upperBase)) {
-                    rawSeq.push(cleanBase);
+                return cleanFallback ? [cleanFallback] : [];
+            }
+            const list = [...rawSeq];
+
+            if (!window.isAdminUser) {
+                const userFiltered = list.filter(qid => window.inferExamFromQid(qid) === activeExam);
+                return userFiltered.length > 0 ? userFiltered : (cleanFallback ? [cleanFallback] : []);
+            }
+
+            if (examFilterOverride && examFilterOverride !== 'all') {
+                return list.filter(qid => window.inferExamFromQid(qid) === examFilterOverride);
+            }
+
+            return list;
+        };
+
+        // Returns all sub-topic dimensions associated with the current card (union of anchorQ and displayedQ)
+        window.UD_getAvailableTopicsForCard = function(anchorQid, displayedQid) {
+            const seenSlugs = new Set();
+            const topics = [];
+
+            const collectFromQid = (qid) => {
+                if (!qid) return;
+                const up = String(qid).trim().toUpperCase();
+                const slugs = window.nodeTopicsMap[up] || [];
+                slugs.forEach(s => {
+                    if (!seenSlugs.has(s) && window.crossClustersMap[s]) {
+                        seenSlugs.add(s);
+                        topics.push(window.crossClustersMap[s]);
+                    }
+                });
+            };
+
+            collectFromQid(displayedQid);
+            collectFromQid(anchorQid);
+
+            return topics;
+        };
+
+        // Resolves the currently active topic dimension and its filtered QID sequence
+        window.UD_getActiveClusterInfo = function(anchorQid, displayedQid, examFilterOverride = null) {
+            const topics = window.UD_getAvailableTopicsForCard(anchorQid, displayedQid);
+            const fallbackQid = displayedQid || anchorQid;
+
+            if (topics.length === 0) {
+                return {
+                    topics: [],
+                    activeTopic: null,
+                    sequence: fallbackQid ? [String(fallbackQid).trim()] : []
+                };
+            }
+
+            let activeTopic = topics.find(t => t.slug === window.deckState.activeTopicSlug);
+            if (!activeTopic) {
+                activeTopic = topics[0];
+                window.deckState.activeTopicSlug = activeTopic.slug;
+            }
+
+            const seq = window.UD_filterSequenceByRole(activeTopic.qids, fallbackQid, examFilterOverride);
+            return {
+                topics: topics,
+                activeTopic: activeTopic,
+                sequence: seq
+            };
+        };
+
+        // Legacy wrapper used by callers expecting a sequence array
+        window.UD_getClusterSequence = function(baseQid, examFilterOverride = null) {
+            const { displayedQ } = window.UD_getAnchorAndDisplayedQ();
+            const info = window.UD_getActiveClusterInfo(baseQid, displayedQ ? displayedQ.uid : baseQid, examFilterOverride);
+            return info.sequence;
+        };
+
+        window.UD_switchTopicDimension = function(slug, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            window.deckState.activeTopicSlug = slug;
+            const cluster = window.crossClustersMap[slug];
+            if (cluster && Array.isArray(cluster.qids) && cluster.qids.length > 0) {
+                const { anchorQ, displayedQ } = window.UD_getAnchorAndDisplayedQ();
+                const filteredSeq = window.UD_filterSequenceByRole(cluster.qids, anchorQ ? anchorQ.uid : null);
+                const curUpper = String((displayedQ || anchorQ || {}).uid || '').trim().toUpperCase();
+                // If current displayed QID is already in the newly selected topic, stay on it; otherwise jump to first QID in that topic
+                const existsInNewTopic = filteredSeq.some(id => String(id).trim().toUpperCase() === curUpper);
+                if (!existsInNewTopic && filteredSeq.length > 0) {
+                    window.deckState.overrideQid = filteredSeq[0];
                 }
             }
-
-            // Normal User: filter strictly to their activeExam while preserving Admin's exact relative sequence
-            if (!window.isAdminUser) {
-                const userFiltered = rawSeq.filter(qid => window.inferExamFromQid(qid) === activeExam);
-                return userFiltered.length > 0 ? userFiltered : [cleanBase];
-            }
-
-            // Admin User: optionally filter by exam switcher ('all', 'neet-pg', 'inicet', 'upsc-cms', 'fmge')
-            if (examFilterOverride && examFilterOverride !== 'all') {
-                return rawSeq.filter(qid => window.inferExamFromQid(qid) === examFilterOverride);
-            }
-
-            return rawSeq;
+            window.UD_renderCard(true);
         };
 
         window.UD_getAnchorAndDisplayedQ = function() {
@@ -2383,7 +2537,8 @@
             const { anchorQ, displayedQ } = window.UD_getAnchorAndDisplayedQ();
             if (!anchorQ || !displayedQ) return;
 
-            const seq = window.UD_getClusterSequence(anchorQ.uid);
+            const info = window.UD_getActiveClusterInfo(anchorQ.uid, displayedQ.uid);
+            const seq = info.sequence;
             const curUpper = String(displayedQ.uid).trim().toUpperCase();
             let curIdx = seq.findIndex(id => String(id).trim().toUpperCase() === curUpper);
             if (curIdx === -1) curIdx = 0;
@@ -2440,8 +2595,8 @@
             return (tmp.textContent || tmp.innerText || "").trim();
         };
 
-        // Build a Teen Patti Fanned Card Deck HTML (supports 'auto' per-card exam color coding)
-        window.TP_buildFanDeckHTML = function(deckKey, qidList, borderColor, activePos) {
+        // Build a Teen Patti Fanned Card Deck HTML (supports 'auto' per-card exam color coding + active topic badge)
+        window.TP_buildFanDeckHTML = function(deckKey, qidList, borderColor, activePos, topicTitle = '') {
             const stageFallbackColor = (!borderColor || borderColor === 'auto') ? '#2563eb' : borderColor;
             if (!qidList || qidList.length === 0) {
                 return `
@@ -2467,6 +2622,10 @@
             const rightMaxAngle = Math.min(48, rightCount * 10);
             const rightAngleStep = rightCount > 0 ? rightMaxAngle / rightCount : 0;
             const rightShiftStep = rightCount > 0 ? Math.min(22, 110 / rightCount) : 0;
+
+            const cleanTopicBadge = (topicTitle && topicTitle !== 'Linked Concept')
+                ? `<div style="font-size:9.5px; font-weight:800; color:#0369a1; background:#e0f2fe; padding:2px 7px; border-radius:4px; margin-bottom:4px; display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><i class="fas fa-tag" style="font-size:8px; margin-right:3px;"></i>${topicTitle}</div>`
+                : '';
 
             let cardsHtml = '';
             qidList.forEach((qid, idx) => {
@@ -2562,6 +2721,7 @@
                                 <span class="tp-seq-badge" style="background:${cardColor};">${idx + 1}/${total}</span>
                                 <span class="tp-qid-badge" style="border-color:${cardColor}; color:${cardColor};">${qObj.uid}</span>
                             </div>
+                            ${cleanTopicBadge}
                             <div class="tp-center-stem">${cleanStem}</div>
                         </div>
                         <div class="tp-center-opts">${optsBarsHtml}</div>
@@ -2707,7 +2867,6 @@
 
                     const curPos = window.deckState.fanPosMap[deckKey] || 0;
 
-                    // 1. Swipe Left / Right to rifle through the fan
                     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 35) {
                         if (deltaX < -35 && curPos < total - 1) {
                             window.TP_updateStageActiveCard(stageEl, curPos + 1);
@@ -2717,7 +2876,6 @@
                         return;
                     }
 
-                    // 2. Tap / Click any patti -> smoothly open in existing flat .ud-card view
                     if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
                         const clickedCard = targetEl ? targetEl.closest('.tp-patti') : null;
                         if (clickedCard) {
@@ -2768,18 +2926,124 @@
         };
 
         // ==========================================
-        // ADMIN BIDIRECTIONAL LINKER + 10-STEP UNDO
+        // ADMIN MULTI-DIMENSIONAL LINKER + AUTO-COMPLETE CHIPS + 10-STEP UNDO
         // ==========================================
+
+        window.ADMIN_ensureModalUpgraded = function() {
+            const inputEl = document.getElementById('admin-link-input');
+            if (!inputEl) return;
+
+            inputEl.rows = 4;
+            inputEl.placeholder = "Tuberculosis: N23, IN45, N67, CMS12\nMicrobiology Testing: IN45, N88, F14";
+
+            const prevLabel = inputEl.previousElementSibling;
+            if (prevLabel && prevLabel.tagName === 'LABEL') {
+                prevLabel.innerHTML = `Multi-Topic &amp; QID Sequence <span style="font-weight:600; color:#64748b; text-transform:none;">(One per line: <b>Topic Name: QID1, QID2...</b>)</span>`;
+            }
+
+            if (!document.getElementById('admin-topic-chips-wrap')) {
+                const chipBox = document.createElement('div');
+                chipBox.id = 'admin-topic-chips-wrap';
+                chipBox.style.cssText = 'margin-bottom: 10px;';
+                chipBox.innerHTML = `
+                    <div style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:5px;">
+                        <i class="fas fa-tags" style="color:#0ea5e9; margin-right:4px;"></i>Existing Sub-Topics in ${window.medpyqSubject} (Tap to Load / Append):
+                    </div>
+                    <div id="admin-topic-chips-list" style="display:flex; flex-wrap:wrap; gap:6px; max-height:85px; overflow-y:auto; padding:4px 2px;"></div>
+                `;
+                inputEl.parentNode.insertBefore(chipBox, inputEl);
+            }
+        };
+
+        window.ADMIN_renderTopicChips = function() {
+            const listEl = document.getElementById('admin-topic-chips-list');
+            if (!listEl) return;
+
+            const allClusters = Object.values(window.crossClustersMap || {}).filter(c => c && c.qids && c.qids.length > 0);
+            if (allClusters.length === 0) {
+                listEl.innerHTML = `<span style="font-size:0.75rem; color:#94a3b8;">No sub-topics created yet. Type <b>Topic Name: QID1, QID2</b> below!</span>`;
+                return;
+            }
+
+            listEl.innerHTML = allClusters.map(c => {
+                const safeSlug = c.slug.replace(/'/g, "\\'");
+                return `
+                <button type="button" onclick="window.ADMIN_appendTopicChip('${safeSlug}')" class="admin-topic-chip-btn">
+                    <i class="fas fa-plus-circle" style="color:#0284c7;"></i> ${c.title} <span style="opacity:0.7;">(${c.qids.length})</span>
+                </button>`;
+            }).join('');
+        };
+
+        window.ADMIN_appendTopicChip = function(slug) {
+            const cluster = window.crossClustersMap[slug];
+            if (!cluster) return;
+            const inputEl = document.getElementById('admin-link-input');
+            if (!inputEl) return;
+
+            const anchorQid = String(window.adminEditingAnchorQid || '').trim();
+            const anchorUpper = anchorQid.toUpperCase();
+
+            // Build updated QID list for this topic including the current anchorQid if not already present
+            const updatedQids = [...cluster.qids];
+            if (anchorQid && !updatedQids.some(id => String(id).trim().toUpperCase() === anchorUpper)) {
+                updatedQids.push(anchorQid);
+            }
+            const formattedLine = `${cluster.title}: ${updatedQids.join(', ')}`;
+
+            const currentLines = inputEl.value.split('\n').map(l => l.trim()).filter(Boolean);
+            const existingIdx = currentLines.findIndex(line => {
+                if (!line.includes(':')) return false;
+                const lineTitle = line.slice(0, line.indexOf(':')).trim();
+                return window.makeTopicSlug(lineTitle, anchorQid) === slug;
+            });
+
+            if (existingIdx !== -1) {
+                currentLines[existingIdx] = formattedLine;
+            } else {
+                // If the only existing line is a single unlinked default QID (e.g. "N27"), replace it cleanly
+                if (currentLines.length === 1 && currentLines[0].toUpperCase() === anchorUpper) {
+                    currentLines[0] = formattedLine;
+                } else {
+                    currentLines.push(formattedLine);
+                }
+            }
+
+            inputEl.value = currentLines.join('\n');
+            inputEl.focus();
+        };
 
         window.ADMIN_openLinkModal = function(qid) {
             if (!window.isAdminUser) return;
-            const cleanQid = String(qid).trim();
-            window.adminEditingAnchorQid = cleanQid;
+            window.ADMIN_ensureModalUpgraded();
 
-            const existingSeq = window.crossLinksMap[cleanQid.toUpperCase()] || [cleanQid];
-            document.getElementById('admin-link-subtitle').innerText = `Subject: ${window.medpyqSubject} | Anchor QID: ${cleanQid}`;
-            document.getElementById('admin-link-input').value = existingSeq.join(', ');
+            const { displayedQ } = window.UD_getAnchorAndDisplayedQ();
+            const targetQid = String((displayedQ && displayedQ.uid) ? displayedQ.uid : qid).trim();
+            window.adminEditingAnchorQid = targetQid;
 
+            const up = targetQid.toUpperCase();
+            const topicSlugs = window.nodeTopicsMap[up] || [];
+            let lines = [];
+
+            topicSlugs.forEach(s => {
+                const cObj = window.crossClustersMap[s];
+                if (cObj && Array.isArray(cObj.qids) && cObj.qids.length > 0) {
+                    if (cObj.title && cObj.title !== 'Linked Concept') {
+                        lines.push(`${cObj.title}: ${cObj.qids.join(', ')}`);
+                    } else {
+                        lines.push(cObj.qids.join(', '));
+                    }
+                }
+            });
+
+            if (lines.length === 0) {
+                const fallbackSeq = window.crossLinksMap[up] || [targetQid];
+                lines.push(fallbackSeq.join(', '));
+            }
+
+            document.getElementById('admin-link-subtitle').innerText = `Subject: ${window.medpyqSubject} | Active Question: ${targetQid}`;
+            document.getElementById('admin-link-input').value = lines.join('\n');
+
+            window.ADMIN_renderTopicChips();
             window.ADMIN_renderHistory();
             document.getElementById('admin-link-modal').style.display = 'flex';
         };
@@ -2795,9 +3059,9 @@
 
             container.innerHTML = window.crossLinksHistory.map((h, idx) => {
                 const timeStr = h.timestamp ? new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                const summary = Array.isArray(h.newSequence) && h.newSequence.length > 0
-                    ? h.newSequence.join(', ')
-                    : 'Cleared Links';
+                const summary = h.summaryText
+                    ? h.summaryText
+                    : (Array.isArray(h.newSequence) && h.newSequence.length > 0 ? h.newSequence.join(', ') : 'Cleared Links');
                 return `
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 10px;">
                     <div style="overflow:hidden; flex:1;">
@@ -2813,72 +3077,194 @@
 
         window.ADMIN_saveCrossLinks = async function() {
             if (!window.isAdminUser) return;
-            const rawInput = document.getElementById('admin-link-input').value || '';
+            const rawText = document.getElementById('admin-link-input').value || '';
             const btn = document.getElementById('btn-save-crosslinks');
+            const anchorQid = String(window.adminEditingAnchorQid || '').trim();
+            const anchorUpper = anchorQid.toUpperCase();
 
-            const seenUpper = new Set();
-            const orderedQids = [];
-            rawInput.split(',').forEach(token => {
-                const trimmed = token.trim();
-                if (trimmed) {
-                    const up = trimmed.toUpperCase();
-                    if (!seenUpper.has(up)) {
-                        seenUpper.add(up);
-                        orderedQids.push(trimmed);
+            if (!anchorQid) {
+                alert("Missing anchor Question ID.");
+                return;
+            }
+
+            // Parse each line as either "Topic Name: QID1, QID2..." or "QID1, QID2..."
+            const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+            const parsedTopics = [];
+            const seenSlugsInModal = new Set();
+
+            lines.forEach(line => {
+                let rawTitle = 'Linked Concept';
+                let qidsPart = line;
+                const colonIdx = line.indexOf(':');
+                if (colonIdx !== -1) {
+                    rawTitle = line.slice(0, colonIdx).trim() || 'Linked Concept';
+                    qidsPart = line.slice(colonIdx + 1).trim();
+                }
+
+                const seenQidUpper = new Set();
+                const orderedQids = [];
+                qidsPart.split(',').forEach(token => {
+                    const t = token.trim();
+                    if (t) {
+                        const up = t.toUpperCase();
+                        if (!seenQidUpper.has(up)) {
+                            seenQidUpper.add(up);
+                            orderedQids.push(t);
+                        }
+                    }
+                });
+
+                if (orderedQids.length > 0) {
+                    const slug = window.makeTopicSlug(rawTitle, orderedQids[0]);
+                    if (!seenSlugsInModal.has(slug)) {
+                        seenSlugsInModal.add(slug);
+                        parsedTopics.push({
+                            slug: slug,
+                            title: rawTitle,
+                            qids: orderedQids
+                        });
                     }
                 }
             });
 
-            const anchorQid = window.adminEditingAnchorQid || (orderedQids[0] || '');
-            if (!anchorQid) {
-                alert("Please enter at least one valid Question ID.");
-                return;
-            }
+            // Snapshot full previous state of affected clusters & QIDs for 10-Step Undo
+            const prevAnchorSlugs = [...(window.nodeTopicsMap[anchorUpper] || [])];
+            const affectedSlugs = new Set([...prevAnchorSlugs, ...parsedTopics.map(t => t.slug)]);
+            const affectedQidsUpper = new Set([anchorUpper]);
 
-            const prevGroup = window.crossLinksMap[anchorQid.toUpperCase()] || [];
-            const affectedUpperSet = new Set();
-            prevGroup.forEach(id => affectedUpperSet.add(String(id).trim().toUpperCase()));
-            orderedQids.forEach(id => {
-                const up = id.toUpperCase();
-                affectedUpperSet.add(up);
-                const existingForMember = window.crossLinksMap[up] || [];
-                existingForMember.forEach(m => affectedUpperSet.add(String(m).trim().toUpperCase()));
+            affectedSlugs.forEach(s => {
+                const existingCluster = window.crossClustersMap[s];
+                if (existingCluster && Array.isArray(existingCluster.qids)) {
+                    existingCluster.qids.forEach(q => affectedQidsUpper.add(String(q).trim().toUpperCase()));
+                }
+            });
+            parsedTopics.forEach(t => {
+                t.qids.forEach(q => affectedQidsUpper.add(String(q).trim().toUpperCase()));
             });
 
+            const beforeClusters = {};
+            affectedSlugs.forEach(s => {
+                beforeClusters[s] = window.crossClustersMap[s]
+                    ? { slug: s, title: window.crossClustersMap[s].title, qids: [...window.crossClustersMap[s].qids] }
+                    : null;
+            });
+
+            const beforeNodeTopics = {};
             const beforeNodes = {};
-            affectedUpperSet.forEach(upKey => {
+            affectedQidsUpper.forEach(upKey => {
+                beforeNodeTopics[upKey] = window.nodeTopicsMap[upKey] ? [...window.nodeTopicsMap[upKey]] : null;
                 beforeNodes[upKey] = window.crossLinksMap[upKey] ? [...window.crossLinksMap[upKey]] : null;
             });
 
-            const newSeenUpper = new Set(orderedQids.map(x => x.toUpperCase()));
-            const updates = {};
+            // Clone working maps to compute atomic multi-dimensional updates
+            const nextClusters = {};
+            Object.keys(window.crossClustersMap).forEach(s => {
+                nextClusters[s] = {
+                    slug: s,
+                    title: window.crossClustersMap[s].title,
+                    qids: [...window.crossClustersMap[s].qids]
+                };
+            });
 
-            prevGroup.forEach(oldId => {
-                const up = String(oldId).trim().toUpperCase();
-                if (!newSeenUpper.has(up)) {
-                    updates[`nodes/${up}`] = null;
+            const nextNodeTopics = {};
+            Object.keys(window.nodeTopicsMap).forEach(upKey => {
+                nextNodeTopics[upKey] = [...window.nodeTopicsMap[upKey]];
+            });
+
+            const removeSlugFromQid = (upKey, slugToRemove) => {
+                if (!nextNodeTopics[upKey]) return;
+                nextNodeTopics[upKey] = nextNodeTopics[upKey].filter(s => s !== slugToRemove);
+                if (nextNodeTopics[upKey].length === 0) delete nextNodeTopics[upKey];
+            };
+
+            const addSlugToQid = (upKey, slugToAdd) => {
+                if (!nextNodeTopics[upKey]) nextNodeTopics[upKey] = [];
+                if (!nextNodeTopics[upKey].includes(slugToAdd)) {
+                    nextNodeTopics[upKey].push(slugToAdd);
+                }
+            };
+
+            // 1. Handle any previous topic of anchorQid whose line was completely removed from the modal
+            prevAnchorSlugs.forEach(oldSlug => {
+                if (!seenSlugsInModal.has(oldSlug)) {
+                    removeSlugFromQid(anchorUpper, oldSlug);
+                    if (nextClusters[oldSlug]) {
+                        nextClusters[oldSlug].qids = nextClusters[oldSlug].qids.filter(
+                            id => String(id).trim().toUpperCase() !== anchorUpper
+                        );
+                        if (nextClusters[oldSlug].qids.length <= 1) {
+                            nextClusters[oldSlug].qids.forEach(remId => {
+                                removeSlugFromQid(String(remId).trim().toUpperCase(), oldSlug);
+                            });
+                            delete nextClusters[oldSlug];
+                        }
+                    }
                 }
             });
 
-            if (orderedQids.length <= 1) {
-                orderedQids.forEach(id => {
-                    updates[`nodes/${id.toUpperCase()}`] = null;
+            // 2. Apply each parsed topic line from the modal
+            parsedTopics.forEach(topicObj => {
+                const { slug, title, qids } = topicObj;
+                const prevQidsInCluster = nextClusters[slug] ? [...nextClusters[slug].qids] : [];
+                const newUpperSet = new Set(qids.map(x => String(x).trim().toUpperCase()));
+
+                // Scoped unlinking: if a QID was removed from THIS topic, detach ONLY this topic slug from that QID
+                prevQidsInCluster.forEach(oldId => {
+                    const up = String(oldId).trim().toUpperCase();
+                    if (!newUpperSet.has(up)) {
+                        removeSlugFromQid(up, slug);
+                    }
                 });
-            } else {
-                orderedQids.forEach(id => {
-                    updates[`nodes/${id.toUpperCase()}`] = orderedQids;
-                });
-            }
+
+                if (qids.length <= 1) {
+                    qids.forEach(id => removeSlugFromQid(String(id).trim().toUpperCase(), slug));
+                    delete nextClusters[slug];
+                } else {
+                    nextClusters[slug] = { slug, title, qids };
+                    qids.forEach(id => {
+                        addSlugToQid(String(id).trim().toUpperCase(), slug);
+                    });
+                }
+            });
+
+            // 3. Build atomic Firebase updates payload
+            const updates = {};
+            affectedSlugs.forEach(s => {
+                updates[`clusters/${s}`] = nextClusters[s] || null;
+            });
+
+            affectedQidsUpper.forEach(upKey => {
+                const slugsForQid = nextNodeTopics[upKey] || null;
+                updates[`node_topics/${upKey}`] = (slugsForQid && slugsForQid.length > 0) ? slugsForQid : null;
+
+                // Keep legacy nodes/${upKey} synced with the first topic's QIDs for 100% compatibility
+                if (slugsForQid && slugsForQid.length > 0 && nextClusters[slugsForQid[0]]) {
+                    updates[`nodes/${upKey}`] = nextClusters[slugsForQid[0]].qids;
+                } else {
+                    updates[`nodes/${upKey}`] = null;
+                }
+            });
+
+            const summaryText = parsedTopics.length > 0
+                ? parsedTopics.map(t => `${t.title} (${t.qids.join(', ')})`).join(' | ')
+                : 'Cleared Links';
 
             const newHistoryEntry = {
                 id: 'H_' + Date.now(),
                 timestamp: Date.now(),
                 anchorQid: anchorQid,
-                newSequence: orderedQids,
+                summaryText: summaryText,
+                newSequence: parsedTopics[0] ? parsedTopics[0].qids : [],
+                beforeClusters: beforeClusters,
+                beforeNodeTopics: beforeNodeTopics,
                 beforeNodes: beforeNodes
             };
             const updatedHistory = [newHistoryEntry, ...(window.crossLinksHistory || [])].slice(0, 10);
             updates['history'] = updatedHistory;
+
+            if (parsedTopics.length > 0) {
+                window.deckState.activeTopicSlug = parsedTopics[0].slug;
+            }
 
             btn.innerText = "Syncing...";
             btn.disabled = true;
@@ -2887,7 +3273,7 @@
                 await update(ref(db, `cross_links/${activeSubject}`), updates);
                 document.getElementById('admin-link-modal').style.display = 'none';
             } catch (err) {
-                console.error("Error saving cross links:", err);
+                console.error("Error saving multi-topic cross links:", err);
                 alert("Failed to sync cross-links to Firebase.");
             } finally {
                 btn.innerText = "Apply & Sync All";
@@ -2898,30 +3284,46 @@
         window.ADMIN_undoCrossLinks = async function(historyIndex) {
             if (!window.isAdminUser) return;
             const entry = (window.crossLinksHistory || [])[historyIndex];
-            if (!entry || !entry.beforeNodes) return;
+            if (!entry) return;
 
             const updates = {};
-            Object.keys(entry.beforeNodes).forEach(upKey => {
-                const prevVal = entry.beforeNodes[upKey];
-                updates[`nodes/${upKey}`] = (Array.isArray(prevVal) && prevVal.length > 1) ? prevVal : null;
-            });
+            if (entry.beforeClusters) {
+                Object.keys(entry.beforeClusters).forEach(s => {
+                    updates[`clusters/${s}`] = entry.beforeClusters[s] || null;
+                });
+            }
+            if (entry.beforeNodeTopics) {
+                Object.keys(entry.beforeNodeTopics).forEach(upKey => {
+                    const prevSlugs = entry.beforeNodeTopics[upKey];
+                    updates[`node_topics/${upKey}`] = (Array.isArray(prevSlugs) && prevSlugs.length > 0) ? prevSlugs : null;
+                });
+            }
+            if (entry.beforeNodes) {
+                Object.keys(entry.beforeNodes).forEach(upKey => {
+                    const prevVal = entry.beforeNodes[upKey];
+                    updates[`nodes/${upKey}`] = (Array.isArray(prevVal) && prevVal.length > 1) ? prevVal : null;
+                });
+            }
 
             const remainingHistory = window.crossLinksHistory.filter((_, idx) => idx !== historyIndex);
             updates['history'] = remainingHistory;
 
             try {
                 await update(ref(db, `cross_links/${activeSubject}`), updates);
-                const anchorUpper = String(window.adminEditingAnchorQid || '').trim().toUpperCase();
-                const restoredSeq = entry.beforeNodes[anchorUpper] || [window.adminEditingAnchorQid];
-                document.getElementById('admin-link-input').value = restoredSeq.join(', ');
+                if (window.adminEditingAnchorQid) {
+                    setTimeout(() => window.ADMIN_openLinkModal(window.adminEditingAnchorQid), 80);
+                }
             } catch (err) {
                 console.error("Undo failed:", err);
                 alert("Failed to undo cross-link change.");
             }
         };
 
+        // Ensure current session subscribes using the upgraded multi-dimensional listener
+        window.subscribeCrossLinks();
+
         // ==========================================
-        // DECK LOGIC (PARENT CARD BACKGROUND + TEEN PATTI OVERLAY)
+        // DECK LOGIC (PARENT CARD BACKGROUND + MULTI-TOPIC TEEN PATTI OVERLAY)
         // ==========================================
 
         function initUniversalDeck(data) {
@@ -2929,6 +3331,7 @@
             window.deckState.currentIndex = 0;
             window.deckState.overrideQid = null;
             window.deckState.fanViewOpen = false;
+            window.deckState.activeTopicSlug = null;
         }
 
         window.UD_toggleMode = function() {
@@ -2967,16 +3370,47 @@
             const { anchorQ, displayedQ: q } = window.UD_getAnchorAndDisplayedQ();
             window.currentQIDForReport = q.uid;
 
-            // Compute < 1/16 > Sub-Topic Sequence & Current Position
-            const clusterSeq = window.UD_getClusterSequence(
+            // Resolve multi-dimensional sub-topics & active sequence for the current card
+            const clusterInfo = window.UD_getActiveClusterInfo(
                 anchorQ.uid,
+                q.uid,
                 (window.isAdminUser && window.deckState.fanViewOpen) ? window.deckState.adminTopFilter : null
             );
+            const clusterSeq = clusterInfo.sequence;
+            const availableTopics = clusterInfo.topics;
+            const activeTopicObj = clusterInfo.activeTopic;
+
             const curUpper = String(q.uid).trim().toUpperCase();
             let clusterPos = clusterSeq.findIndex(id => String(id).trim().toUpperCase() === curUpper);
             if (clusterPos === -1) clusterPos = 0;
             const totalInCluster = Math.max(1, clusterSeq.length);
             const pillCenterLabel = `${Math.min(clusterPos + 1, totalInCluster)}/${totalInCluster}`;
+
+            // Build Sub-Topic Dimension Switcher Bar (shown when a question belongs to named or multiple topics)
+            let topicDimensionBarHtml = '';
+            const showTopicBar = availableTopics.length > 1 || (availableTopics.length === 1 && availableTopics[0].title !== 'Linked Concept');
+            if (showTopicBar) {
+                const pillsHtml = availableTopics.map(tObj => {
+                    const isAct = activeTopicObj && activeTopicObj.slug === tObj.slug;
+                    const tSeq = window.UD_filterSequenceByRole(tObj.qids, q.uid);
+                    const posInT = tSeq.findIndex(id => String(id).trim().toUpperCase() === curUpper);
+                    const countLabel = posInT !== -1 ? `${posInT + 1}/${tSeq.length}` : `${tSeq.length}`;
+                    const safeSlug = tObj.slug.replace(/'/g, "\\'");
+                    return `
+                    <button type="button"
+                            class="ud-topic-dim-pill ${isAct ? 'active' : ''}"
+                            onclick="window.UD_switchTopicDimension('${safeSlug}', event)">
+                        <i class="fas fa-tag" style="font-size:9px;"></i>
+                        <span>${tObj.title}</span>
+                        <span class="ud-topic-dim-count">${countLabel}</span>
+                    </button>`;
+                }).join('');
+
+                topicDimensionBarHtml = `
+                <div class="ud-topic-dims-bar">
+                    ${pillsHtml}
+                </div>`;
+            }
 
             let imgHtml = q.img ? `<a href="${q.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${q.img}')"><img src="${q.img}" class="ud-img"></a>` : '';
             let optsHtml = (q.options || []).map((o,i) => {
@@ -3009,12 +3443,13 @@
             let teenPattiOverlayOnOptionsHtml = '';
 
             if (window.deckState.fanViewOpen) {
-                // Pass 'auto' so each patti in the main fan gets its own exam color (Blue/Purple/Gold/Green)
-                const mainFanHtml = window.TP_buildFanDeckHTML('main', clusterSeq, 'auto', clusterPos);
+                const activeTopicTitle = activeTopicObj ? activeTopicObj.title : '';
+                const mainFanHtml = window.TP_buildFanDeckHTML('main', clusterSeq, 'auto', clusterPos, activeTopicTitle);
 
                 let adminExtendedInsideOverlayHtml = '';
                 if (window.isAdminUser) {
-                    const fullCrossSeq = window.UD_getClusterSequence(anchorQ.uid, 'all');
+                    const fullCrossInfo = window.UD_getActiveClusterInfo(anchorQ.uid, q.uid, 'all');
+                    const fullCrossSeq = fullCrossInfo.sequence;
                     const neetSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'neet-pg');
                     const iniSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'inicet');
                     const cmsSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'upsc-cms');
@@ -3034,19 +3469,19 @@
                         </div>
 
                         <!-- 1. NEETPG Deck (Blue #2563eb) -->
-                        ${window.TP_buildFanDeckHTML('admin-neet-pg', neetSeq, '#2563eb', window.deckState.fanPosMap['admin-neet-pg'] ?? 0)}
+                        ${window.TP_buildFanDeckHTML('admin-neet-pg', neetSeq, '#2563eb', window.deckState.fanPosMap['admin-neet-pg'] ?? 0, activeTopicTitle)}
                         <div class="tp-exam-label-box">NEETPG</div>
 
                         <!-- 2. INICET Deck (Purple #9333ea) -->
-                        ${window.TP_buildFanDeckHTML('admin-inicet', iniSeq, '#9333ea', window.deckState.fanPosMap['admin-inicet'] ?? 0)}
+                        ${window.TP_buildFanDeckHTML('admin-inicet', iniSeq, '#9333ea', window.deckState.fanPosMap['admin-inicet'] ?? 0, activeTopicTitle)}
                         <div class="tp-exam-label-box">INICET</div>
 
                         <!-- 3. CMS Deck (Yellow/Gold #eab308) -->
-                        ${window.TP_buildFanDeckHTML('admin-upsc-cms', cmsSeq, '#eab308', window.deckState.fanPosMap['admin-upsc-cms'] ?? 0)}
+                        ${window.TP_buildFanDeckHTML('admin-upsc-cms', cmsSeq, '#eab308', window.deckState.fanPosMap['admin-upsc-cms'] ?? 0, activeTopicTitle)}
                         <div class="tp-exam-label-box">CMS</div>
 
                         <!-- 4. FMGE Deck (Green #22c55e) -->
-                        ${window.TP_buildFanDeckHTML('admin-fmge', fmgeSeq, '#22c55e', window.deckState.fanPosMap['admin-fmge'] ?? 0)}
+                        ${window.TP_buildFanDeckHTML('admin-fmge', fmgeSeq, '#22c55e', window.deckState.fanPosMap['admin-fmge'] ?? 0, activeTopicTitle)}
                         <div class="tp-exam-label-box">FMGE</div>
                     </div>`;
                 }
@@ -3108,14 +3543,14 @@
                    <div style="display: flex; align-items: center; gap: 8px;">
                        <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
                        <div class="ud-cluster-pill ${window.deckState.fanViewOpen ? 'pill-fan-active' : ''}"
-                            onmousedown="window.UD_startPillPress(event, '${anchorQ.uid}')"
+                            onmousedown="window.UD_startPillPress(event, '${q.uid}')"
                             onmouseup="window.UD_cancelPillPress()"
                             onmouseleave="window.UD_cancelPillPress()"
-                            ontouchstart="window.UD_startPillPress(event, '${anchorQ.uid}')"
+                            ontouchstart="window.UD_startPillPress(event, '${q.uid}')"
                             ontouchend="window.UD_cancelPillPress()"
-                            oncontextmenu="window.UD_onPillContextMenu(event, '${anchorQ.uid}')">
+                            oncontextmenu="window.UD_onPillContextMenu(event, '${q.uid}')">
                            <button class="ud-cluster-btn" onclick="window.UD_stepCluster(-1, event)" ${clusterPos <= 0 ? 'disabled' : ''}>&lt;</button>
-                           <span class="ud-cluster-count" id="ud-pill-center-text" onclick="window.UD_onPillCenterClick(event, '${anchorQ.uid}')" title="Tap to toggle Teen Patti Fanned Deck">${pillCenterLabel}</span>
+                           <span class="ud-cluster-count" id="ud-pill-center-text" onclick="window.UD_onPillCenterClick(event, '${q.uid}')" title="Tap to toggle Teen Patti Fanned Deck">${pillCenterLabel}</span>
                            <button class="ud-cluster-btn" onclick="window.UD_stepCluster(1, event)" ${clusterPos >= clusterSeq.length - 1 ? 'disabled' : ''}>&gt;</button>
                        </div>
                    </div>
@@ -3129,6 +3564,8 @@
                        <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
                    </div>
                </div>
+
+                ${topicDimensionBarHtml}
                 
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
 
@@ -3229,6 +3666,7 @@
             window.deckState.currentIndex = 0;
             window.deckState.overrideQid = null;
             window.deckState.fanViewOpen = false;
+            window.deckState.activeTopicSlug = null;
 
             try {
                 await set(ref(db, `users/${user.uid}/solved/${activeExam}/${activeSubject}`), null);
@@ -3245,6 +3683,7 @@
                 window.deckState.currentIndex++;
                 window.deckState.overrideQid = null;
                 window.deckState.fanViewOpen = false;
+                window.deckState.activeTopicSlug = null;
                 window.UD_renderCard();
                 window.saveCurrentIndex();
             }
@@ -3254,6 +3693,7 @@
                 window.deckState.currentIndex--;
                 window.deckState.overrideQid = null;
                 window.deckState.fanViewOpen = false;
+                window.deckState.activeTopicSlug = null;
                 window.UD_renderCard();
                 window.saveCurrentIndex();
             }
@@ -3281,6 +3721,7 @@
             window.deckState.currentIndex = i;
             window.deckState.overrideQid = null;
             window.deckState.fanViewOpen = false;
+            window.deckState.activeTopicSlug = null;
             window.UD_closeDrawers();
             window.UD_renderCard();
             window.saveCurrentIndex();
@@ -3492,7 +3933,7 @@
         }, false);
     </script>
 
-    <!-- Overlay & Real-Time Admin Editor Styles -->
+    <!-- Overlay, Multi-Dimensional Topic Pills & Real-Time Admin Editor Styles -->
     <style>
         .ud-cluster-pill.pill-fan-active {
             background: #0f2b52;
@@ -3501,6 +3942,70 @@
         .ud-cluster-pill.pill-fan-active .ud-cluster-btn,
         .ud-cluster-pill.pill-fan-active .ud-cluster-count {
             color: #ffffff;
+        }
+        .ud-topic-dims-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: -4px 0 14px 0;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+        .ud-topic-dim-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1.5px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .ud-topic-dim-pill:hover {
+            border-color: #0f2b52;
+            color: #0f2b52;
+        }
+        .ud-topic-dim-pill.active {
+            background: #0f2b52;
+            border-color: #0f2b52;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(15, 43, 82, 0.18);
+        }
+        .ud-topic-dim-count {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.22);
+            font-weight: 900;
+        }
+        .ud-topic-dim-pill:not(.active) .ud-topic-dim-count {
+            background: #f1f5f9;
+            color: #0f2b52;
+        }
+        .admin-topic-chip-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 9px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .admin-topic-chip-btn:hover {
+            background: #e0f2fe;
+            border-color: #0284c7;
         }
         .ud-opts-stage-wrap {
             position: relative;
