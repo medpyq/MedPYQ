@@ -2053,7 +2053,265 @@
             document.getElementById('cfmTable').classList.toggle('reveal-active');
             document.getElementById('float-eye-btn').classList.toggle('active');
         };
-// ==========================================
+           // ==========================================
+        // REAL-TIME ADMIN ANS/EXPL EDITOR + 10 UNDO/REDO ENGINE
+        // ==========================================
+
+        window.questionEditsMap = {};
+        window.adminEditUndoStack = [];
+        window.adminEditRedoStack = [];
+
+        window.applyQuestionOverrideToMemory = function(qid, overrideObj) {
+            if (!qid) return;
+            const up = String(qid).trim().toUpperCase();
+
+            const applyToItem = (item) => {
+                if (!item || String(item.uid).trim().toUpperCase() !== up) return;
+                if (item._origAnsKey === undefined) item._origAnsKey = item.ans_key;
+                if (item._origExplanation === undefined) item._origExplanation = item.explanation;
+
+                if (overrideObj) {
+                    if (overrideObj.ans_key) item.ans_key = overrideObj.ans_key;
+                    if (overrideObj.explanation !== undefined) item.explanation = overrideObj.explanation;
+                } else {
+                    if (item._origAnsKey !== undefined) item.ans_key = item._origAnsKey;
+                    if (item._origExplanation !== undefined) item.explanation = item._origExplanation;
+                }
+            };
+
+            (window.appData || []).forEach(applyToItem);
+            (window.deckState.activeDb || []).forEach(applyToItem);
+            if (window.allExamLookup[up]) applyToItem(window.allExamLookup[up]);
+            Object.keys(window.examBanks || {}).forEach(ex => {
+                (window.examBanks[ex] || []).forEach(applyToItem);
+            });
+        };
+
+        window.subscribeQuestionEdits = function() {
+            const editsRef = ref(db, `question_edits/${activeSubject}`);
+            onValue(editsRef, (snapshot) => {
+                const val = snapshot.val() || {};
+                const overrides = val.overrides || {};
+                window.questionEditsMap = overrides;
+
+                // Apply all active real-time overrides to memory
+                Object.keys(overrides).forEach(upKey => {
+                    window.applyQuestionOverrideToMemory(upKey, overrides[upKey]);
+                });
+
+                const rawUndo = val.undoStack || [];
+                const rawRedo = val.redoStack || [];
+                window.adminEditUndoStack = (Array.isArray(rawUndo) ? rawUndo : Object.values(rawUndo)).filter(Boolean).slice(0, 10);
+                window.adminEditRedoStack = (Array.isArray(rawRedo) ? rawRedo : Object.values(rawRedo)).filter(Boolean).slice(0, 10);
+
+                // Refresh UI in real time without losing scroll/state
+                if (window.deckState.activeDb && window.deckState.activeDb.length > 0) {
+                    window.renderTable(window.deckState.activeDb);
+                }
+                if (window.deckState.isOpen) {
+                    const editBox = document.getElementById('admin-inline-editor-box');
+                    const isEditingNow = editBox && editBox.style.display === 'block';
+                    if (!isEditingNow) {
+                        window.UD_renderCard(false);
+                    } else {
+                        window.ADMIN_updateUndoRedoButtonsUI();
+                    }
+                }
+            });
+        };
+
+        // Helper to also update the raw question_banks node in Firebase when possible
+        window.ADMIN_syncToQuestionBankNode = async function(qid, examKey, newAnsKey, newExpl) {
+            try {
+                const targetExam = examKey || window.inferExamFromQid(qid) || activeExam;
+                const bankRef = ref(db, `question_banks/${targetExam}/${activeSubject}`);
+                const snap = await get(bankRef);
+                if (!snap.exists()) return;
+                const data = snap.val();
+                const up = String(qid).trim().toUpperCase();
+
+                if (Array.isArray(data)) {
+                    const idx = data.findIndex(item => item && String(item.q || '').trim().toUpperCase() === up);
+                    if (idx !== -1) {
+                        await update(ref(db, `question_banks/${targetExam}/${activeSubject}/${idx}`), {
+                            ans_key: newAnsKey,
+                            explanation: newExpl
+                        });
+                    }
+                } else if (data && typeof data === 'object') {
+                    for (const k of Object.keys(data)) {
+                        if (data[k] && String(data[k].q || '').trim().toUpperCase() === up) {
+                            await update(ref(db, `question_banks/${targetExam}/${activeSubject}/${k}`), {
+                                ans_key: newAnsKey,
+                                explanation: newExpl
+                            });
+                            break;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Direct bank node sync warning:", e);
+            }
+        };
+
+        window.ADMIN_toggleInlineEditor = function() {
+            const box = document.getElementById('admin-inline-editor-box');
+            if (!box) return;
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        };
+
+        window.ADMIN_selectEditKey = function(letter) {
+            document.querySelectorAll('.admin-key-pill').forEach(btn => {
+                const isMatch = btn.getAttribute('data-key') === letter;
+                btn.classList.toggle('active', isMatch);
+            });
+            const hiddenInput = document.getElementById('admin-edit-ans-input');
+            if (hiddenInput) hiddenInput.value = letter;
+        };
+
+        window.ADMIN_saveQuestionEdit = async function(qid) {
+            if (!window.isAdminUser) return;
+            const qObj = window.resolveQuestionByQid(qid);
+            if (!qObj) return;
+
+            const newAnsKey = (document.getElementById('admin-edit-ans-input')?.value || qObj.ans_key || 'A').trim().toUpperCase();
+            const newExpl = document.getElementById('admin-edit-expl-input')?.value ?? (qObj.explanation || '');
+
+            const prevAnsKey = qObj.ans_key || 'A';
+            const prevExpl = qObj.explanation || '';
+
+            if (newAnsKey === prevAnsKey && newExpl === prevExpl) {
+                alert("No changes detected.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-admin-save-qe');
+            if (btn) { btn.innerText = "Saving Live..."; btn.disabled = true; }
+
+            const upKey = String(qid).trim().toUpperCase();
+            const examKey = qObj.examKey || window.inferExamFromQid(qid) || activeExam;
+
+            const actionRecord = {
+                id: 'QE_' + Date.now(),
+                qid: String(qid).trim(),
+                upKey: upKey,
+                examKey: examKey,
+                prevAnsKey: prevAnsKey,
+                prevExplanation: prevExpl,
+                newAnsKey: newAnsKey,
+                newExplanation: newExpl,
+                timestamp: Date.now()
+            };
+
+            const newUndoStack = [actionRecord, ...(window.adminEditUndoStack || [])].slice(0, 10);
+            const newRedoStack = []; // Clear redo stack on fresh edit
+
+            const overridePayload = {
+                ans_key: newAnsKey,
+                explanation: newExpl,
+                updatedAt: Date.now()
+            };
+
+            try {
+                window.applyQuestionOverrideToMemory(upKey, overridePayload);
+                await update(ref(db, `question_edits/${activeSubject}`), {
+                    [`overrides/${upKey}`]: overridePayload,
+                    undoStack: newUndoStack,
+                    redoStack: newRedoStack
+                });
+                window.ADMIN_syncToQuestionBankNode(qid, examKey, newAnsKey, newExpl);
+                window.UD_renderCard(false);
+            } catch (err) {
+                console.error("Failed to save real-time edit:", err);
+                alert("Error saving edit to Firebase.");
+            } finally {
+                if (btn) { btn.innerText = "Save Live"; btn.disabled = false; }
+            }
+        };
+
+        window.ADMIN_undoQuestionEdit = async function() {
+            if (!window.isAdminUser || !window.adminEditUndoStack || window.adminEditUndoStack.length === 0) return;
+
+            const [latestAction, ...remainingUndo] = window.adminEditUndoStack;
+            const newRedoStack = [latestAction, ...(window.adminEditRedoStack || [])].slice(0, 10);
+
+            const restoredOverride = {
+                ans_key: latestAction.prevAnsKey,
+                explanation: latestAction.prevExplanation,
+                updatedAt: Date.now()
+            };
+
+            try {
+                window.applyQuestionOverrideToMemory(latestAction.upKey, restoredOverride);
+                await update(ref(db, `question_edits/${activeSubject}`), {
+                    [`overrides/${latestAction.upKey}`]: restoredOverride,
+                    undoStack: remainingUndo,
+                    redoStack: newRedoStack
+                });
+                window.ADMIN_syncToQuestionBankNode(
+                    latestAction.qid,
+                    latestAction.examKey,
+                    latestAction.prevAnsKey,
+                    latestAction.prevExplanation
+                );
+                window.UD_renderCard(false);
+            } catch (err) {
+                console.error("Undo failed:", err);
+                alert("Failed to undo change.");
+            }
+        };
+
+        window.ADMIN_redoQuestionEdit = async function() {
+            if (!window.isAdminUser || !window.adminEditRedoStack || window.adminEditRedoStack.length === 0) return;
+
+            const [latestRedo, ...remainingRedo] = window.adminEditRedoStack;
+            const newUndoStack = [latestRedo, ...(window.adminEditUndoStack || [])].slice(0, 10);
+
+            const reappliedOverride = {
+                ans_key: latestRedo.newAnsKey,
+                explanation: latestRedo.newExplanation,
+                updatedAt: Date.now()
+            };
+
+            try {
+                window.applyQuestionOverrideToMemory(latestRedo.upKey, reappliedOverride);
+                await update(ref(db, `question_edits/${activeSubject}`), {
+                    [`overrides/${latestRedo.upKey}`]: reappliedOverride,
+                    undoStack: newUndoStack,
+                    redoStack: remainingRedo
+                });
+                window.ADMIN_syncToQuestionBankNode(
+                    latestRedo.qid,
+                    latestRedo.examKey,
+                    latestRedo.newAnsKey,
+                    latestRedo.newExplanation
+                );
+                window.UD_renderCard(false);
+            } catch (err) {
+                console.error("Redo failed:", err);
+                alert("Failed to redo change.");
+            }
+        };
+
+        window.ADMIN_updateUndoRedoButtonsUI = function() {
+            const uBtn = document.getElementById('btn-admin-qe-undo');
+            const rBtn = document.getElementById('btn-admin-qe-redo');
+            const uCount = (window.adminEditUndoStack || []).length;
+            const rCount = (window.adminEditRedoStack || []).length;
+            if (uBtn) {
+                uBtn.disabled = uCount === 0;
+                uBtn.innerHTML = `<i class="fas fa-rotate-left"></i> Undo (${uCount}/10)`;
+            }
+            if (rBtn) {
+                rBtn.disabled = rCount === 0;
+                rBtn.innerHTML = `<i class="fas fa-rotate-right"></i> Redo (${rCount}/10)`;
+            }
+        };
+
+        // Start listening to real-time question edits immediately
+        window.subscribeQuestionEdits();
+
+        // ==========================================
         // SUB-TOPIC < 1/16 > PILL & TEEN PATTI ENGINE
         // ==========================================
 
@@ -2072,7 +2330,6 @@
                 rawSeq = [cleanBase];
             } else {
                 rawSeq = [...rawSeq];
-                // Only if baseQid was somehow not in its own list, append without sorting
                 if (!rawSeq.some(id => String(id).trim().toUpperCase() === upperBase)) {
                     rawSeq.push(cleanBase);
                 }
@@ -2164,14 +2421,9 @@
                 return;
             }
             window.deckState.fanViewOpen = !window.deckState.fanViewOpen;
-            if (window.deckState.fanViewOpen) {
-                window.TP_renderFanView();
-            } else {
-                window.UD_renderCard(true);
-            }
+            window.UD_renderCard(false);
         };
 
-        // Helper to strip HTML tags for compact patti preview
         window.TP_stripHtml = function(htmlStr) {
             if (!htmlStr) return "";
             const tmp = document.createElement("div");
@@ -2179,11 +2431,11 @@
             return (tmp.textContent || tmp.innerText || "").trim();
         };
 
-        // Build a single Teen Patti Fanned Card Deck HTML
+        // Build a single Teen Patti Fanned Card Deck HTML (with real .ud-option-style option rows)
         window.TP_buildFanDeckHTML = function(deckKey, qidList, borderColor, activePos) {
             if (!qidList || qidList.length === 0) {
                 return `
-                <div class="tp-fan-stage" data-deck-key="${deckKey}" style="--tp-border-color: ${borderColor}; height: 260px;">
+                <div class="tp-fan-stage" data-deck-key="${deckKey}" style="--tp-border-color: ${borderColor}; height: 240px;">
                     <div class="tp-empty-fan-box" style="--tp-border-color: ${borderColor};">
                         <i class="fas fa-layer-group" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
                         No linked cards in this exam
@@ -2231,13 +2483,29 @@
 
                 const cleanStem = window.TP_stripHtml(qObj.stem) || `Question ${qObj.uid}`;
                 const opts = Array.isArray(qObj.options) ? qObj.options.slice(0, 4) : ["Option A", "Option B", "Option C", "Option D"];
+                const userAns = window.deckState.userStatus[qObj.uid];
+
                 const optsBarsHtml = opts.map((o, oIdx) => {
                     const char = String.fromCharCode(65 + oIdx);
                     const cleanOpt = window.TP_stripHtml(o);
-                    return `<div class="tp-mini-opt"><span class="tp-mini-opt-char">${char}</span><span style="overflow:hidden; text-overflow:ellipsis;">${cleanOpt}</span></div>`;
+                    let statusStyle = '';
+                    let charStyle = '';
+                    if (userAns) {
+                        if (char === qObj.ans_key) {
+                            statusStyle = 'background:#dcfce7; border-color:#22c55e; color:#14532d; font-weight:700;';
+                            charStyle = 'background:#22c55e; color:white;';
+                        } else if (userAns === char) {
+                            statusStyle = 'background:#fee2e2; border-color:#ef4444; color:#7f1d1d;';
+                            charStyle = 'background:#ef4444; color:white;';
+                        }
+                    }
+                    return `
+                    <div class="tp-mini-opt" style="${statusStyle}">
+                        <span class="tp-mini-opt-char" style="${charStyle}">${char}</span>
+                        <span style="overflow:hidden; text-overflow:ellipsis;">${cleanOpt}</span>
+                    </div>`;
                 }).join('');
 
-                // Exposed left/right wing strips so every card in a 16+ fan shows its index & QID clearly
                 const leftWingHtml = offset < 0 ? `
                     <div class="tp-wing-strip left">
                         <div class="tp-wing-seq">${idx + 1}/${total}</div>
@@ -2273,7 +2541,7 @@
                      style="--tp-border-color: ${borderColor}; transform: ${transformRule}; z-index: ${zIdx};">
                     ${leftWingHtml}
                     ${rightWingHtml}
-                    <div style="opacity: ${offset === 0 ? '1' : '0.18'}; transition: opacity 0.2s; display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <div style="opacity: ${offset === 0 ? '1' : '0.22'}; transition: opacity 0.2s; display:flex; flex-direction:column; justify-content:space-between; height:100%;">
                         <div>
                             <div class="tp-center-top">
                                 <span class="tp-seq-badge">${idx + 1}/${total}</span>
@@ -2342,7 +2610,6 @@
                 cardEl.style.transform = transformRule;
                 cardEl.style.zIndex = zIdx;
 
-                // Update wing strips dynamically
                 cardEl.querySelectorAll('.tp-wing-strip').forEach(w => w.remove());
                 if (offset < 0) {
                     cardEl.insertAdjacentHTML('afterbegin', `
@@ -2376,11 +2643,10 @@
 
                 const innerBody = cardEl.lastElementChild;
                 if (innerBody) {
-                    innerBody.style.opacity = offset === 0 ? '1' : '0.18';
+                    innerBody.style.opacity = offset === 0 ? '1' : '0.22';
                 }
             });
 
-            // Sync top pill counter if this is the main top fan
             if (deckKey === 'main') {
                 const activePatti = pattis[safePos];
                 if (activePatti) {
@@ -2449,24 +2715,18 @@
                     }
                 };
 
-                // Touch listeners
                 stageEl.addEventListener('touchstart', (e) => {
-                    if (e.touches.length === 1) {
-                        onStart(e.touches[0].clientX, e.touches[0].clientY);
-                    }
+                    if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY);
                 }, { passive: true });
 
                 stageEl.addEventListener('touchmove', (e) => {
-                    if (e.touches.length === 1) {
-                        onMove(e.touches[0].clientX, e.touches[0].clientY);
-                    }
+                    if (e.touches.length === 1) onMove(e.touches[0].clientX, e.touches[0].clientY);
                 }, { passive: true });
 
                 stageEl.addEventListener('touchend', (e) => {
                     onEnd(e.target);
                 });
 
-                // Mouse drag listeners
                 stageEl.addEventListener('mousedown', (e) => {
                     onStart(e.clientX, e.clientY);
                 });
@@ -2483,99 +2743,12 @@
 
         window.TP_setAdminTopFilter = function(filterVal) {
             window.deckState.adminTopFilter = filterVal;
-            window.TP_renderFanView();
+            window.UD_renderCard(false);
         };
 
         window.TP_renderFanView = function() {
-            const area = document.getElementById('ud-card-area');
-            const { anchorQ, displayedQ } = window.UD_getAnchorAndDisplayedQ();
-            if (!anchorQ || !displayedQ) return;
-
-            const topSeq = window.UD_getClusterSequence(
-                anchorQ.uid,
-                window.isAdminUser ? window.deckState.adminTopFilter : null
-            );
-
-            const curUpper = String(displayedQ.uid).trim().toUpperCase();
-            let activeIdx = topSeq.findIndex(id => String(id).trim().toUpperCase() === curUpper);
-            if (activeIdx === -1) activeIdx = 0;
-
-            const totalTop = Math.max(1, topSeq.length);
-            const posLabel = `${Math.min(activeIdx + 1, totalTop)}/${totalTop}`;
-
-            // Keep the top bar inside .ud-card identical so Q. 1 and < 1/16 > stay visible at the top of the fan view
-            let topBarHtml = `
-            <div class="ud-card-top" style="max-width:520px; margin:0 auto 10px auto; background:white; padding:12px 16px; border-radius:12px; border:1px solid #e2e8f0;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
-                    <div class="ud-cluster-pill"
-                         onmousedown="window.UD_startPillPress(event, '${anchorQ.uid}')"
-                         onmouseup="window.UD_cancelPillPress()"
-                         onmouseleave="window.UD_cancelPillPress()"
-                         ontouchstart="window.UD_startPillPress(event, '${anchorQ.uid}')"
-                         ontouchend="window.UD_cancelPillPress()"
-                         oncontextmenu="window.UD_onPillContextMenu(event, '${anchorQ.uid}')">
-                        <button class="ud-cluster-btn" onclick="window.UD_stepCluster(-1, event)" ${activeIdx <= 0 ? 'disabled' : ''}>&lt;</button>
-                        <span class="ud-cluster-count" id="ud-pill-center-text" onclick="window.UD_onPillCenterClick(event, '${anchorQ.uid}')" title="Toggle Teen Patti Deck">${posLabel}</span>
-                        <button class="ud-cluster-btn" onclick="window.UD_stepCluster(1, event)" ${activeIdx >= topSeq.length - 1 ? 'disabled' : ''}>&gt;</button>
-                    </div>
-                </div>
-                <button class="ud-ai-btn" onclick="window.deckState.fanViewOpen=false; window.UD_renderCard(true);" style="border-color:#cbd5e1; color:#0f2b52;">
-                    <i class="fas fa-compress"></i> Flat View
-                </button>
-            </div>`;
-
-            // Top Main Teen Patti Fan (#2563eb royal blue border)
-            let mainFanHtml = window.TP_buildFanDeckHTML('main', topSeq, '#2563eb', activeIdx);
-
-            // Admin Extended View: Switcher Bar + 4 Scroll-Down Exam-Specific Teen Patti Decks
-            let adminExtendedHtml = '';
-            if (window.isAdminUser) {
-                const fullCrossSeq = window.UD_getClusterSequence(anchorQ.uid, 'all');
-                const neetSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'neet-pg');
-                const iniSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'inicet');
-                const cmsSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'upsc-cms');
-                const fmgeSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'fmge');
-
-                const curFilter = window.deckState.adminTopFilter || 'all';
-
-                adminExtendedHtml = `
-                <div class="tp-admin-switcher">
-                    <span style="font-size:11px; font-weight:900; color:#ea580c; margin-right:4px;">&larr;</span>
-                    <button class="tp-switch-btn ${curFilter === 'all' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('all')">All Exam</button>
-                    <button class="tp-switch-btn ${curFilter === 'neet-pg' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('neet-pg')">NEET-PG</button>
-                    <button class="tp-switch-btn ${curFilter === 'inicet' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('inicet')">INI</button>
-                    <button class="tp-switch-btn ${curFilter === 'upsc-cms' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('upsc-cms')">CMS</button>
-                    <button class="tp-switch-btn ${curFilter === 'fmge' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('fmge')">FMGE</button>
-                    <span style="font-size:11px; font-weight:900; color:#ea580c; margin-left:4px;">&rarr;</span>
-                </div>
-
-                <!-- 1. NEETPG Deck (Blue #2563eb) -->
-                ${window.TP_buildFanDeckHTML('admin-neet-pg', neetSeq, '#2563eb', window.deckState.fanPosMap['admin-neet-pg'] ?? 0)}
-                <div class="tp-exam-label-box">NEETPG</div>
-
-                <!-- 2. INICET Deck (Purple #9333ea) -->
-                ${window.TP_buildFanDeckHTML('admin-inicet', iniSeq, '#9333ea', window.deckState.fanPosMap['admin-inicet'] ?? 0)}
-                <div class="tp-exam-label-box">INICET</div>
-
-                <!-- 3. CMS Deck (Yellow/Gold #eab308) -->
-                ${window.TP_buildFanDeckHTML('admin-upsc-cms', cmsSeq, '#eab308', window.deckState.fanPosMap['admin-upsc-cms'] ?? 0)}
-                <div class="tp-exam-label-box">CMS</div>
-
-                <!-- 4. FMGE Deck (Green #22c55e) -->
-                ${window.TP_buildFanDeckHTML('admin-fmge', fmgeSeq, '#22c55e', window.deckState.fanPosMap['admin-fmge'] ?? 0)}
-                <div class="tp-exam-label-box">FMGE</div>
-                `;
-            }
-
-            area.innerHTML = `
-            <div class="tp-fan-wrapper">
-                ${topBarHtml}
-                ${mainFanHtml}
-                ${adminExtendedHtml}
-            </div>`;
-
-            window.TP_attachFanInteractions();
+            window.deckState.fanViewOpen = true;
+            window.UD_renderCard(false);
         };
 
         // ==========================================
@@ -2627,7 +2800,6 @@
             const rawInput = document.getElementById('admin-link-input').value || '';
             const btn = document.getElementById('btn-save-crosslinks');
 
-            // Parse comma-separated QIDs preserving exact typed order (no sorting!)
             const seenUpper = new Set();
             const orderedQids = [];
             rawInput.split(',').forEach(token => {
@@ -2647,7 +2819,6 @@
                 return;
             }
 
-            // Collect all affected QIDs (previous cluster members + new cluster members) to snapshot for 10-step Undo
             const prevGroup = window.crossLinksMap[anchorQid.toUpperCase()] || [];
             const affectedUpperSet = new Set();
             prevGroup.forEach(id => affectedUpperSet.add(String(id).trim().toUpperCase()));
@@ -2663,11 +2834,9 @@
                 beforeNodes[upKey] = window.crossLinksMap[upKey] ? [...window.crossLinksMap[upKey]] : null;
             });
 
-            // Build atomic Firebase multi-path update for nodes
             const newSeenUpper = new Set(orderedQids.map(x => x.toUpperCase()));
             const updates = {};
 
-            // 1. Remove any QID that was removed from the group
             prevGroup.forEach(oldId => {
                 const up = String(oldId).trim().toUpperCase();
                 if (!newSeenUpper.has(up)) {
@@ -2675,7 +2844,6 @@
                 }
             });
 
-            // 2. Write exact ordered array bidirectionally to EVERY QID in the list
             if (orderedQids.length <= 1) {
                 orderedQids.forEach(id => {
                     updates[`nodes/${id.toUpperCase()}`] = null;
@@ -2686,7 +2854,6 @@
                 });
             }
 
-            // 3. Push snapshot to 10-step undo history
             const newHistoryEntry = {
                 id: 'H_' + Date.now(),
                 timestamp: Date.now(),
@@ -2738,7 +2905,7 @@
         };
 
         // ==========================================
-        // DECK LOGIC (EXISTING + IN-PLACE SUB-TOPIC BINDING)
+        // DECK LOGIC (PARENT CARD BACKGROUND + TEEN PATTI OVERLAY)
         // ==========================================
 
         function initUniversalDeck(data) {
@@ -2773,30 +2940,27 @@
             }
         };
 
-       window.UD_renderCard = function(animateFade = false) {
+        window.UD_renderCard = function(animateFade = false) {
             const area = document.getElementById('ud-card-area');
             if(!window.deckState.activeDb || window.deckState.activeDb.length === 0) { 
                 area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; 
                 document.getElementById('ud-counter').innerText = '0/0'; 
                 return; 
             }
-
-            if (window.deckState.fanViewOpen) {
-                window.TP_renderFanView();
-                document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
-                return;
-            }
             
             const { anchorQ, displayedQ: q } = window.UD_getAnchorAndDisplayedQ();
             window.currentQIDForReport = q.uid;
 
             // Compute < 1/16 > Sub-Topic Sequence & Current Position
-            const clusterSeq = window.UD_getClusterSequence(anchorQ.uid);
+            const clusterSeq = window.UD_getClusterSequence(
+                anchorQ.uid,
+                (window.isAdminUser && window.deckState.fanViewOpen) ? window.deckState.adminTopFilter : null
+            );
             const curUpper = String(q.uid).trim().toUpperCase();
             let clusterPos = clusterSeq.findIndex(id => String(id).trim().toUpperCase() === curUpper);
             if (clusterPos === -1) clusterPos = 0;
             const totalInCluster = Math.max(1, clusterSeq.length);
-            const pillCenterLabel = `${clusterPos + 1}/${totalInCluster}`;
+            const pillCenterLabel = `${Math.min(clusterPos + 1, totalInCluster)}/${totalInCluster}`;
 
             let imgHtml = q.img ? `<a href="${q.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${q.img}')"><img src="${q.img}" class="ud-img"></a>` : '';
             let optsHtml = (q.options || []).map((o,i) => {
@@ -2825,12 +2989,106 @@
                 displayChapterHtml = `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; display:inline-block;">${name}</span>`;
             }
 
+            // === TEEN PATTI OVERLAY SUPERIMPOSED DIRECTLY OVER PARENT QUESTION OPTIONS ===
+            let teenPattiOverlayOnOptionsHtml = '';
+            let adminExtendedBelowCardHtml = '';
+
+            if (window.deckState.fanViewOpen) {
+                const mainFanHtml = window.TP_buildFanDeckHTML('main', clusterSeq, '#2563eb', clusterPos);
+                teenPattiOverlayOnOptionsHtml = `
+                <div class="tp-parent-overlay" onclick="if(event.target === this){ window.deckState.fanViewOpen=false; window.UD_renderCard(false); }">
+                    ${mainFanHtml}
+                </div>`;
+
+                if (window.isAdminUser) {
+                    const fullCrossSeq = window.UD_getClusterSequence(anchorQ.uid, 'all');
+                    const neetSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'neet-pg');
+                    const iniSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'inicet');
+                    const cmsSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'upsc-cms');
+                    const fmgeSeq = fullCrossSeq.filter(qid => window.inferExamFromQid(qid) === 'fmge');
+                    const curFilter = window.deckState.adminTopFilter || 'all';
+
+                    adminExtendedBelowCardHtml = `
+                    <div class="tp-admin-extended-section">
+                        <div class="tp-admin-switcher">
+                            <span style="font-size:11px; font-weight:900; color:#ea580c; margin-right:4px;">&larr;</span>
+                            <button class="tp-switch-btn ${curFilter === 'all' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('all')">All Exam</button>
+                            <button class="tp-switch-btn ${curFilter === 'neet-pg' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('neet-pg')">NEET-PG</button>
+                            <button class="tp-switch-btn ${curFilter === 'inicet' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('inicet')">INI</button>
+                            <button class="tp-switch-btn ${curFilter === 'upsc-cms' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('upsc-cms')">CMS</button>
+                            <button class="tp-switch-btn ${curFilter === 'fmge' ? 'active' : ''}" onclick="window.TP_setAdminTopFilter('fmge')">FMGE</button>
+                            <span style="font-size:11px; font-weight:900; color:#ea580c; margin-left:4px;">&rarr;</span>
+                        </div>
+
+                        <!-- 1. NEETPG Deck (Blue #2563eb) -->
+                        ${window.TP_buildFanDeckHTML('admin-neet-pg', neetSeq, '#2563eb', window.deckState.fanPosMap['admin-neet-pg'] ?? 0)}
+                        <div class="tp-exam-label-box">NEETPG</div>
+
+                        <!-- 2. INICET Deck (Purple #9333ea) -->
+                        ${window.TP_buildFanDeckHTML('admin-inicet', iniSeq, '#9333ea', window.deckState.fanPosMap['admin-inicet'] ?? 0)}
+                        <div class="tp-exam-label-box">INICET</div>
+
+                        <!-- 3. CMS Deck (Yellow/Gold #eab308) -->
+                        ${window.TP_buildFanDeckHTML('admin-upsc-cms', cmsSeq, '#eab308', window.deckState.fanPosMap['admin-upsc-cms'] ?? 0)}
+                        <div class="tp-exam-label-box">CMS</div>
+
+                        <!-- 4. FMGE Deck (Green #22c55e) -->
+                        ${window.TP_buildFanDeckHTML('admin-fmge', fmgeSeq, '#22c55e', window.deckState.fanPosMap['admin-fmge'] ?? 0)}
+                        <div class="tp-exam-label-box">FMGE</div>
+                    </div>`;
+                }
+            }
+
+            // === ADMIN REAL-TIME ANSWER KEY & EXPLANATION EDITOR BAR (WITH 10 UNDO / 10 REDO) ===
+            let adminEditorHtml = '';
+            if (window.isAdminUser) {
+                const uCount = (window.adminEditUndoStack || []).length;
+                const rCount = (window.adminEditRedoStack || []).length;
+                const curKey = (q.ans_key || 'A').trim().toUpperCase();
+                const safeExpl = (q.explanation || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                adminEditorHtml = `
+                <div class="admin-rt-toolbar">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <button onclick="window.ADMIN_toggleInlineEditor()" class="admin-rt-btn-toggle">
+                            <i class="fas fa-pen-to-square"></i> Edit Key &amp; Expl (${q.uid}: Option ${curKey})
+                        </button>
+                        <div style="display:flex; gap:6px;">
+                            <button id="btn-admin-qe-undo" onclick="window.ADMIN_undoQuestionEdit()" class="admin-rt-btn-hist" ${uCount === 0 ? 'disabled' : ''}>
+                                <i class="fas fa-rotate-left"></i> Undo (${uCount}/10)
+                            </button>
+                            <button id="btn-admin-qe-redo" onclick="window.ADMIN_redoQuestionEdit()" class="admin-rt-btn-hist" ${rCount === 0 ? 'disabled' : ''}>
+                                <i class="fas fa-rotate-right"></i> Redo (${rCount}/10)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="admin-inline-editor-box" style="display:none; margin-top:12px; padding-top:12px; border-top:1px dashed #fdba74;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                            <span style="font-size:12px; font-weight:800; color:#9a3412; text-transform:uppercase;">Correct Answer Key:</span>
+                            <div style="display:flex; gap:6px;">
+                                ${['A','B','C','D'].map(ltr => `
+                                    <button type="button" class="admin-key-pill ${curKey === ltr ? 'active' : ''}" data-key="${ltr}" onclick="window.ADMIN_selectEditKey('${ltr}')">${ltr}</button>
+                                `).join('')}
+                            </div>
+                            <input type="hidden" id="admin-edit-ans-input" value="${curKey}">
+                        </div>
+                        <label style="font-size:11px; font-weight:800; color:#9a3412; text-transform:uppercase; display:block; margin-bottom:5px;">Explanation (HTML / Text — Syncs Live to All Users):</label>
+                        <textarea id="admin-edit-expl-input" rows="5" style="width:100%; border:1.5px solid #fdba74; border-radius:8px; padding:10px; font-size:13px; font-family:inherit; color:#1e293b; background:white; outline:none; resize:vertical; margin-bottom:10px;">${safeExpl}</textarea>
+                        <div style="display:flex; justify-content:flex-end; gap:8px;">
+                            <button type="button" onclick="window.ADMIN_toggleInlineEditor()" style="background:#f1f5f9; color:#475569; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;">Close</button>
+                            <button type="button" id="btn-admin-save-qe" onclick="window.ADMIN_saveQuestionEdit('${q.uid}')" style="background:#ea580c; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:12px; cursor:pointer;"><i class="fas fa-bolt"></i> Save Live</button>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
             area.innerHTML = `
-            <div class="ud-card ${animateFade ? 'ud-card-fade' : ''}">
+            <div class="ud-card ${animateFade ? 'ud-card-fade' : ''}" style="position:relative;">
                 <div class="ud-card-top">
                    <div style="display: flex; align-items: center; gap: 8px;">
                        <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
-                       <div class="ud-cluster-pill"
+                       <div class="ud-cluster-pill ${window.deckState.fanViewOpen ? 'pill-fan-active' : ''}"
                             onmousedown="window.UD_startPillPress(event, '${anchorQ.uid}')"
                             onmouseup="window.UD_cancelPillPress()"
                             onmouseleave="window.UD_cancelPillPress()"
@@ -2838,7 +3096,7 @@
                             ontouchend="window.UD_cancelPillPress()"
                             oncontextmenu="window.UD_onPillContextMenu(event, '${anchorQ.uid}')">
                            <button class="ud-cluster-btn" onclick="window.UD_stepCluster(-1, event)" ${clusterPos <= 0 ? 'disabled' : ''}>&lt;</button>
-                           <span class="ud-cluster-count" id="ud-pill-center-text" onclick="window.UD_onPillCenterClick(event, '${anchorQ.uid}')">${pillCenterLabel}</span>
+                           <span class="ud-cluster-count" id="ud-pill-center-text" onclick="window.UD_onPillCenterClick(event, '${anchorQ.uid}')" title="Tap to toggle Teen Patti Fanned Deck">${pillCenterLabel}</span>
                            <button class="ud-cluster-btn" onclick="window.UD_stepCluster(1, event)" ${clusterPos >= clusterSeq.length - 1 ? 'disabled' : ''}>&gt;</button>
                        </div>
                    </div>
@@ -2854,7 +3112,12 @@
                </div>
                 
                 <div class="ud-stem">${q.stem}</div>${imgHtml}
-                <div id="ud-opts">${optsHtml}</div>
+
+                <!-- Parent Options Container with Teen Patti Overlay Floating Directly Over It -->
+                <div class="ud-opts-stage-wrap" style="position:relative;">
+                    <div id="ud-opts" class="${window.deckState.fanViewOpen ? 'ud-opts-under-fan' : ''}">${optsHtml}</div>
+                    ${teenPattiOverlayOnOptionsHtml}
+                </div>
                 
                 <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
@@ -2864,6 +3127,8 @@
                     </div>
                     ${window.deckState.userStatus[q.uid] ? `<button onclick="window.UD_resetAnswer('${q.uid}')" style="background:none; border:none; color:#ef4444; font-size:0.8rem; font-weight:bold; cursor:pointer; text-decoration:underline;"><i class="fas fa-rotate-left"></i> Reset Question</button>` : ''}
                 </div>
+
+                ${adminEditorHtml}
                 
                 <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
                 
@@ -2883,10 +3148,15 @@
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+            ${adminExtendedBelowCardHtml}`;
             
             document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
-            area.scrollTop = 0; 
+            if (window.deckState.fanViewOpen) {
+                window.TP_attachFanInteractions();
+            } else {
+                area.scrollTop = 0;
+            }
         };
 
         window.UD_checkAns = function(el, selectedOption, correctOption, id) {
@@ -3190,7 +3460,7 @@
         document.addEventListener('contextmenu', function(e) {
             if (e.target && (e.target.tagName.toLowerCase() === 'img' || e.target.classList.contains('img-link'))) {
                 if (!window.isAdminUser) {
-                    e.preventDefault(); // Blocks right-click menu for users
+                    e.preventDefault();
                 }
             }
         }, false);
@@ -3198,11 +3468,98 @@
         document.addEventListener('dragstart', function(e) {
             if (e.target && (e.target.tagName.toLowerCase() === 'img' || e.target.classList.contains('img-link'))) {
                 if (!window.isAdminUser) {
-                    e.preventDefault(); // Blocks click-and-drag to desktop for users
+                    e.preventDefault();
                 }
             }
         }, false);
     </script>
+
+    <!-- Overlay & Real-Time Admin Editor Styles -->
+    <style>
+        .ud-cluster-pill.pill-fan-active {
+            background: #0f2b52;
+            color: #ffffff;
+        }
+        .ud-cluster-pill.pill-fan-active .ud-cluster-btn,
+        .ud-cluster-pill.pill-fan-active .ud-cluster-count {
+            color: #ffffff;
+        }
+        .ud-opts-stage-wrap {
+            position: relative;
+            min-height: 240px;
+        }
+        .ud-opts-under-fan {
+            opacity: 0.32;
+            filter: blur(0.4px);
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .tp-parent-overlay {
+            position: relative;
+            margin-top: -275px;
+            margin-bottom: 10px;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: udCardFadeIn 0.22s ease;
+        }
+        .tp-admin-extended-section {
+            max-width: 900px;
+            margin: 18px auto 30px auto;
+            padding: 15px 10px 25px 10px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+        }
+        .admin-rt-toolbar {
+            margin-top: 16px;
+            padding: 10px 12px;
+            background: #fff7ed;
+            border: 1.5px solid #fdba74;
+            border-radius: 10px;
+        }
+        .admin-rt-btn-toggle {
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .admin-rt-btn-hist {
+            background: white;
+            color: #9a3412;
+            border: 1.5px solid #fdba74;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .admin-rt-btn-hist:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+        .admin-key-pill {
+            width: 34px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1.5px solid #cbd5e1;
+            background: white;
+            color: #0f2b52;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .admin-key-pill.active {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+    </style>
 
     <!-- Image Lightbox Overlay -->
 <div id="lightbox" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; touch-action:none;">
@@ -3252,4 +3609,5 @@
     });
 </script>
 </body>
-</html>
+</html>     
+                                                                                                 
