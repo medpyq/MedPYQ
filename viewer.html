@@ -72,11 +72,11 @@
         .ud-title { font-weight: 800; font-size: 16px; color: #0f2b52; }
         .ud-subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         
-        #ud-card-area { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 24px 18px 80px 18px; display: block; }
+        #ud-card-area { flex: 1; overflow-y: auto; padding: 18px; display: block; }
         
-        .ud-card { background: white; width: 100%; max-width: 780px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 8px 25px rgba(15, 43, 82, 0.08); border: 2px solid #cbd5e1; position: relative; z-index: 10; transition: all 0.25s ease; }
+        .ud-card { background: white; width: 100%; max-width: 900px; margin: 0 auto; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 100%; }
         
-        .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
+        .ud-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .ud-label { background: #f1f5f9; color: #0f2b52; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; }
         .ud-ai-btn { background: none; border: 1px solid #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;}
         .ud-ai-btn:hover { background: #e0f2fe; }
@@ -84,7 +84,7 @@
         .ud-stem { font-size: 17px; font-weight: 600; color: #1e293b; line-height: 1.5; margin-bottom: 20px; }
         .ud-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin: 10px auto 20px; display:block; cursor: zoom-in; }
         
-        .ud-option { padding: 14px 16px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; color: #475569; transition: all 0.2s; font-size: 15px; background: white; }
+        .ud-option { padding: 14px 16px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; display: flex; gap: 12px; color: #475569; transition: all 0.2s; font-size: 15px; }
         .ud-option:hover { background: #f8fafc; }
         .ud-option.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #14532d !important; font-weight: 600;}
         .ud-option.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #7f1d1d !important; }
@@ -128,8 +128,8 @@
         .rep-type-btn.selected { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
         #report-desc { width: 100%; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-family: inherit; outline: none; box-sizing: border-box; resize: none; margin-bottom: 15px; }
         .ai-icon-box { width: 70px; height: 70px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
-
-        /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
+   
+   /* --- ADAPTIVE TABLES FOR STEMS & EXPLANATIONS --- */
         .question-content table,
         .ud-stem table,
         #ud-expl-box table,
@@ -166,322 +166,33 @@
             font-weight: 700;
         }
 
-        /* --- ACCESSIBILITY: TEXT RESIZING --- */
+   /* --- ACCESSIBILITY: TEXT RESIZING --- */
         body.text-lg .question-content, body.text-lg .ud-stem, body.text-lg .options-list, body.text-lg .ud-option, body.text-lg .expl-container, body.text-lg #ud-expl-box, body.text-lg .post-table td { font-size: 1.25rem !important; line-height: 1.7; }
         body.text-lg .opt-char, body.text-lg .option-lbl span:first-child { font-size: 1.15rem !important; }
         body.text-xl .question-content, body.text-xl .ud-stem, body.text-xl .options-list, body.text-xl .ud-option, body.text-xl .expl-container, body.text-xl #ud-expl-box, body.text-xl .post-table td { font-size: 1.45rem !important; line-height: 1.8; }
         body.text-xl .opt-char, body.text-xl .option-lbl span:first-child { font-size: 1.3rem !important; }
-
-        /* --- IMAGE PROTECTION FOR NON-ADMINS --- */
+  /* --- IMAGE PROTECTION FOR NON-ADMINS --- */
         body:not(.admin-mode) img,
         body:not(.admin-mode) a.img-link {
-            -webkit-touch-callout: none;
-            -webkit-user-drag: none;
-            user-select: none;
-        }
-
-        /* ====================================================
-           NEW: TEEN PATTI CARD STACK & CROSS-LINKING STYLES
-           ==================================================== */
-        .topic-nav-pill {
-            display: inline-flex;
-            align-items: center;
-            background: #f8fafc;
-            border: 1.5px solid #0f2b52;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 12px;
-            color: #0f2b52;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(15, 43, 82, 0.08);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .topic-nav-pill.has-links {
-            background: #fffbeb;
-            border-color: #d97706;
-            color: #92400e;
-        }
-        .topic-nav-pill .pill-arrow {
-            background: transparent;
-            border: none;
-            color: inherit;
-            padding: 4px 9px;
-            cursor: pointer;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s;
-        }
-        .topic-nav-pill .pill-arrow:hover:not(:disabled) {
-            background: rgba(15, 43, 82, 0.1);
-        }
-        .topic-nav-pill .pill-arrow:disabled {
-            opacity: 0.35;
-            cursor: default;
-        }
-        .topic-nav-pill .pill-count {
-            padding: 4px 8px;
-            cursor: pointer;
-            border-left: 1px solid rgba(15, 43, 82, 0.15);
-            border-right: 1px solid rgba(15, 43, 82, 0.15);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: background 0.15s;
-        }
-        .topic-nav-pill .pill-count:hover {
-            background: rgba(238, 187, 77, 0.25);
-        }
-        .topic-nav-pill .pill-edit-admin {
-            background: #0f2b52;
-            color: #eebb4d;
-            border: none;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            title: "Edit Linked QIDs (Admin)";
-        }
-
-        /* TEEN PATTI FANNED DECK CONTAINER */
-        .teen-patti-stage {
-            position: relative;
-            width: 100%;
-            max-width: 820px;
-            margin: 15px auto 35px auto;
-            padding: 10px 28px 25px 28px;
-            perspective: 1200px;
-        }
-        @media (max-width: 640px) {
-            .teen-patti-stage {
-                padding: 10px 16px 25px 16px;
-            }
-        }
-
-        /* Fanned Background Cards (Left & Right Wings like Teen Patti hand) */
-        .tp-fan-wing {
-            position: absolute;
-            top: 22px;
-            bottom: 35px;
-            width: 240px;
-            max-width: 45%;
-            background: #ffffff;
-            border: 2px solid #3b82f6;
-            border-radius: 14px;
-            box-shadow: 0 8px 20px rgba(15, 43, 82, 0.12);
-            z-index: 2;
-            cursor: pointer;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, border-color 0.2s;
-            overflow: hidden;
-            user-select: none;
-        }
-        .tp-fan-wing:hover {
-            z-index: 15 !important;
-            box-shadow: 0 14px 30px rgba(15, 43, 82, 0.25);
-            border-color: #0f2b52;
-        }
-        .tp-fan-wing.left-wing {
-            left: 6px;
-            transform-origin: bottom center;
-        }
-        .tp-fan-wing.right-wing {
-            right: 6px;
-            transform-origin: bottom center;
-            text-align: right;
-        }
-        .tp-wing-badge {
-            font-size: 11px;
-            font-weight: 900;
-            color: #0f2b52;
-            background: #e0f2fe;
-            padding: 2px 7px;
-            border-radius: 6px;
-            display: inline-block;
-            border: 1px solid #bae6fd;
-        }
-        .tp-wing-qid {
-            font-size: 10px;
-            font-weight: 800;
-            color: #64748b;
-            display: block;
-            margin-top: 3px;
-        }
-        .tp-wing-lines {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin: auto 0;
-            opacity: 0.45;
-        }
-        .tp-wing-line {
-            height: 6px;
-            border-radius: 3px;
-            background: #94a3b8;
-            width: 80%;
-        }
-        .tp-fan-wing.right-wing .tp-wing-line {
-            margin-left: auto;
-        }
-
-        /* Interactive Horizontal Teen Patti Strip (when user clicks 1/16 to inspect all cards in cluster) */
-        .tp-expanded-drawer {
-            display: none;
-            background: #f1f5f9;
-            border: 2px solid #cbd5e1;
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            gap: 12px;
-            align-items: stretch;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .tp-expanded-drawer.open {
-            display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-        .tp-mini-card {
-            min-width: 155px;
-            max-width: 155px;
-            background: white;
-            border: 2px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-            flex-shrink: 0;
-        }
-        .tp-mini-card:hover {
-            transform: translateY(-4px) rotate(-1deg);
-            border-color: #0f2b52;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-        .tp-mini-card.active-mini {
-            border-color: #eebb4d;
-            background: #fffbeb;
-            box-shadow: 0 4px 12px rgba(238, 187, 77, 0.3);
-        }
-
-        /* Theme colors for Exam Specific Teen Patti Stacks (Admin Extended View) */
-        .theme-neet-pg .ud-card, .theme-neet-pg .tp-fan-wing { border-color: #3b82f6; }
-        .theme-neet-pg .tp-wing-badge { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
-
-        .theme-inicet .ud-card, .theme-inicet .tp-fan-wing { border-color: #f97316; }
-        .theme-inicet .tp-wing-badge { background: #ffedd5; color: #c2410c; border-color: #fdba74; }
-
-        .theme-upsc-cms .ud-card, .theme-upsc-cms .tp-fan-wing { border-color: #eab308; }
-        .theme-upsc-cms .tp-wing-badge { background: #fef9c3; color: #a16207; border-color: #fde047; }
-
-        .theme-fmge .ud-card, .theme-fmge .tp-fan-wing { border-color: #22c55e; }
-        .theme-fmge .tp-wing-badge { background: #dcfce7; color: #15803d; border-color: #86efac; }
-
-        /* Admin Exam Switcher Bar (<- All Exam ->) */
-        .admin-exam-switcher {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            background: #f8fafc;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 8px 12px;
-            margin: 14px 0;
-        }
-        .admin-switch-btn {
-            padding: 5px 10px;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: #475569;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.15s;
-        }
-        .admin-switch-btn.active {
-            background: #0f2b52;
-            color: #eebb4d;
-            border-color: #0f2b52;
-        }
-
-        /* Exam Label Banner Below Admin Extended Decks */
-        .exam-deck-banner {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 8px 28px;
-            border-radius: 10px;
-            font-weight: 900;
-            font-size: 0.95rem;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin: 6px auto 0 auto;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
-        .banner-neet-pg { border: 2px solid #ef4444; color: #dc2626; }
-        .banner-inicet { border: 2px solid #f97316; color: #ea580c; }
-        .banner-upsc-cms { border: 2px solid #eab308; color: #ca8a04; }
-        .banner-fmge { border: 2px solid #22c55e; color: #16a34a; }
-
-        /* Admin Undo History List */
-        .undo-history-list {
-            max-height: 180px;
-            overflow-y: auto;
-            text-align: left;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 8px;
-            background: #f8fafc;
-            margin-bottom: 15px;
-        }
-        .undo-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 0.78rem;
-            gap: 8px;
-        }
-        .undo-item:last-child { border-bottom: none; }
-        .btn-undo-step {
-            background: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fca5a5;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 800;
-            font-size: 0.72rem;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .btn-undo-step:hover { background: #fecaca; }
+            -webkit-touch-callout: none; /* Disables mobile long-press context menu */
+            -webkit-user-drag: none;     /* Disables desktop click-and-drag */
+            user-select: none;           /* Disables highlighting */
+        }                                    
     </style>
     <!-- BROKEN IMAGE SAFETY NET -->
     <style>
+        /* 1. Instantly hide images with empty or missing links */
         img[src=""], img[src="null"], img[src="undefined"], img:not([src]) {
             display: none !important;
         }
     </style>
     <script>
+        /* 2. Globally catch any image that tries to load a dead link (404) and hide it */
         document.addEventListener('error', function(e) {
             if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
                 e.target.style.display = 'none';
             }
-        }, true);
+        }, true); // The 'true' is required to capture the error phase
     </script>
 </head>
 <body>
@@ -640,49 +351,6 @@
         </div>
     </div>
 
-    <!-- ====================================================
-         NEW: ADMIN CROSS-LINK QUESTIONS & 10-STEP UNDO MODAL
-         ==================================================== -->
-    <div class="ud-modal-backdrop" id="admin-link-modal">
-        <div class="ud-modal-card" style="max-width: 480px; text-align: left;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="margin:0; font-size:1.25rem; color:#0f2b52;">
-                    <i class="fas fa-diagram-project" style="color:var(--app-gold); margin-right:6px;"></i> Link Related QIDs (Admin)
-                </h3>
-                <button onclick="document.getElementById('admin-link-modal').style.display='none'" style="background:none; border:none; font-size:1.4rem; color:#64748b; cursor:pointer;">&times;</button>
-            </div>
-
-            <div style="font-size:0.82rem; color:#475569; margin-bottom:10px; background:#f1f5f9; padding:8px 12px; border-radius:8px;">
-                Editing from Trigger Question: <strong id="admin-link-trigger-qid" style="color:#0f2b52;"></strong>
-                <div style="font-size:0.75rem; color:#64748b; margin-top:3px;">
-                    All QIDs entered below will be <strong>automatically cross-linked to each other</strong> across all exams (NEET-PG, INI-CET, UPSC-CMS, FMGE).
-                </div>
-            </div>
-
-            <label style="font-size:0.75rem; font-weight:800; color:#0f2b52; text-transform:uppercase; display:block; margin-bottom:6px;">
-                Enter Comma-Separated Question IDs:
-            </label>
-            <textarea id="admin-link-input" rows="3" oninput="window.UD_previewLinkedBadges()" style="width:100%; border:2px solid #cbd5e1; border-radius:10px; padding:12px; font-size:0.95rem; font-family:monospace; font-weight:700; color:#0f2b52; outline:none; resize:none; margin-bottom:10px;" placeholder="e.g. N27, N34, N45, N67, IN26, CMS32, F36"></textarea>
-
-            <div id="admin-link-preview" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:15px; min-height:26px;"></div>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 18px;">
-                <button onclick="document.getElementById('admin-link-modal').style.display='none'" class="ud-btn" style="background:#f1f5f9; color:#64748b; padding:11px;">Cancel</button>
-                <button id="btn-save-crosslinks" onclick="window.UD_saveLinkedQs()" class="ud-btn" style="background:#0f2b52; color:white; padding:11px;">Apply to All IDs</button>
-            </div>
-
-            <div style="border-top:1px solid #e2e8f0; padding-top:12px;">
-                <div style="font-size:0.78rem; font-weight:800; color:#475569; text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <span><i class="fas fa-clock-rotate-left" style="color:#0ea5e9;"></i> Recent 10 Changes (Undo History)</span>
-                    <span id="admin-history-count" style="font-size:0.7rem; color:#94a3b8;">0/10</span>
-                </div>
-                <div class="undo-history-list" id="admin-undo-list">
-                    <div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">No recent changes recorded.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- 2-DEVICE SESSION CONFLICT OVERLAY -->
     <div id="session-conflict-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
         <div style="background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
@@ -709,7 +377,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
         
         // GLOBAL APPLICATION STATE
         window.appData = [];
@@ -717,24 +385,7 @@
         window.filterState = { units: [], chapters: [], years: [], search: "", savedOnly: false, attemptStatus: "all" };
         window.deckState = { activeDb: [], currentIndex: 0, userStatus: {}, isOpen: false };
         window.nestedCurriculum = null;
-        window.isAdminUser = false;
-
-        // ====================================================
-        // NEW: GLOBAL CROSS-LINK & MULTI-EXAM STATE
-        // ====================================================
-        window.crossLinksMap = {};         // { QID: ['N3', 'N6', 'IN56', 'CMS34', 'F45'] }
-        window.crossLinksHistory = [];     // Last 10 admin link changes for Undo
-        window.multiExamQuestionMap = {};  // { QID: questionObject } across all 4 exams
-        window.tpFanExpanded = false;      // Whether the horizontal Teen Patti fan strip is expanded
-        window.adminTopFilterExam = 'ALL'; // 'ALL' | 'neet-pg' | 'inicet' | 'upsc-cms' | 'fmge'
-        window.adminTopClusterPos = 0;     // Position inside the top card's cluster when in Admin mode
-        window.adminDeckPositions = {      // Independent indices for the 4 scroll-down Admin decks
-            'neet-pg': 0,
-            'inicet': 0,
-            'upsc-cms': 0,
-            'fmge': 0
-        };
-
+        window.isAdminUser = false; 
         // --- TEXT RESIZING LOGIC ---
         window.currentTextSize = parseInt(localStorage.getItem('medpyq_text_size')) || 0;
         window.applyTextSize = function(level) {
@@ -1091,7 +742,7 @@
                 },
                 {
                     unit: "Part 17-20: Global, Aging & Emerging Topics",
-                    chapters: ["485. Global Issues in Medicine", "486. Emerging and Re-Emerging Infectious Diseases", "487. Primary Care and Global Health", "488. Biology of Aging", "489. Caring for the Geriatric Patient", "490. Approach to Medical Consultation", "491. Medical Disorders During Pregnancy", "492. Medical Evaluation of the Patient Undergoing Noncardiac Surgery", "493. Point-of-Care Ultrasound", "494. Improving Health and Health Care Using Behavioral Economics", "495. Complementary and Integrative Therapies", "496. Placebo and Nocebo Effects", "497. The Role of Epigenetics", "498. The Role of Circadian Biology", "499. Network Medicine", "500. Emerging Neurotherapeutic Technologies", "501. Machine Learning and Augmented Intelligence", "502. Metabolomics", "503. Circulating Nucleic Acids as Liquid Bi Biopsies", "504. Protein Folding Disorders", "505. Novel Approaches to Diseases of Unknown Etiology"]
+                    chapters: ["485. Global Issues in Medicine", "486. Emerging and Re-Emerging Infectious Diseases", "487. Primary Care and Global Health", "488. Biology of Aging", "489. Caring for the Geriatric Patient", "490. Approach to Medical Consultation", "491. Medical Disorders During Pregnancy", "492. Medical Evaluation of the Patient Undergoing Noncardiac Surgery", "493. Point-of-Care Ultrasound", "494. Improving Health and Health Care Using Behavioral Economics", "495. Complementary and Integrative Therapies", "496. Placebo and Nocebo Effects", "497. The Role of Epigenetics", "498. The Role of Circadian Biology", "499. Network Medicine", "500. Emerging Neurotherapeutic Technologies", "501. Machine Learning and Augmented Intelligence", "502. Metabolomics", "503. Circulating Nucleic Acids as Liquid Biopsies", "504. Protein Folding Disorders", "505. Novel Approaches to Diseases of Unknown Etiology"]
                 }
             ],
             "surgery": [
@@ -1337,6 +988,7 @@
                     let sessions = snap.val() || {};
                     sessions[localSessionId] = Date.now();
 
+                    // Maintain max 2 concurrent devices
                     let keys = Object.keys(sessions);
                     if (keys.length > 2) {
                         keys.sort((a, b) => sessions[a] - sessions[b]);
@@ -1367,6 +1019,8 @@
                 }
 
                 const isAdmin = ADMIN_EMAILS.includes(user.email);
+                
+                // Track admin status globally for image protection
                 window.isAdminUser = isAdmin;
                 if (isAdmin) document.body.classList.add('admin-mode');
                 else document.body.classList.remove('admin-mode');
@@ -1398,7 +1052,6 @@
             document.getElementById('paywall-overlay').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             document.getElementById('view-toggle-btn').style.display = 'flex';
-            initCrossLinksRealtimeListener();
             fetchData();
         }
 
@@ -1409,38 +1062,6 @@
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('view-toggle-btn').style.display = 'none';
         }
-
-        // ====================================================
-        // NEW: REAL-TIME FIREBASE LISTENER FOR CROSS-LINKS
-        // ====================================================
-        function initCrossLinksRealtimeListener() {
-            const linksRef = ref(db, `cross_links/${activeSubject}`);
-            onValue(linksRef, (snapshot) => {
-                const val = snapshot.val() || {};
-                window.crossLinksMap = val.nodes || {};
-                const rawHist = val.history || [];
-                window.crossLinksHistory = Array.isArray(rawHist) ? rawHist : Object.values(rawHist);
-                window.crossLinksHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-                if (window.deckState.isOpen) {
-                    window.UD_renderCard();
-                }
-                if (document.getElementById('admin-link-modal').style.display === 'flex') {
-                    window.UD_renderUndoHistory();
-                }
-            });
-        }
-
-        // Helper: Determine Exam Key ('neet-pg', 'inicet', 'upsc-cms', 'fmge') from QID or Question Object
-        window.getExamKeyFromQID = function(qid, qObj = null) {
-            if (qObj && qObj._examBank) return qObj._examBank;
-            const upper = String(qid || '').trim().toUpperCase();
-            if (upper.startsWith('INI') || upper.startsWith('IN') || upper.startsWith('1N')) return 'inicet';
-            if (upper.startsWith('CMS') || upper.startsWith('UPSC')) return 'upsc-cms';
-            if (upper.startsWith('FMG') || upper.startsWith('F')) return 'fmge';
-            if (upper.startsWith('N')) return 'neet-pg';
-            return activeExam;
-        };
 
         window.userBookmarks = [];
 
@@ -1471,11 +1092,6 @@
                 if (snapshot.exists()) {
                     processData(snapshot.val());
                     
-                    // If Admin User, also fetch all 4 exam banks for this subject in background so cross-linked decks have full question data
-                    if (window.isAdminUser) {
-                        loadAllExamsForAdmin();
-                    }
-
                     if (user) {
                         const indexKey = `medpyq_index_${user.uid}_${activeExam}_${activeSubject}`;
                         const savedIndex = parseInt(localStorage.getItem(indexKey));
@@ -1500,38 +1116,7 @@
             }
         }
 
-        // Loads all 4 exam banks into window.multiExamQuestionMap for Admin Extended Cross-Link Decks
-        async function loadAllExamsForAdmin() {
-            const exams = ['neet-pg', 'inicet', 'upsc-cms', 'fmge'];
-            await Promise.all(exams.map(async (ex) => {
-                try {
-                    const snap = await get(ref(db, `question_banks/${ex}/${activeSubject}`));
-                    if (snap.exists()) {
-                        const raw = snap.val();
-                        const arr = Array.isArray(raw) ? raw : Object.values(raw);
-                        arr.filter(Boolean).forEach((item, idx) => {
-                            const uid = String(item.q || ("Q" + idx)).trim().toUpperCase();
-                            let fullYear = item.exam || ex.toUpperCase();
-                            if (item.year_paper) fullYear += " " + item.year_paper;
-                            window.multiExamQuestionMap[uid] = {
-                                ...item,
-                                uid: item.q || ("Q" + idx),
-                                year: fullYear,
-                                topic: item.topic || item.subject || "General",
-                                _examBank: ex
-                            };
-                        });
-                    }
-                } catch (e) {
-                    console.warn("Admin multi-exam preload warning for", ex, e);
-                }
-            }));
-            if (window.deckState.isOpen) {
-                window.UD_renderCard();
-            }
-        }
-
-        function processData(rawData) {
+       function processData(rawData) {
             const curriculumForSubject = masterCurriculum[activeSubject] || [];
             
             let isNested = curriculumForSubject.length > 0 && typeof curriculumForSubject[0] === 'object';
@@ -1552,9 +1137,11 @@
                 let targetText = (topicStr + " " + subjectStr);
 
                 if (activeSubject === "medicine") {
+                    // === MASSIVE EXCELLENT TAGGING SYSTEM (MEDICINE ONLY) ===
                     let matchedTopics = [];
                     let matchedUnits = [];
                     
+                    // Safely extract all explicit tags applied to this question
                     let rawTags = [];
                     if (Array.isArray(item.subject)) rawTags.push(...item.subject);
                     else if (typeof item.subject === 'string' && item.subject) rawTags.push(...item.subject.split(',').map(s=>s.trim()));
@@ -1563,10 +1150,12 @@
                     else if (typeof item.topic === 'string' && item.topic) rawTags.push(...item.topic.split(',').map(s=>s.trim()));
 
                     rawTags.forEach(tag => {
+                        // 1. Direct exact match
                         let exactMatch = flatChapters.find(c => c.toLowerCase() === tag.toLowerCase());
                         if (exactMatch && !matchedTopics.includes(exactMatch)) {
                             matchedTopics.push(exactMatch);
                         } else {
+                            // 2. Strict Word-Boundary Regex Match
                             for(let c of flatChapters) {
                                 let coreName = c.includes(".") ? c.split(".")[1].trim() : c;
                                 let escapedCoreName = coreName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1581,6 +1170,7 @@
                     
                     if(matchedTopics.length === 0) matchedTopics.push("Uncategorized");
                     
+                    // Identify the corresponding Units for these matched topics
                     matchedTopics.forEach(t => {
                         curriculumForSubject.forEach(u => {
                             if (u.chapters.includes(t) && !matchedUnits.includes(u.unit)) {
@@ -1590,9 +1180,10 @@
                     });
                     if(matchedUnits.length === 0) matchedUnits.push("Uncategorized");
 
-                    chapterMatch = matchedTopics;
-                    item.units = matchedUnits;
+                    chapterMatch = matchedTopics; // Stores as an Array for Medicine
+                    item.units = matchedUnits;    // Stores the Units
                 } else {
+                    // === LEGACY LOGIC (ALL OTHER SUBJECTS: SAFE & UNTOUCHED) ===
                     targetText = targetText.toLowerCase();
                     for(let c of flatChapters) {
                         let coreName = c.includes(".") ? c.split(".")[1].trim().toLowerCase() : c.toLowerCase();
@@ -1612,21 +1203,18 @@
                             }
                         }
                     }
-                    item.units = [unitMatch];
+                    item.units = [unitMatch]; // Make it an array for consistency
                 }
                 
                 let fullYear = item.exam || "Exam";
                 if(item.year_paper) fullYear += " " + item.year_paper;
 
-                const qObj = { 
+                return { 
                     ...item, 
                     topic: chapterMatch, 
                     year: fullYear,
-                    uid: item.q || ("Q" + i),
-                    _examBank: activeExam
+                    uid: item.q || ("Q" + i)
                 };
-                window.multiExamQuestionMap[String(qObj.uid).trim().toUpperCase()] = qObj;
-                return qObj;
             });
 
             const uniqueYears = [...new Set(window.appData.map(i => i.year))]
@@ -1707,6 +1295,7 @@
             const tableYearDiv = document.getElementById('table-year-content');
             const deckFilterDiv = document.getElementById('deck-dynamic-filters');
 
+            // 1. Static Initial Filters (Attempt Status & Saved)
             let deckHtml = `
                 <div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#0f2b52; text-transform:uppercase;">Quick Filters</div>
                 
@@ -1722,6 +1311,7 @@
                 <label class="ms-label sync-chk-row" style="background:#fffbeb; margin-top:5px;"><input type="checkbox" id="deck-chk-saved" onchange="window.SYNC_toggleSaved()" ${window.filterState.savedOnly ? 'checked' : ''}> <span style="color:#b45309; font-weight:bold;"><i class="fas fa-bookmark" style="color:var(--app-gold);"></i> Saved Questions Only</span></label>
             `;
             
+            // 2. Units (If Curriculum is Nested)
             let tableUnitHtml = '';
             if (curriculum && typeof curriculum[0] === 'object') {
                 document.getElementById('unit-dropdown-container').style.display = 'block';
@@ -1738,6 +1328,7 @@
             }
             tableUnitDiv.innerHTML = tableUnitHtml;
 
+            // 3. Chapters
             let tableChapHtml = '';
             deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Chapters</div>`;
             
@@ -1764,6 +1355,7 @@
             }
             tableChapDiv.innerHTML = tableChapHtml;
 
+            // 4. Exams
             let tableYearHtml = '';
             deckHtml += `<div style="padding: 15px 20px 5px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; border-top:1px solid #eee; margin-top:10px;">Exams</div>`;
             
@@ -1900,6 +1492,7 @@
             const filtered = window.appData.filter(item => {
                 const matchesSearch = ((item.stem || "") + (item.q || "")).toLowerCase().includes(window.filterState.search);
                 
+                // === SMART ARRAY INTERSECTION FILTERS ===
                 const matchesUnit = window.filterState.units.length === 0 || 
                     (item.units && window.filterState.units.some(u => item.units.includes(u)));
 
@@ -1948,6 +1541,7 @@
 
                 const cleanItem = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 
+                // === SMART MULTI-BADGE GENERATOR FOR TABLE ===
                 let displayChapterHtml = "";
                 if (Array.isArray(item.topic)) {
                     displayChapterHtml = item.topic.map(t => {
@@ -1986,9 +1580,9 @@
             document.getElementById('float-eye-btn').classList.toggle('active');
         };
 
-        // ====================================================
-        // NEW: TEEN PATTI CARD STACK & CROSS-LINK ENGINE
-        // ====================================================
+        // ==========================================
+        // DECK LOGIC
+        // ==========================================
 
         function initUniversalDeck(data) {
             window.deckState.activeDb = [...data];
@@ -2020,322 +1614,7 @@
             }
         };
 
-        // Resolves a QID string to a full Question Object (from current deck, multi-exam map, or placeholder if not uploaded yet)
-        window.resolveQuestionByQID = function(qid) {
-            const norm = String(qid || '').trim().toUpperCase();
-            if (window.multiExamQuestionMap[norm]) {
-                return window.multiExamQuestionMap[norm];
-            }
-            const foundInApp = window.appData.find(item => String(item.uid).trim().toUpperCase() === norm);
-            if (foundInApp) return foundInApp;
-
-            const guessedExam = window.getExamKeyFromQID(norm);
-            return {
-                uid: norm,
-                q: norm,
-                stem: `<span style="color:#64748b; font-style:italic;">Question <strong>${norm}</strong> (${guessedExam.toUpperCase()}) is linked to this cluster.</span>`,
-                options: ["Option A", "Option B", "Option C", "Option D"],
-                ans_key: "A",
-                explanation: `Linked Question ID: ${norm}`,
-                topic: "Linked Question",
-                year: guessedExam.toUpperCase(),
-                _examBank: guessedExam,
-                _isPlaceholder: true
-            };
-        };
-
-        // Returns the full cross-linked list of QIDs for a given question (always includes itself)
-        window.getLinkedQIDsForQuestion = function(qObj) {
-            const normUid = String(qObj.uid).trim().toUpperCase();
-            const linked = window.crossLinksMap[normUid];
-            if (linked && Array.isArray(linked) && linked.length > 0) {
-                const clean = linked.map(id => String(id).trim().toUpperCase()).filter(Boolean);
-                if (!clean.includes(normUid)) clean.unshift(normUid);
-                return [...new Set(clean)];
-            }
-            return [normUid];
-        };
-
-        // Long-press detection helper for opening Admin Modal on < 1/16 > pill
-        window.tpPressTimer = null;
-        window.tpLongPressTriggered = false;
-
-        window.UD_pillPointerDown = function(e, triggerUid) {
-            window.tpLongPressTriggered = false;
-            if (!window.isAdminUser) return;
-            clearTimeout(window.tpPressTimer);
-            window.tpPressTimer = setTimeout(() => {
-                window.tpLongPressTriggered = true;
-                window.UD_openAdminLinkModal(triggerUid);
-            }, 550);
-        };
-
-        window.UD_pillPointerUp = function(e) {
-            clearTimeout(window.tpPressTimer);
-        };
-
-        window.UD_pillClickCount = function(e, triggerUid) {
-            if (window.tpLongPressTriggered) {
-                window.tpLongPressTriggered = false;
-                return;
-            }
-            // Normal click on 1/16 toggles the Teen Patti fan view & mini card strip
-            window.tpFanExpanded = !window.tpFanExpanded;
-            window.UD_renderCard();
-        };
-
-        // Builds a Teen Patti Fanned Card HTML block (reusable for Top Deck & Admin Extended Exam Decks)
-        function buildTeenPattiDeckHTML({
-            deckId,
-            activeQ,
-            clusterQuestions,
-            clusterIndex,
-            baseAnchorUid,
-            themeClass = 'theme-neet-pg',
-            isTopMainCard = false,
-            bannerLabel = null,
-            bannerClass = ''
-        }) {
-            const totalInCluster = clusterQuestions.length;
-            const currentPos = Math.min(Math.max(0, clusterIndex), totalInCluster - 1);
-            const displayQ = clusterQuestions[currentPos] || activeQ;
-            const hasLinks = totalInCluster > 1;
-
-            // Build Left and Right Teen Patti Fanned Wings (up to 3 visible wings on each side)
-            let leftWingsHtml = '';
-            let rightWingsHtml = '';
-
-            if (totalInCluster > 1) {
-                // Previous cards in cluster fan out to the LEFT
-                const leftIndices = [];
-                for (let idx = currentPos - 1; idx >= Math.max(0, currentPos - 3); idx--) {
-                    leftIndices.push(idx);
-                }
-                leftIndices.forEach((cIdx, depthIdx) => {
-                    const depth = depthIdx + 1; // 1, 2, 3
-                    const angle = -(depth * 5.5);
-                    const shiftX = -(depth * 14);
-                    const shiftY = depth * 6;
-                    const zIdx = 9 - depth;
-                    const itemQ = clusterQuestions[cIdx];
-                    leftWingsHtml += `
-                        <div class="tp-fan-wing left-wing" 
-                             style="transform: translate(${shiftX}px, ${shiftY}px) rotate(${angle}deg); z-index: ${zIdx};"
-                             onclick="window.UD_jumpInCluster('${deckId}', ${cIdx})"
-                             title="Switch to ${itemQ.uid} (${cIdx + 1}/${totalInCluster})">
-                            <div>
-                                <span class="tp-wing-badge">${cIdx + 1}/${totalInCluster}</span>
-                                <span class="tp-wing-qid">${itemQ.uid}</span>
-                            </div>
-                            <div class="tp-wing-lines">
-                                <div class="tp-wing-line" style="width:75%;"></div>
-                                <div class="tp-wing-line" style="width:55%;"></div>
-                                <div class="tp-wing-line" style="width:65%;"></div>
-                            </div>
-                            <div style="font-size:10px; font-weight:700; color:#64748b;">${itemQ.year || ''}</div>
-                        </div>`;
-                });
-
-                // Next cards in cluster fan out to the RIGHT
-                const rightIndices = [];
-                for (let idx = currentPos + 1; idx <= Math.min(totalInCluster - 1, currentPos + 3); idx++) {
-                    rightIndices.push(idx);
-                }
-                rightIndices.forEach((cIdx, depthIdx) => {
-                    const depth = depthIdx + 1; // 1, 2, 3
-                    const angle = depth * 5.5;
-                    const shiftX = depth * 14;
-                    const shiftY = depth * 6;
-                    const zIdx = 9 - depth;
-                    const itemQ = clusterQuestions[cIdx];
-                    rightWingsHtml += `
-                        <div class="tp-fan-wing right-wing" 
-                             style="transform: translate(${shiftX}px, ${shiftY}px) rotate(${angle}deg); z-index: ${zIdx};"
-                             onclick="window.UD_jumpInCluster('${deckId}', ${cIdx})"
-                             title="Switch to ${itemQ.uid} (${cIdx + 1}/${totalInCluster})">
-                            <div>
-                                <span class="tp-wing-badge">${cIdx + 1}/${totalInCluster}</span>
-                                <span class="tp-wing-qid">${itemQ.uid}</span>
-                            </div>
-                            <div class="tp-wing-lines">
-                                <div class="tp-wing-line" style="width:75%;"></div>
-                                <div class="tp-wing-line" style="width:55%;"></div>
-                                <div class="tp-wing-line" style="width:65%;"></div>
-                            </div>
-                            <div style="font-size:10px; font-weight:700; color:#64748b;">${itemQ.year || ''}</div>
-                        </div>`;
-                });
-            }
-
-            // Build Expanded Teen Patti Mini-Cards Strip (when clicking 1/16)
-            let expandedStripHtml = '';
-            if (totalInCluster > 1 && window.tpFanExpanded) {
-                const miniCards = clusterQuestions.map((itemQ, cIdx) => {
-                    const plainStem = (itemQ.stem || '').replace(/<[^>]*>?/gm, '').substring(0, 65);
-                    return `
-                        <div class="tp-mini-card ${cIdx === currentPos ? 'active-mini' : ''}" onclick="window.UD_jumpInCluster('${deckId}', ${cIdx})">
-                            <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                    <span class="tp-wing-badge">${cIdx + 1}/${totalInCluster}</span>
-                                    <strong style="font-size:11px; color:#0f2b52;">${itemQ.uid}</strong>
-                                </div>
-                                <div style="font-size:11px; color:#334155; font-weight:600; line-height:1.35; margin-bottom:8px;">
-                                    ${plainStem}...
-                                </div>
-                            </div>
-                            <div style="font-size:10px; font-weight:800; color:#64748b; background:#f8fafc; padding:3px 6px; border-radius:4px; text-align:center;">
-                                ${itemQ.year || ''}
-                            </div>
-                        </div>`;
-                }).join('');
-                expandedStripHtml = `<div class="tp-expanded-drawer open">${miniCards}</div>`;
-            }
-
-            // Navigation Pill (< 1/16 >)
-            const navPillHtml = `
-                <div class="topic-nav-pill ${hasLinks ? 'has-links' : ''}">
-                    <button class="pill-arrow" onclick="window.UD_stepInCluster('${deckId}', -1)" ${currentPos <= 0 ? 'disabled' : ''} title="Directly show previous linked question">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <span class="pill-count" 
-                          onpointerdown="window.UD_pillPointerDown(event, '${baseAnchorUid}')"
-                          onpointerup="window.UD_pillPointerUp(event)"
-                          onpointerleave="window.UD_pillPointerUp(event)"
-                          oncontextmenu="if(window.isAdminUser){ event.preventDefault(); window.UD_openAdminLinkModal('${baseAnchorUid}'); }"
-                          onclick="window.UD_pillClickCount(event, '${baseAnchorUid}')"
-                          title="${window.isAdminUser ? 'Click: View all cards | Long-press / Right-click: Edit linked QIDs (Admin)' : 'Click to view all cards related to this topic'}">
-                        ${currentPos + 1}/${totalInCluster}
-                    </span>
-                    <button class="pill-arrow" onclick="window.UD_stepInCluster('${deckId}', 1)" ${currentPos >= totalInCluster - 1 ? 'disabled' : ''} title="Directly show next linked question">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    ${window.isAdminUser && isTopMainCard ? `
-                        <button class="pill-edit-admin" onclick="window.UD_openAdminLinkModal('${baseAnchorUid}')" title="Admin: Link Question IDs">
-                            <i class="fas fa-link"></i>
-                        </button>
-                    ` : ''}
-                </div>`;
-
-            // Question Image & Options
-            let imgHtml = displayQ.img ? `<a href="${displayQ.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${displayQ.img}')"><img src="${displayQ.img}" class="ud-img"></a>` : '';
-            let optsHtml = (displayQ.options || []).map((o, i) => {
-                let c = String.fromCharCode(65 + i);
-                let statusClass = '';
-                if (window.deckState.userStatus[displayQ.uid]) {
-                    if (c === displayQ.ans_key) statusClass = 'correct';
-                    else if (window.deckState.userStatus[displayQ.uid] === c) statusClass = 'wrong';
-                    else statusClass = 'disabled';
-                }
-                return `<div class="ud-option ${statusClass}" onclick="window.UD_checkAns(this,'${c}','${displayQ.ans_key}','${displayQ.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
-            }).join('');
-
-            // Topic Badges
-            let displayChapterHtml = "";
-            if (Array.isArray(displayQ.topic)) {
-                displayChapterHtml = displayQ.topic.map(t => {
-                    let name = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
-                    return `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; margin-bottom:5px; margin-right:5px; display:inline-block;">${name}</span>`;
-                }).join('');
-            } else {
-                let rawT = String(displayQ.topic || "General");
-                let name = rawT.includes(":") ? rawT.split(":")[1].trim() : (rawT.includes(".") ? rawT.split(".")[1].trim() : rawT);
-                displayChapterHtml = `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; display:inline-block;">${name}</span>`;
-            }
-
-            // Admin Switcher Bar (<- All Exam ->) only on Top Main Card for Admin
-            let adminSwitcherHtml = '';
-            if (window.isAdminUser && isTopMainCard) {
-                const modes = [
-                    { key: 'ALL', label: 'All Exam' },
-                    { key: 'neet-pg', label: 'NEET-PG' },
-                    { key: 'inicet', label: 'INI-CET' },
-                    { key: 'upsc-cms', label: 'CMS' },
-                    { key: 'fmge', label: 'FMGE' }
-                ];
-                adminSwitcherHtml = `
-                    <div class="admin-exam-switcher">
-                        <span style="font-size:10px; font-weight:800; color:#dc2626; text-transform:uppercase; margin-right:4px;">
-                            <i class="fas fa-user-shield"></i> Admin Filter:
-                        </span>
-                        ${modes.map(m => `
-                            <button class="admin-switch-btn ${window.adminTopFilterExam === m.key ? 'active' : ''}"
-                                    onclick="window.UD_setAdminTopExamFilter('${m.key}')">
-                                ${m.label}
-                            </button>
-                        `).join('')}
-                    </div>`;
-            }
-
-            const safeJson = JSON.stringify(displayQ).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-
-            return `
-                <div class="teen-patti-stage ${themeClass}">
-                    ${expandedStripHtml}
-                    <div style="position:relative;">
-                        ${leftWingsHtml}
-                        ${rightWingsHtml}
-                        <div class="ud-card">
-                            <div class="ud-card-top">
-                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                    <div class="ud-label" style="background:#0f2b52; color:white;">
-                                        ${isTopMainCard ? `Q. ${window.deckState.currentIndex + 1}` : displayQ.uid}
-                                    </div>
-                                    ${navPillHtml}
-                                </div>
-
-                                <div style="display:flex; gap:8px;">
-                                    ${window.userBookmarks.includes(displayQ.uid)
-                                        ? `<button class="ud-ai-btn" style="color: #16a34a; border-color: #bbf7d0; background: #f0fdf4;" onclick="window.toggleBookmark(this, '${displayQ.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-check" style="color: #16a34a;"></i> Saved</button>`
-                                        : `<button class="ud-ai-btn" style="background: transparent;" onclick="window.toggleBookmark(this, '${displayQ.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save</button>`
-                                    }
-                                    <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${safeJson})'><i class="fas fa-robot"></i> AI</button>
-                                    <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.currentQIDForReport='${displayQ.uid}'; window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
-                                </div>
-                            </div>
-
-                            <div class="ud-stem">${displayQ.stem}</div>
-                            ${imgHtml}
-                            <div class="ud-opts-container">${optsHtml}</div>
-
-                            ${adminSwitcherHtml}
-
-                            <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                                    <span class="ud-label" style="background:white; border: 1px solid #0f2b52; color:#0f2b52;">${displayQ.uid}</span>
-                                    ${displayChapterHtml}
-                                    <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${displayQ.year || ''}</span>
-                                </div>
-                                ${window.deckState.userStatus[displayQ.uid] ? `<button onclick="window.UD_resetAnswer('${displayQ.uid}')" style="background:none; border:none; color:#ef4444; font-size:0.8rem; font-weight:bold; cursor:pointer; text-decoration:underline;"><i class="fas fa-rotate-left"></i> Reset Question</button>` : ''}
-                            </div>
-
-                            <div id="ud-expl-box-${deckId}" style="display:${window.deckState.userStatus[displayQ.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;">
-                                <b>Explanation:</b><br>${displayQ.explanation || 'No explanation provided.'}
-                            </div>
-
-                            ${isTopMainCard ? `
-                                <div style="margin-top: 15px; display:${window.deckState.userStatus[displayQ.uid] ? 'block' : 'none'};">
-                                    <button onclick="window.UD_toggleComments('${displayQ.uid}')" style="background:#f8fafc; color:#0f2b52; border:1px solid #e2e8f0; padding:12px 15px; border-radius:8px; font-weight:bold; font-size:0.9rem; cursor:pointer; width:100%; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
-                                        <span><i class="fas fa-comments" style="color:#eebb4d; margin-right:8px; font-size:1.1rem;"></i> Peer Discussion & Mnemonics</span>
-                                        <i class="fas fa-chevron-down" style="color:#94a3b8;"></i>
-                                    </button>
-                                    <div id="ud-comments-box" style="display:none; margin-top:10px; border:1px solid #e2e8f0; border-radius:8px; padding:15px; background:white; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-                                        <div id="ud-comments-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px;">
-                                            <div style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 20px 0;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
-                                        </div>
-                                        <div style="display:flex; gap:10px;">
-                                            <input type="text" id="ud-comment-input" placeholder="Share a mnemonic or ask a doubt..." style="flex:1; padding:12px; border:1px solid #cbd5e1; border-radius:8px; outline:none; font-family:inherit; font-size:0.9rem;">
-                                            <button onclick="window.UD_postComment(event, '${displayQ.uid}')" style="background:#0f2b52; color:white; border:none; padding:0 20px; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;"><i class="fas fa-paper-plane"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                    ${bannerLabel ? `<div style="text-align:center; margin-top:14px;"><div class="exam-deck-banner ${bannerClass}">${bannerLabel}</div></div>` : ''}
-                </div>`;
-        }
-
-        window.UD_renderCard = function() {
+       window.UD_renderCard = function() {
             const area = document.getElementById('ud-card-area');
             if(!window.deckState.activeDb || window.deckState.activeDb.length === 0) { 
                 area.innerHTML = '<div style="text-align:center;margin-top:50px;color:#64748b; font-weight:bold;">No questions match filters.</div>'; 
@@ -2343,339 +1622,84 @@
                 return; 
             }
             
-            const anchorQ = window.deckState.activeDb[window.deckState.currentIndex];
-            window.currentQIDForReport = anchorQ.uid;
+            const q = window.deckState.activeDb[window.deckState.currentIndex];
+            window.currentQIDForReport = q.uid;
 
-            // 1. Resolve all cross-linked QIDs for this question
-            const allLinkedQIDs = window.getLinkedQIDsForQuestion(anchorQ);
-            const allLinkedObjects = allLinkedQIDs.map(qid => window.resolveQuestionByQID(qid));
-
-            // 2. Filter cluster for the Top Deck:
-            //    - Normal Users ONLY see linked questions belonging to their current selected exam (activeExam)
-            //    - Admin sees ALL linked questions (or filtered by window.adminTopFilterExam switcher)
-            let topCluster = [];
-            if (window.isAdminUser) {
-                if (window.adminTopFilterExam === 'ALL') {
-                    topCluster = allLinkedObjects;
-                } else {
-                    topCluster = allLinkedObjects.filter(item => window.getExamKeyFromQID(item.uid, item) === window.adminTopFilterExam);
-                    if (topCluster.length === 0) topCluster = [anchorQ];
+            let imgHtml = q.img ? `<a href="${q.img}" target="_blank" class="img-link" onclick="event.preventDefault(); openLightbox('${q.img}')"><img src="${q.img}" class="ud-img"></a>` : '';
+            let optsHtml = q.options.map((o,i) => {
+                let c = String.fromCharCode(65+i);
+                let statusClass = '';
+                
+                if (window.deckState.userStatus[q.uid]) {
+                    if (c === q.ans_key) statusClass = 'correct';
+                    else if (window.deckState.userStatus[q.uid] === c) statusClass = 'wrong';
+                    else statusClass = 'disabled';
                 }
-            } else {
-                topCluster = allLinkedObjects.filter(item => window.getExamKeyFromQID(item.uid, item) === activeExam);
-                if (topCluster.length === 0) topCluster = [anchorQ];
-            }
 
-            window.currentTopCluster = topCluster;
-
-            // Determine current position in topCluster
-            let topPos = topCluster.findIndex(item => String(item.uid).toUpperCase() === String(anchorQ.uid).toUpperCase());
-            if (window.isAdminUser && window.adminTopClusterPos >= 0 && window.adminTopClusterPos < topCluster.length) {
-                topPos = window.adminTopClusterPos;
-            } else if (topPos === -1) {
-                topPos = 0;
-            }
-
-            let finalHtml = buildTeenPattiDeckHTML({
-                deckId: 'TOP',
-                activeQ: anchorQ,
-                clusterQuestions: topCluster,
-                clusterIndex: topPos,
-                baseAnchorUid: anchorQ.uid,
-                themeClass: `theme-${activeExam}`,
-                isTopMainCard: true
-            });
-
-            // 3. ADMIN EXTENDED SCROLL-DOWN TEEN PATTI DECKS (NEET-PG, INI-CET, UPSC-CMS, FMGE)
-            if (window.isAdminUser) {
-                const examSections = [
-                    { key: 'neet-pg', label: 'NEETPG', theme: 'theme-neet-pg', banner: 'banner-neet-pg' },
-                    { key: 'inicet', label: 'INICET', theme: 'theme-inicet', banner: 'banner-inicet' },
-                    { key: 'upsc-cms', label: 'CMS', theme: 'theme-upsc-cms', banner: 'banner-upsc-cms' },
-                    { key: 'fmge', label: 'FMGE', theme: 'theme-fmge', banner: 'banner-fmge' }
-                ];
-
-                let adminStacksHtml = `
-                    <div style="max-width:820px; margin: 40px auto 15px auto; text-align:center; border-top: 2px dashed #cbd5e1; padding-top: 25px;">
-                        <span style="background:#0f2b52; color:#eebb4d; padding:6px 18px; border-radius:20px; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px;">
-                            <i class="fas fa-layer-group"></i> Admin Extended Multi-Exam Decks (Scroll Down)
-                        </span>
-                    </div>`;
-
-                examSections.forEach(sec => {
-                    const secCluster = allLinkedObjects.filter(item => window.getExamKeyFromQID(item.uid, item) === sec.key);
-                    if (secCluster.length > 0) {
-                        const pos = Math.min(window.adminDeckPositions[sec.key] || 0, secCluster.length - 1);
-                        adminStacksHtml += buildTeenPattiDeckHTML({
-                            deckId: sec.key,
-                            activeQ: secCluster[pos],
-                            clusterQuestions: secCluster,
-                            clusterIndex: pos,
-                            baseAnchorUid: anchorQ.uid,
-                            themeClass: sec.theme,
-                            isTopMainCard: false,
-                            bannerLabel: `${sec.label} (${secCluster.length})`,
-                            bannerClass: sec.banner
-                        });
-                    } else {
-                        adminStacksHtml += `
-                            <div style="max-width:780px; margin: 20px auto; background:white; border:2px dashed #cbd5e1; border-radius:16px; padding:20px; text-align:center; color:#94a3b8;">
-                                <div style="font-weight:800; font-size:0.9rem; margin-bottom:6px;">No ${sec.label} Questions Linked Yet</div>
-                                <button onclick="window.UD_openAdminLinkModal('${anchorQ.uid}')" style="background:#f1f5f9; color:#0f2b52; border:1px solid #cbd5e1; padding:6px 14px; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer;">
-                                    + Link ${sec.label} QIDs
-                                </button>
-                                <div style="margin-top:10px;"><div class="exam-deck-banner ${sec.banner}">${sec.label} (0)</div></div>
-                            </div>`;
-                    }
-                });
-
-                finalHtml += adminStacksHtml;
-            }
-
-            area.innerHTML = finalHtml;
-            document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
-        };
-
-        // Step (< or >) or Jump inside a Teen Patti Cluster
-        window.UD_stepInCluster = function(deckId, delta) {
-            if (deckId === 'TOP') {
-                const cluster = window.currentTopCluster || [];
-                if (cluster.length <= 1) return;
-                const anchorQ = window.deckState.activeDb[window.deckState.currentIndex];
-                let currPos = cluster.findIndex(item => String(item.uid).toUpperCase() === String(anchorQ.uid).toUpperCase());
-                if (window.isAdminUser) currPos = window.adminTopClusterPos;
-                if (currPos === -1) currPos = 0;
-                window.UD_jumpInCluster('TOP', currPos + delta);
-            } else {
-                window.adminDeckPositions[deckId] = Math.max(0, (window.adminDeckPositions[deckId] || 0) + delta);
-                window.UD_renderCard();
-            }
-        };
-
-        window.UD_jumpInCluster = function(deckId, targetClusterIndex) {
-            if (deckId === 'TOP') {
-                const cluster = window.currentTopCluster || [];
-                if (targetClusterIndex < 0 || targetClusterIndex >= cluster.length) return;
-                const targetQ = cluster[targetClusterIndex];
-                window.adminTopClusterPos = targetClusterIndex;
-
-                // If targetQ exists in current activeDb, sync main deck index to it!
-                const idxInActiveDb = window.deckState.activeDb.findIndex(
-                    q => String(q.uid).toUpperCase() === String(targetQ.uid).toUpperCase()
-                );
-                if (idxInActiveDb !== -1) {
-                    window.deckState.currentIndex = idxInActiveDb;
-                    window.saveCurrentIndex();
-                }
-                window.UD_renderCard();
-            } else {
-                window.adminDeckPositions[deckId] = targetClusterIndex;
-                window.UD_renderCard();
-            }
-        };
-
-        window.UD_setAdminTopExamFilter = function(examKey) {
-            window.adminTopFilterExam = examKey;
-            window.adminTopClusterPos = 0;
-            window.UD_renderCard();
-        };
-
-        // ====================================================
-        // NEW: ADMIN BIDIRECTIONAL / SYMMETRIC QID LINKING & 10-STEP UNDO
-        // ====================================================
-        window.currentAdminTriggerUid = "";
-
-        window.UD_openAdminLinkModal = function(triggerUid) {
-            if (!window.isAdminUser) return;
-            const normTrigger = String(triggerUid).trim().toUpperCase();
-            window.currentAdminTriggerUid = normTrigger;
-            document.getElementById('admin-link-trigger-qid').innerText = normTrigger;
-
-            const existingGroup = window.crossLinksMap[normTrigger] || [normTrigger];
-            document.getElementById('admin-link-input').value = existingGroup.join(', ');
-            window.UD_previewLinkedBadges();
-            window.UD_renderUndoHistory();
-            document.getElementById('admin-link-modal').style.display = 'flex';
-        };
-
-        // Parses comma/space/bracket separated QIDs cleanly
-        function parseQIDList(rawInput, ensureUid = null) {
-            const cleaned = String(rawInput || '')
-                .replace(/[\[\]]/g, '')
-                .split(/[\s,]+/)
-                .map(s => s.trim().toUpperCase())
-                .filter(Boolean);
-            if (ensureUid) {
-                const normEnsure = String(ensureUid).trim().toUpperCase();
-                if (normEnsure && !cleaned.includes(normEnsure)) {
-                    cleaned.unshift(normEnsure);
-                }
-            }
-            return [...new Set(cleaned)];
-        }
-
-        window.UD_previewLinkedBadges = function() {
-            const raw = document.getElementById('admin-link-input').value;
-            const list = parseQIDList(raw, window.currentAdminTriggerUid);
-            const previewEl = document.getElementById('admin-link-preview');
-
-            const badgeColors = {
-                'neet-pg': 'background:#dbeafe; color:#1d4ed8; border:1px solid #93c5fd;',
-                'inicet': 'background:#ffedd5; color:#c2410c; border:1px solid #fdba74;',
-                'upsc-cms': 'background:#fef9c3; color:#a16207; border:1px solid #fde047;',
-                'fmge': 'background:#dcfce7; color:#15803d; border:1px solid #86efac;'
-            };
-
-            previewEl.innerHTML = list.map(qid => {
-                const ex = window.getExamKeyFromQID(qid);
-                const style = badgeColors[ex] || badgeColors['neet-pg'];
-                return `<span style="${style} padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:800;">${qid} <small style="opacity:0.75;">(${ex.toUpperCase()})</small></span>`;
+                return `<div class="ud-option ${statusClass}" onclick="window.UD_checkAns(this,'${c}','${q.ans_key}','${q.uid}')"><div class="opt-char">${c}</div><div>${o}</div></div>`;
             }).join('');
-        };
-
-        // Saves the QID group symmetrically across EVERY QID in the group + records 10-step undo history
-        window.UD_saveLinkedQs = async function() {
-            if (!window.isAdminUser) return;
-            const btn = document.getElementById('btn-save-crosslinks');
-            const rawInput = document.getElementById('admin-link-input').value;
-            const triggerUid = window.currentAdminTriggerUid;
-            const newGroup = parseQIDList(rawInput, triggerUid);
-
-            if (newGroup.length === 0) {
-                alert("Please enter at least one Question ID.");
-                return;
+            
+            // === SMART MULTI-BADGE GENERATOR FOR DECK ===
+            let displayChapterHtml = "";
+            if (Array.isArray(q.topic)) {
+                displayChapterHtml = q.topic.map(t => {
+                    let name = t.includes(":") ? t.split(":")[1].trim() : (t.includes(".") ? t.split(".")[1].trim() : t);
+                    return `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; margin-bottom:5px; margin-right:5px; display:inline-block;">${name}</span>`;
+                }).join('');
+            } else {
+                let name = q.topic.includes(":") ? q.topic.split(":")[1].trim() : (q.topic.includes(".") ? q.topic.split(".")[1].trim() : q.topic);
+                displayChapterHtml = `<span class="ud-label" style="background:#e0f2fe;color:#0369a1; display:inline-block;">${name}</span>`;
             }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Linking All IDs...';
-            btn.disabled = true;
-
-            try {
-                const currentNodes = { ...(window.crossLinksMap || {}) };
-                const oldGroupForTrigger = currentNodes[triggerUid] || [];
-
-                // Collect every QID affected by this change (all IDs in newGroup + any IDs previously in oldGroupForTrigger)
-                const affectedQIDs = new Set([...newGroup, ...oldGroupForTrigger]);
-                newGroup.forEach(qid => {
-                    if (Array.isArray(currentNodes[qid])) {
-                        currentNodes[qid].forEach(existingId => affectedQIDs.add(existingId));
-                    }
-                });
-
-                // 1. Snapshot previous state of all affected QIDs for 10-step Undo
-                const previousState = {};
-                affectedQIDs.forEach(qid => {
-                    previousState[qid] = currentNodes[qid] ? [...currentNodes[qid]] : null;
-                });
-
-                // 2. If any QID was removed from the old group, clean it up so it no longer points to the group
-                oldGroupForTrigger.forEach(oldQid => {
-                    if (!newGroup.includes(oldQid)) {
-                        delete currentNodes[oldQid];
-                    }
-                });
-
-                // 3. SYMMETRIC / BIDIRECTIONAL MAPPING:
-                //    Every QID in `newGroup` (e.g. N3, N6, N9, IN56, F45, CMS34) receives the full `newGroup`!
-                //    So visiting N6, N9, IN56, F45, or CMS34 automatically has the complete mapping without re-adding!
-                if (newGroup.length === 1) {
-                    delete currentNodes[newGroup[0]];
-                } else {
-                    newGroup.forEach(qid => {
-                        currentNodes[qid] = [...newGroup];
-                    });
-                }
-
-                // 4. Add entry to 10-step Undo History
-                const historyEntry = {
-                    id: 'CHG_' + Date.now(),
-                    timestamp: Date.now(),
-                    admin: auth.currentUser?.email || 'Admin',
-                    triggerQid: triggerUid,
-                    newGroup: [...newGroup],
-                    previousState: previousState
-                };
-
-                const updatedHistory = [historyEntry, ...(window.crossLinksHistory || [])].slice(0, 10);
-
-                await set(ref(db, `cross_links/${activeSubject}`), {
-                    nodes: currentNodes,
-                    history: updatedHistory
-                });
-
-                document.getElementById('admin-link-modal').style.display = 'none';
-            } catch (err) {
-                console.error("Error saving cross-links:", err);
-                alert("Failed to save cross-links. Check console or network connection.");
-            } finally {
-                btn.innerHTML = 'Apply to All IDs';
-                btn.disabled = false;
-            }
-        };
-
-        window.UD_renderUndoHistory = function() {
-            const listEl = document.getElementById('admin-undo-list');
-            const countEl = document.getElementById('admin-history-count');
-            const hist = window.crossLinksHistory || [];
-            countEl.innerText = `${hist.length}/10`;
-
-            if (hist.length === 0) {
-                listEl.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.8rem; padding:12px;">No recent changes recorded.</div>';
-                return;
-            }
-
-            listEl.innerHTML = hist.map((item, idx) => {
-                const timeStr = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                const groupStr = (item.newGroup || []).join(', ');
-                return `
-                    <div class="undo-item">
-                        <div style="overflow:hidden;">
-                            <div style="font-weight:800; color:#0f2b52;">#${idx + 1} &bull; ${item.triggerQid} <span style="font-weight:500; color:#94a3b8;">(${timeStr})</span></div>
-                            <div style="color:#64748b; font-family:monospace; font-size:0.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${groupStr}">
-                                [${groupStr}]
-                            </div>
+            area.innerHTML = `
+            <div class="ud-card">
+                <div class="ud-card-top">
+                   <div class="ud-label" style="background:#0f2b52; color:white;">Q. ${window.deckState.currentIndex + 1}</div>
+                   
+                   <div style="display:flex; gap:8px;">
+                       ${window.userBookmarks.includes(q.uid)
+                            ? `<button class="ud-ai-btn" style="color: #16a34a; border-color: #bbf7d0; background: #f0fdf4;" onclick="window.toggleBookmark(this, '${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-check" style="color: #16a34a;"></i> Saved</button>`
+                            : `<button class="ud-ai-btn" style="background: transparent;" onclick="window.toggleBookmark(this, '${q.uid}', '${activeExam}', '${activeSubject}')"><i class="fas fa-bookmark" style="color: #eebb4d;"></i> Save</button>`
+                        }
+                       <button class="ud-ai-btn" onclick='window.UD_askAI_Global(${JSON.stringify(q).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'><i class="fas fa-robot"></i> AI</button>
+                       <button class="ud-ai-btn" style="color:#ef4444; border-color:#fee2e2; background:#fef2f2; padding:4px 8px;" onclick="window.UD_openReportModal()"><i class="fas fa-triangle-exclamation"></i></button>
+                   </div>
+               </div>
+                
+                <div class="ud-stem">${q.stem}</div>${imgHtml}
+                <div id="ud-opts">${optsHtml}</div>
+                
+                <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <span class="ud-label" style="background:white; border: 1px solid #0f2b52; color:#0f2b52;">${q.uid}</span>
+                        ${displayChapterHtml}
+                        <span class="ud-label" style="background:#f3e8ff;color:#7e22ce">${q.year}</span>
+                    </div>
+                    ${window.deckState.userStatus[q.uid] ? `<button onclick="window.UD_resetAnswer('${q.uid}')" style="background:none; border:none; color:#ef4444; font-size:0.8rem; font-weight:bold; cursor:pointer; text-decoration:underline;"><i class="fas fa-rotate-left"></i> Reset Question</button>` : ''}
+                </div>
+                
+                <div id="ud-expl-box" style="display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'}; margin-top:15px; background:#fffbeb; padding:15px; border-radius:12px; border:1px solid #fcd34d; font-size:14px; line-height:1.5;"><b>Explanation:</b><br>${q.explanation}</div>
+                
+                <div style="margin-top: 15px; display:${window.deckState.userStatus[q.uid] ? 'block' : 'none'};">
+                    <button onclick="window.UD_toggleComments('${q.uid}')" style="background:#f8fafc; color:#0f2b52; border:1px solid #e2e8f0; padding:12px 15px; border-radius:8px; font-weight:bold; font-size:0.9rem; cursor:pointer; width:100%; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
+                        <span><i class="fas fa-comments" style="color:#eebb4d; margin-right:8px; font-size:1.1rem;"></i> Peer Discussion & Mnemonics</span>
+                        <i class="fas fa-chevron-down" style="color:#94a3b8;"></i>
+                    </button>
+                    
+                    <div id="ud-comments-box" style="display:none; margin-top:10px; border:1px solid #e2e8f0; border-radius:8px; padding:15px; background:white; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                        <div id="ud-comments-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px;">
+                            <div style="text-align:center; color:#94a3b8; font-size:0.9rem; padding: 20px 0;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
                         </div>
-                        <button class="btn-undo-step" onclick="window.UD_undoCrossLinkChange('${item.id}')">
-                            <i class="fas fa-rotate-left"></i> Undo
-                        </button>
-                    </div>`;
-            }).join('');
-        };
-
-        window.UD_undoCrossLinkChange = async function(changeId) {
-            if (!window.isAdminUser) return;
-            const entry = (window.crossLinksHistory || []).find(h => h.id === changeId);
-            if (!entry) return;
-
-            if (!confirm(`Undo change on ${entry.triggerQid} and restore previous QID mappings?`)) return;
-
-            try {
-                const currentNodes = { ...(window.crossLinksMap || {}) };
-                const prev = entry.previousState || {};
-
-                Object.keys(prev).forEach(qid => {
-                    if (prev[qid] && Array.isArray(prev[qid]) && prev[qid].length > 1) {
-                        currentNodes[qid] = [...prev[qid]];
-                    } else {
-                        delete currentNodes[qid];
-                    }
-                });
-
-                const remainingHistory = (window.crossLinksHistory || []).filter(h => h.id !== changeId);
-
-                await set(ref(db, `cross_links/${activeSubject}`), {
-                    nodes: currentNodes,
-                    history: remainingHistory
-                });
-
-                // Refresh input box if still open
-                const refreshedGroup = currentNodes[window.currentAdminTriggerUid] || [window.currentAdminTriggerUid];
-                document.getElementById('admin-link-input').value = refreshedGroup.join(', ');
-                window.UD_previewLinkedBadges();
-                window.UD_renderUndoHistory();
-            } catch (err) {
-                console.error("Undo error:", err);
-                alert("Failed to undo change.");
-            }
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="ud-comment-input" placeholder="Share a mnemonic or ask a doubt..." style="flex:1; padding:12px; border:1px solid #cbd5e1; border-radius:8px; outline:none; font-family:inherit; font-size:0.9rem;">
+                            <button onclick="window.UD_postComment(event, '${q.uid}')" style="background:#0f2b52; color:white; border:none; padding:0 20px; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.getElementById('ud-counter').innerText = `${window.deckState.currentIndex + 1}/${window.deckState.activeDb.length}`;
+            area.scrollTop = 0; 
         };
 
         window.UD_checkAns = function(el, selectedOption, correctOption, id) {
@@ -2739,24 +1763,8 @@
             }
         };
 
-        window.UD_next = function() {
-            if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){
-                window.deckState.currentIndex++;
-                window.adminTopClusterPos = -1;
-                window.UD_renderCard();
-                window.saveCurrentIndex();
-                document.getElementById('ud-card-area').scrollTop = 0;
-            }
-        };
-        window.UD_prev = function() {
-            if(window.deckState.currentIndex > 0){
-                window.deckState.currentIndex--;
-                window.adminTopClusterPos = -1;
-                window.UD_renderCard();
-                window.saveCurrentIndex();
-                document.getElementById('ud-card-area').scrollTop = 0;
-            }
-        };
+        window.UD_next = function() { if(window.deckState.currentIndex < window.deckState.activeDb.length - 1){ window.deckState.currentIndex++; window.UD_renderCard(); window.saveCurrentIndex(); } };
+        window.UD_prev = function() { if(window.deckState.currentIndex > 0){ window.deckState.currentIndex--; window.UD_renderCard(); window.saveCurrentIndex(); } };
 
         window.UD_toggleDrawer = function(id) { 
             if(id === 'nav') {
@@ -2776,13 +1784,7 @@
             document.getElementById('ud-'+id+'-drawer').classList.add('open'); 
         };
         
-        window.UD_navJump = function(i) {
-            window.deckState.currentIndex = i;
-            window.adminTopClusterPos = -1;
-            window.UD_closeDrawers();
-            window.UD_renderCard();
-            window.saveCurrentIndex();
-        };
+        window.UD_navJump = function(i) { window.deckState.currentIndex = i; window.UD_closeDrawers(); window.UD_renderCard(); window.saveCurrentIndex(); };
         window.UD_closeDrawers = function() { document.querySelectorAll('.ud-drawer').forEach(d => d.classList.remove('open')); };
 
         window.UD_toggleComments = async function(q_id) {
@@ -2970,12 +1972,11 @@
                 setTimeout(() => { iframe.remove(); form.remove(); }, 1000);
             }, 1000);
         };
-
-        // --- BLOCK NATIVE BROWSER IMAGE OPTIONS FOR NON-ADMINS ---
+// --- BLOCK NATIVE BROWSER IMAGE OPTIONS FOR NON-ADMINS ---
         document.addEventListener('contextmenu', function(e) {
             if (e.target && (e.target.tagName.toLowerCase() === 'img' || e.target.classList.contains('img-link'))) {
                 if (!window.isAdminUser) {
-                    e.preventDefault();
+                    e.preventDefault(); // Blocks right-click menu for users
                 }
             }
         }, false);
@@ -2983,56 +1984,58 @@
         document.addEventListener('dragstart', function(e) {
             if (e.target && (e.target.tagName.toLowerCase() === 'img' || e.target.classList.contains('img-link'))) {
                 if (!window.isAdminUser) {
-                    e.preventDefault();
+                    e.preventDefault(); // Blocks click-and-drag to desktop for users
                 }
             }
         }, false);
     </script>
 
     <!-- Image Lightbox Overlay -->
-    <div id="lightbox" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; touch-action:none;">
-        <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:white; font-size:30px; cursor:pointer;">&times;</button>
-        <img id="lightbox-img" style="max-width:90%; max-height:80%; object-fit:contain; cursor:grab;">
-    </div>
+<div id="lightbox" style="display:none; position:fixed; inset:0; z-index:9999999; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; touch-action:none;">
+    <button onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:white; font-size:30px; cursor:pointer;">&times;</button>
+    <img id="lightbox-img" style="max-width:90%; max-height:80%; object-fit:contain; cursor:grab;">
+</div>
 
-    <script>
-        const lb = document.getElementById('lightbox');
-        const img = document.getElementById('lightbox-img');
-        let scale = 1;
-        let startDist = 0;
+<script>
+    const lb = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    let scale = 1;
+    let startDist = 0;
 
-        function openLightbox(imgSrc) {
-            img.src = imgSrc;
-            scale = 1;
-            img.style.transform = `scale(1) translate(0px, 0px)`;
-            lb.style.display = 'flex';
+    function openLightbox(imgSrc) {
+        img.src = imgSrc;
+        scale = 1;
+        img.style.transform = `scale(1) translate(0px, 0px)`;
+        lb.style.display = 'flex';
+    }
+
+    // Handle Pinch Zoom on Mobile
+    lb.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            startDist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
         }
+    });
 
-        lb.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-                startDist = Math.hypot(
-                    e.touches[0].pageX - e.touches[1].pageX,
-                    e.touches[0].pageY - e.touches[1].pageY
-                );
-            }
-        });
+    lb.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            let newDist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+            scale = Math.min(Math.max(1, scale * (newDist / startDist)), 4);
+            img.style.transform = `scale(${scale})`;
+            startDist = newDist;
+        }
+    }, { passive: false });
 
-        lb.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2) {
-                e.preventDefault();
-                let newDist = Math.hypot(
-                    e.touches[0].pageX - e.touches[1].pageX,
-                    e.touches[0].pageY - e.touches[1].pageY
-                );
-                scale = Math.min(Math.max(1, scale * (newDist / startDist)), 4);
-                img.style.transform = `scale(${scale})`;
-                startDist = newDist;
-            }
-        }, { passive: false });
-
-        lb.addEventListener('click', (e) => {
-            if(e.target === lb) lb.style.display = 'none';
-        });
-    </script>
+    // Close on background click
+    lb.addEventListener('click', (e) => {
+        if(e.target === lb) lb.style.display = 'none';
+    });
+</script>
 </body>
-</html>
+                                                              </html
